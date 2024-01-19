@@ -1,7 +1,7 @@
+use itertools::Itertools;
 use serde_json::Value;
 use std::collections::BTreeMap;
-use std::time::{SystemTime, UNIX_EPOCH};
-use itertools::Itertools; // Add this import for step 1
+use std::time::{SystemTime, UNIX_EPOCH}; // Add this import for step 1
 
 use std::error::Error;
 
@@ -36,7 +36,10 @@ pub fn build_request(parameters: BTreeMap<String, String>) -> String {
 /// # Returns
 ///
 /// A Result containing the built signed request string if successful, or an error if any.
-pub fn build_signed_request(parameters: BTreeMap<String, String>, recv_window: u64) -> Result<String, Box<dyn Error>> {
+pub fn build_signed_request(
+    parameters: BTreeMap<String, String>,
+    recv_window: u64,
+) -> Result<String, Box<dyn Error>> {
     // Get the current time.
     let start = SystemTime::now();
     // Call the build_signed_request_custom function with the given parameters, receive window, and start time.
@@ -54,14 +57,22 @@ pub fn build_signed_request(parameters: BTreeMap<String, String>, recv_window: u
 /// # Returns
 ///
 /// A Result containing the built signed request string if successful, or an error if any.
-pub fn build_signed_request_custom(mut parameters: BTreeMap<String, String>, recv_window: u64, start: SystemTime) -> Result<String, Box<dyn Error>> {
+pub fn build_signed_request_custom(
+    mut parameters: BTreeMap<String, String>,
+    recv_window: u64,
+    start: SystemTime,
+) -> Result<String, Box<dyn Error>> {
     // If the receive window is greater than 0, insert the "recvWindow" parameter with its value into the parameters map.
     if recv_window > 0 {
-        parameters.entry("recvWindow".into()).or_insert_with(|| recv_window.to_string());
+        parameters
+            .entry("recvWindow".into())
+            .or_insert_with(|| recv_window.to_string());
     }
     // Get the current timestamp and insert it into the parameters map.
-    let timestamp = get_timestamp(start)?;
-    parameters.entry("timestamp".into()).or_insert_with(|| timestamp.to_string());
+    let timestamp: u64 = get_timestamp(start)?;
+    parameters
+        .entry("timestamp".into())
+        .or_insert_with(|| timestamp.to_string());
 
     // Build the request string using the build_request function.
     Ok(build_request(parameters))
@@ -104,11 +115,12 @@ pub fn to_u64(value: &Value) -> u64 {
 /// # Returns
 ///
 /// A Result containing the timestamp in milliseconds if successful, or an error if any.
-fn get_timestamp(start: SystemTime) -> Result<u64, Box<dyn Error>> {
+pub fn get_timestamp(start: SystemTime) -> Result<u64, Box<dyn Error>> {
     // Calculate the duration between the start time and the UNIX epoch,
     // convert the duration to milliseconds,
     // and return the result.
-    start.duration_since(UNIX_EPOCH)
+    start
+        .duration_since(UNIX_EPOCH)
         .map(|since_epoch| since_epoch.as_millis() as u64)
         .map_err(Into::into)
 }
