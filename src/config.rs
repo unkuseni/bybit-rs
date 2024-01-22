@@ -4,8 +4,6 @@ use std::borrow::Cow;
 pub struct Config {
     pub rest_api_endpoint: Cow<'static, str>,
     pub ws_endpoint: Cow<'static, str>,
-    pub futures_rest_api_endpoint: Cow<'static, str>,
-    pub futures_ws_endpoint: Cow<'static, str>,
     pub private_ws_endpoint: Cow<'static, str>,
     pub recv_window: u64,
 }
@@ -13,10 +11,8 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            rest_api_endpoint: Cow::Borrowed("https://api.bybit.com/v5"),
-            futures_rest_api_endpoint: Cow::Borrowed("https://api.bybit.com/v5"),
-            ws_endpoint: Cow::Borrowed("wss://stream.bybit.com/v5/public/spot"),
-            futures_ws_endpoint: Cow::Borrowed("wss://stream.bybit.com/v5/public/linear"),
+            rest_api_endpoint: Cow::Borrowed("https://api.bybit.com"),
+            ws_endpoint: Cow::Borrowed("wss://stream.bybit.com/v5/public"),
             private_ws_endpoint: Cow::Borrowed("wss://stream.bybit.com/v5/private"),
             recv_window: 5000,
         }
@@ -26,10 +22,8 @@ impl Default for Config {
 impl Config {
     pub fn testnet() -> Self {
         Self::default()
-            .set_rest_api_endpoint("https://api-testnet.bybit.com/v5")
-            .set_futures_rest_api_endpoint("https://api-testnet.bybit.com/v5")
-            .set_ws_endpoint("wss://stream-testnet.bybit.com/v5/public/spot")
-            .set_futures_ws_endpoint("wss://stream-testnet.bybit.com/v5/public/linear")
+            .set_rest_api_endpoint("https://api-testnet.bybit.com")
+            .set_ws_endpoint("wss://stream-testnet.bybit.com/v5/public")
             .set_private_ws_endpoint("wss://stream-testnet.bybit.com/v5/private")
     }
 
@@ -38,18 +32,8 @@ impl Config {
         self
     }
 
-    pub fn set_futures_rest_api_endpoint<T: Into<Cow<'static, str>>>(mut self, futures_rest_api_endpoint: T) -> Self {
-        self.futures_rest_api_endpoint = futures_rest_api_endpoint.into();
-        self
-    }
-
     pub fn set_ws_endpoint<T: Into<Cow<'static, str>>>(mut self, ws_endpoint: T) -> Self {
         self.ws_endpoint = ws_endpoint.into();
-        self
-    }
-
-    pub fn set_futures_ws_endpoint<T: Into<Cow<'static, str>>>(mut self, futures_ws_endpoint: T) -> Self {
-        self.futures_ws_endpoint = futures_ws_endpoint.into();
         self
     }
 

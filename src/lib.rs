@@ -3,4 +3,6 @@ pub mod errors;
 pub mod config;
 pub mod model;
 pub mod api;
+pub mod general;
 pub mod client;
+pub mod market;

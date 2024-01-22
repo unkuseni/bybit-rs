@@ -1,15 +1,9 @@
 use crate::client::Client;
-use crate::config::Config;
+use crate::config::{self, Config};
+use crate::general::General;
+use crate::market::MarketData;
 
 pub enum API {
-    Spot(Spot),
-    Linear(Linear),
-    Inverse(Inverse),
-    Option(Option),
-}
-/// Bybit Endpoints
-
-pub enum Spot {
     Market(Market),
     Trade(Trade),
     Position(Position),
@@ -18,30 +12,9 @@ pub enum Spot {
     SpotLeverage(SpotLeverage),
     SpotMargin(SpotMargin),
 }
+/// Bybit Endpoints
 
-pub enum Linear {
-    Market(Market),
-    Trade(Trade),
-    Position(Position),
-    Account(Account),
-    Asset(Asset),
-}
-pub enum Inverse {
-    Market(Market),
-    Trade(Trade),
-    Position(Position),
-    Account(Account),
-    Asset(Asset),
-}
-pub enum Option {
-    Market(Market),
-    Trade(Trade),
-    Position(Position),
-    Account(Account),
-    Asset(Asset),
-}
-
-enum Market {
+pub enum Market {
     Time,
     Kline,
     MarkPriceKline,
@@ -50,7 +23,6 @@ enum Market {
     InstrumentsInfo,
     OrderBook,
     Tickers,
-    Trades,
     FundingRate,
     RecentTrades,
     OpenInterest,
@@ -61,7 +33,7 @@ enum Market {
     LongShortRatio,
 }
 
-enum Trade {
+pub enum Trade {
     Place,
     Amend,
     Cancel,
@@ -72,9 +44,10 @@ enum Trade {
     BatchAmend,
     BatchCancel,
     SpotBorrowCheck,
+    SetDisconnectCancelall,
 }
 
-enum Position {
+pub enum Position {
     Information,
     SetLeverage,
     SetRiskLimit,
@@ -85,20 +58,29 @@ enum Position {
     AddorReduceMargin,
     ClosedPnl,
     History,
+    MovePosition,
+    MovePositionHistory,
 }
 
-enum Account {
+pub enum Account {
     Balance,
     UpgradetoUTA,
     BorrowHistory,
+    RepayLiability,
+    SetCollateral,
+    BatchSetCollateral,
     CollateralInfo,
     CoinGreeks,
+    FeeRate,
     Information,
     TransactionLog,
-    SetMarginMode
+    SetMarginMode,
+    SMPGroupID,
+    SetSpotHedging,
 }
 
-enum Asset {
+pub enum Asset {
+    CoinExchangeRecord,
     DeliveryRecord,
     SettlementRecord,
     Intertransfer,
@@ -121,151 +103,161 @@ enum Asset {
     OrderRecord,
 }
 
-enum SpotLeverage {
+pub enum SpotLeverage {
     Info,
-    Reference,
+    Marketinfo,
     Purchase,
     Redeem,
-    OrderRecord
+    OrderRecord,
 }
 
-enum SpotMargin {
+pub enum SpotMargin {
     SwitchMode,
     SetLeverage,
-    SetPledgeToken
+    MarginCoinInfo,
+    State,
+    BorrowableCoin,
+    LoanInfo,
+    LoanAccountInfo,
+    Borrow,
+    Repay,
+    BorrowOrderDetail,
+    RepayOrderDetail,
+    ClassicMarginTogggle,
 }
 
 impl From<API> for String {
     fn from(item: API) -> Self {
         String::from(match item {
-            API::Spot(Segment) => match Segment {
-                Spot::Market(route) => match route {
-                    Market::Time => "/v5/market/time?",
-                    Market::Insurance => "/v5/market/insurance?",
-                    Market::Kline => "/v5/market/kline?catergory=spot&",
-                    Market::InstrumentsInfo => "/v5/market/instruments-info?category=spot&",
-                    Market::OrderBook => "/v5/market/orderbook?category=spot&",
-                    Market::Tickers => "/v5/market/tickers?category=spot&",
-                    Market::RecentTrades => "/v5/market/trades?category=spot&",
-                    _ => Err("Endpoint does not exist".to_string()),
-                },
-                Spot::Order(route) => match route {
-                    Trade::Place => "/v5/order/create?",
-                    Trade::Amend => "/v5/order/amend?",
-                    Trade::Cancel => "/v5/order/cancel?",
-                    Trade::OpenOrders => "/v5/order/realtime?category=spot&",
-                    Trade::CancelAll => "/v5/order/cancel-all?",
-                    Trade::History => "/v5/order/history?category=spot&",
-                },
-                Spot::Position(route) => match route {
-                    Position::History => "/v5/execution/list?category=spot&",
-                },
-                Spot::Account(route) => match route {},
-                Spot::Asset(route) => match route {},
-                Spot::SpotLeverage(route) => match route {},
-                Spot::SpotMargin(route) => match route {},
+            API::Market(route) => match route {
+                Market::Time => "/v5/market/time",
+                Market::Insurance => "/v5/market/insurance",
+                Market::Kline => "/v5/market/kline",
+                Market::MarkPriceKline => "/v5/market/mark-price-kline",
+                Market::IndexPriceKline => "/v5/market/index-price-kline",
+                Market::PremiumIndexPriceKline => "/v5/market/premium-index-price-kline",
+                Market::InstrumentsInfo => "/v5/market/instruments-info",
+                Market::OrderBook => "/v5/market/orderbook",
+                Market::Tickers => "/v5/market/tickers",
+                Market::RecentTrades => "/v5/market/recent-trade",
+                Market::FundingRate => "/v5/market/funding/history",
+                Market::OpenInterest => "/v5/market/open-interest",
+                Market::HistoricalVolatility => "/v5/market/historical-volatility",
+                Market::RiskLimit => "/v5/market/risk-limit",
+                Market::DeliveryPrice => "/v5/market/delivery-price",
+                Market::LongShortRatio => "/v5/market/account-ratio",
             },
-            API::Linear(Segment) => match Segment {
-                Linear::Market(route) => match route {
-                    Market::Time => "/v5/market/time?",
-                    Market::Insurance => "/v5/market/insurance?",
-                    Market::Kline => "/v5/market/kline?category=linear&",
-                    Market::MarkPriceKline => "/v5/market/mark-price-kline?category=linear&",
-                    Market::IndexPriceKline => "/v5/market/index-price-kline?category=linear&",
-                    Market::PremiumIndexPriceKline => {
-                        "/v5/market/premium-index-price-kline?category=linear&"
-                    }
-                    Market::InstrumentsInfo => "/v5/market/instruments-info?category=linear&",
-                    Market::OrderBook => "/v5/market/orderbook?category=linear&",
-                    Market::Tickers => "/v5/market/tickers?category=linear&",
-                    Market::FundingRate => "/v5/market/funding/history?category=linear&",
-                    Market::RecentTrades => "/v5/market/recent-trades?category=linear&",
-                    Market::OpenInterest => "/v5/market/open-interest?category=linear&",
-                    Market::RiskLimit => "/v5/market/risk-limit?category=linear&",
-                    Market::DeliveryPrice => "/v5/market/delivery-price?category=linear&",
-                    Market::LongShortRatio => "/v5/market/account-ratio?category=linear&",
-                    _ => Err("Endpoint does not exist".to_string()),
-                },
-                Linear::Order(route) => match route {
-                    Trade::Place => "/v5/order/create?",
-                    Trade::Amend => "/v5/order/amend?",
-                    Trade::Cancel => "/v5/order/cancel?",
-                    Trade::OpenOrders => "/v5/order/realtime?category=linear&",
-                    Trade::CancelAll => "/v5/order/cancel-all?",
-                    Trade::History => "/v5/order/history?category=linear&",
-                    Trade::BatchPlace => "/v5/order/create-batch?",
-                    Trade::BatchAmend => "/v5/order/amend-batch?",
-                    Trade::BatchCancel => "/v5/order/cancel-batch?",
-                },
-                Linear::Position(route) => match route {
-                    Position::History => "/v5/execution/list?category=linear&",
-                },
-                Linear::Account(route) => match route {},
-                Linear::Asset(route) => match route {},
+            API::Trade(route) => match route {
+                Trade::Place => "/v5/order/create",
+                Trade::Amend => "/v5/order/amend",
+                Trade::Cancel => "/v5/order/cancel",
+                Trade::OpenOrders => "/v5/order/realtime",
+                Trade::CancelAll => "/v5/order/cancel-all",
+                Trade::History => "/v5/order/history",
+                Trade::BatchPlace => "/v5/order/create-batch",
+                Trade::BatchAmend => "/v5/order/amend-batch",
+                Trade::BatchCancel => "/v5/order/cancel-batch",
+                Trade::SpotBorrowCheck => "/v5/order/spot-borrow-check",
+                Trade::SetDisconnectCancelall => "/v5/order/disconnected-cancel-all",
             },
-            API::Inverse(Segment) => match Segment {
-                Inverse::Market(route) => match route {
-                    Market::Time => "/v5/market/time?",
-                    Market::Insurance => "/v5/market/insurance?",
-                    Market::Kline => "/v5/market/kline?category=inverse&",
-                    Market::MarkPriceKline => "/v5/market/mark-price-kline?category=inverse&",
-                    Market::IndexPriceKline => "/v5/market/index-price-kline?category=inverse&",
-                    Market::InstrumentsInfo => "/v5/market/instruments-info?category=inverse&",
-                    Market::OrderBook => "/v5/market/orderbook?category=inverse&",
-                    Market::Tickers => "/v5/market/tickers?category=inverse&",
-                    Market::FundingRate => "/v5/market/funding/history?category=inverse&",
-                    Market::RecentTrades => "/v5/market/recent-trades?category=inverse&",
-                    Market::OpenInterest => "/v5/market/open-interest?category=inverse&",
-                    Market::RiskLimit => "/v5/market/risk-limit?category=inverse&",
-                    Market::DeliveryPrice => "/v5/market/delivery-price?category=inverse&",
-                    Market::LongShortRatio => "/v5/market/account-ratio?category=inverse&",
-                    _ => Err("Endpoint does not exist".to_string()),
-                },
-                Inverse::Order(route) => match route {
-                    Trade::Place => "/v5/order/create?",
-                    Trade::Amend => "/v5/order/amend?",
-                    Trade::Cancel => "/v5/order/cancel?",
-                    Trade::OpenOrders => "/v5/order/realtime?category=inverse&",
-                    Trade::CancelAll => "/v5/order/cancel-all?",
-                    Trade::History => "/v5/order/history?category=inverse&",
-                },
-                Inverse::Position(route) => match route {
-                    Position::History => "/v5/execution/list?category=inverse&",
-                },
-                Inverse::Account(route) => match route {},
-                Inverse::Asset(route) => match route {},
+            API::Position(route) => match route {
+                Position::History => "/v5/execution/list",
+                Position::Information => "/v5/position/list",
+                Position::SetLeverage => "/v5/position/set-leverage",
+                Position::SwitchIsolated => "/v5/position/switch-isolated",
+                Position::SwitchMode => "/v5/position/switch-mode",
+                Position::SetRiskLimit => "/v5/position/set-risk-limit",
+                Position::SetTradingStop => "/v5/position/trading-stop",
+                Position::SetAutoaddMargin => "/v5/position/set-auto-add-margin",
+                Position::AddorReduceMargin => "/v5/position/add-margin",
+                Position::ClosedPnl => "/v5/position/closed-pnl",
+                Position::MovePosition => "/v5/position/move-positions",
+                Position::MovePositionHistory => "/v5/position/move-history",
             },
-            API::Option(Segment) => match Segment {
-                Option::Market(route) => match route {
-                    Market::Time => "/v5/market/time?",
-                    Market::Insurance => "/v5/market/insurance?",
-                    Market::InstrumentsInfo => "/v5/market/instruments-info?category=option&",
-                    Market::OrderBook => "/v5/market/orderbook?category=option&",
-                    Market::Tickers => "/v5/market/tickers?category=option&",
-                    Market::RecentTrades => "/v5/market/trades?category=option&",
-                    Market::HistoricalVolatility => {
-                        "/v5/market/historical-volatility?category=option&"
-                    }
-                    Market::DeliveryPrice => "/v5/market/delivery-price?category=option&",
-                    _ => Err("Endpoint does not exist".to_string()),
-                },
-                Option::Order(route) => match route {
-                    Trade::Place => "/v5/order/create?",
-                    Trade::Amend => "/v5/order/amend?",
-                    Trade::Cancel => "/v5/order/cancel?",
-                    Trade::OpenOrders => "/v5/order/realtime?category=option&",
-                    Trade::CancelAll => "/v5/order/cancel-all?",
-                    Trade::History => "/v5/order/history?category=option&",
-                    Trade::BatchPlace => "/v5/order/create-batch?",
-                    Trade::BatchAmend => "/v5/order/amend-batch?",
-                    Trade::BatchCancel => "/v5/order/cancel-batch?",
-                },
-                Option::Position(route) => match route {
-                    Position::History  => "/v5/execution/list?category=option&",
-                },
-                Option::Account(route) => match route {},
-                Option::Asset(route) => match route {},
+            API::Account(route) => match route {
+                Account::Balance => "/v5/account/wallet-balance",
+                Account::UpgradetoUTA => "/v5/account/upgrade-to-uta",
+                Account::BorrowHistory => "/v5/account/borrow-history",
+                Account::RepayLiability => "/v5/account/quick-repayment",
+                Account::SetCollateral => "/v5/account/set-collateral-switch",
+                Account::BatchSetCollateral => "/v5/account/set-collateral-switch-batch",
+                Account::CollateralInfo => "/v5/account/collateral-info",
+                Account::CoinGreeks => "/v5/asset/coin-greeks",
+                Account::FeeRate => "/v5/account/fee-rate",
+                Account::Information => "/v5/account/info",
+                Account::TransactionLog => "/v5/account/transaction-log",
+                Account::SMPGroupID => "/v5/account/smp-group",
+                Account::SetMarginMode => "/v5/aaccount/set-margin-mode",
+                Account::SetSpotHedging => "/v5/account/set-hedging-mode",
+            },
+            API::Asset(route) => match route {
+                Asset::CoinExchangeRecord => "/v5/asset/exchange/order-record",
+                Asset::DeliveryRecord => "/v5/asset/delivery-record",
+                Asset::SettlementRecord => "/v5/asset/settlement-record",
+            },
+            API::SpotLeverage(route) => match route {
+                SpotLeverage::Info => "/v5/spot-lever-token/info",
+                SpotLeverage::Marketinfo => "v5/spot-lever-token/reference",
+                SpotLeverage::Purchase => "/v5/spot-lever-token/purchase",
+                SpotLeverage::Redeem => "/v5/spot-lever-token/redeem",
+                SpotLeverage::OrderRecord => "/v5/spot-lever-token/order-record",
+            },
+            API::SpotMargin(route) => match route {
+                SpotMargin::SwitchMode => "/v5/spot-margin-trade/switch-mode",
+                SpotMargin::SetLeverage => "/v5/spot-margin-trade/set-leverage",
+                SpotMargin::State => "/v5/spot-margin-trade/state",
+                SpotMargin::MarginCoinInfo => "/v5/spot-cross-margin-trade/pledge-token",
+                SpotMargin::BorrowableCoin => "/v5/spot-cross-margin-trade/borrow-token",
+                SpotMargin::LoanInfo => "/v5/spot-cross-margin-trade/loan",
+                SpotMargin::LoanAccountInfo => "/v5/spot-cross-margin-trade/account",
+                SpotMargin::Borrow => "/v5/spot-cross-margin-trade/loan",
+                SpotMargin::Repay => "/v5/spot-cross-margin-trade/repay",
+                SpotMargin::BorrowOrderDetail => "/v5/spot-cross-margin-trade/orders",
+                SpotMargin::RepayOrderDetail => "/v5/spot-cross-margin-trade/repay-history",
+                SpotMargin::ClassicMarginTogggle => "/v5/spot-cross-margin-trade/switch",
             },
         })
+    }
+}
+
+pub trait Bybit {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> Self;
+
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> Self;
+}
+
+impl Bybit for General {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> General {
+        Self::new_with_config(api_key, secret_key, &Config::default())
+    }
+
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> General {
+        General {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+        }
+    }
+}
+
+impl Bybit for MarketData {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> MarketData {
+        Self::new_with_config(api_key, secret_key, &Config::default())
+    }
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> MarketData {
+        MarketData {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            recv_window: config.recv_window,
+        }
     }
 }
