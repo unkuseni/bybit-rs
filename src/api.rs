@@ -1,5 +1,5 @@
 use crate::client::Client;
-use crate::config::{self, Config};
+use crate::config::Config;
 use crate::general::General;
 use crate::market::MarketData;
 
@@ -194,6 +194,10 @@ impl From<API> for String {
                 Asset::CoinExchangeRecord => "/v5/asset/exchange/order-record",
                 Asset::DeliveryRecord => "/v5/asset/delivery-record",
                 Asset::SettlementRecord => "/v5/asset/settlement-record",
+
+                _ => {
+                    todo!("Asset route not implemented");
+                }
             },
             API::SpotLeverage(route) => match route {
                 SpotLeverage::Info => "/v5/spot-lever-token/info",
@@ -232,7 +236,7 @@ pub trait Bybit {
 
 impl Bybit for General {
     fn new(api_key: Option<String>, secret_key: Option<String>) -> General {
-        Self::new_with_config(api_key, secret_key, &Config::default())
+        Self::new_with_config(&Config::default(), api_key, secret_key)
     }
 
     fn new_with_config(
@@ -248,7 +252,7 @@ impl Bybit for General {
 
 impl Bybit for MarketData {
     fn new(api_key: Option<String>, secret_key: Option<String>) -> MarketData {
-        Self::new_with_config(api_key, secret_key, &Config::default())
+        Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,

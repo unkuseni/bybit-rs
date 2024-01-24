@@ -26,5 +26,6 @@ error_chain! {
         Json(serde_json::Error);
         Tungstenite(tungstenite::Error);
         TimestampError(std::time::SystemTimeError);
+        SerdeError(serde::de::value::Error);
     }
 }
