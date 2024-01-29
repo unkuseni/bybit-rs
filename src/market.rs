@@ -2,20 +2,9 @@ use crate::api::{Market, API};
 use crate::client::Client;
 use crate::errors::Result;
 use crate::model::{
-    Category, DeliveryPriceResponse, DeliveryPriceSummary, FundingHistoryRequest, FundingRate,
-    FundingRateResponse, FuturesInstrument, FuturesInstrumentsInfoResponse, FuturesTicker,
-    FuturesTickersResponse, HistoricalVolatility, HistoricalVolatilityRequest,
-    HistoricalVolatilityResponse, IndexPriceKlineResponse, IndexPriceKlineSummary,
-    InstrumentRequest, InsuranceResponse, InsuranceSummary, KlineRequest, KlineResponse,
-    KlineSummary, LongShortRatioResponse, LongShortRatioSummary, MarkPriceKlineResponse,
-    MarkPriceKlineSummary, OpenInterestRequest, OpenInterestSummary, OpeninterestResponse,
-    OptionsInstrument, OrderBook, OrderBookResponse, OrderbookRequest,
-    PremiumIndexPriceKlineResponse, PremiumIndexPriceKlineSummary, RecentTrades,
-    RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse,
-    RiskLimitSummary, SpotInstrument, SpotInstrumentsInfoResponse, SpotTicker, SpotTickersResponse,
+    Category, DeliveryPriceResponse, DeliveryPriceSummary, FundingHistoryRequest, FundingRate, FundingRateResponse, FuturesInstrument, FuturesInstrumentsInfoResponse, FuturesTicker, FuturesTickersResponse, HistoricalVolatility, HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse, IndexPriceKlineSummary, InstrumentRequest, InsuranceResponse, InsuranceSummary, KlineRequest, KlineResponse, KlineSummary, LongShortRatioResponse, LongShortRatioSummary, MarkPriceKlineResponse, MarkPriceKlineSummary, OpenInterestRequest, OpenInterestSummary, OpeninterestResponse, OptionsInstrument, OrderBook, OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, PremiumIndexPriceKlineSummary, RecentTrades, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, RiskLimitSummary, SpotInstrument, SpotInstrumentsInfoResponse, SpotTicker, SpotTickersResponse
 };
 use crate::util::{build_request, date_to_milliseconds};
-use serde_json::Value;
 
 use std::collections::BTreeMap;
 
@@ -28,24 +17,25 @@ pub struct MarketData {
 /// Market Data endpoints
 
 impl MarketData {
-    /// Retrieves historical price klines.
-    ///
-    /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
-    /// and interval. It supports additional parameters to define a date range and to limit the response size.
-    /// Suitable for USDT perpetual, USDC contract, and Inverse contract categories.
-    ///
-    /// # Arguments
-    ///
-    /// * `category` - The market category for which to retrieve klines (optional).
-    /// * `symbol` - The trading pair or symbol for which to retrieve klines.
-    /// * `interval` - The time interval between klines.
-    /// * `start` - The start date for the kline data retrieval in `DDMMYY` format (optional).
-    /// * `end` - The end date for the kline data retrieval in `DDMMYY` format (optional).
-    /// * `limit` - The maximum number of klines to return (optional).
-    ///
-    /// # Returns
-    ///
-    /// A `Result<Vec<KlineData>, Error>` containing the requested kline data if successful, or an error otherwise.
+   /// Retrieves historical price klines.
+   ///
+   /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
+   /// and interval. It supports additional parameters to define a date range and to limit the response size.
+   ///
+   /// Suitable for USDT perpetual, USDC contract, and Inverse contract categories.
+   ///
+   /// # Arguments
+   ///
+   /// * `category` - The market category for which to retrieve klines (optional).
+   /// * `symbol` - The trading pair or symbol for which to retrieve klines.
+   /// * `interval` - The time interval between klines.
+   /// * `start` - The start date for the kline data retrieval in `DDMMYY` format (optional).
+   /// * `end` - The end date for the kline data retrieval in `DDMMYY` format (optional).
+   /// * `limit` - The maximum number of klines to return (optional).
+   ///
+   /// # Returns
+   ///
+   /// A `Result<Vec<KlineData>, Error>` containing the requested kline data if successful, or an error otherwise.
     pub async fn get_klines<'a>(&self, req: KlineRequest<'a>) -> Result<KlineSummary> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(cat) = req.category {

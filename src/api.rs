@@ -2,6 +2,7 @@ use crate::client::Client;
 use crate::config::Config;
 use crate::general::General;
 use crate::market::MarketData;
+use crate::trade::Trader;
 
 pub enum API {
     Market(Market),
@@ -40,6 +41,7 @@ pub enum Trade {
     OpenOrders,
     CancelAll,
     History,
+    TradeHistory,
     BatchPlace,
     BatchAmend,
     BatchCancel,
@@ -57,7 +59,6 @@ pub enum Position {
     SetAutoaddMargin,
     AddorReduceMargin,
     ClosedPnl,
-    History,
     MovePosition,
     MovePositionHistory,
 }
@@ -154,6 +155,7 @@ impl From<API> for String {
                 Trade::OpenOrders => "/v5/order/realtime",
                 Trade::CancelAll => "/v5/order/cancel-all",
                 Trade::History => "/v5/order/history",
+                Trade::TradeHistory => "/v5/execution/list",
                 Trade::BatchPlace => "/v5/order/create-batch",
                 Trade::BatchAmend => "/v5/order/amend-batch",
                 Trade::BatchCancel => "/v5/order/cancel-batch",
@@ -161,7 +163,6 @@ impl From<API> for String {
                 Trade::SetDisconnectCancelall => "/v5/order/disconnected-cancel-all",
             },
             API::Position(route) => match route {
-                Position::History => "/v5/execution/list",
                 Position::Information => "/v5/position/list",
                 Position::SetLeverage => "/v5/position/set-leverage",
                 Position::SwitchIsolated => "/v5/position/switch-isolated",
@@ -260,6 +261,21 @@ impl Bybit for MarketData {
         secret_key: Option<String>,
     ) -> MarketData {
         MarketData {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            recv_window: config.recv_window,
+        }
+    }
+}
+impl Bybit for Trader {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> Trader {
+        Self::new_with_config(&Config::default(), api_key, secret_key)
+    }
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> Trader {
+        Trader {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
             recv_window: config.recv_window,
         }

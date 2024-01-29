@@ -1,7 +1,4 @@
-use error_chain::bail;
-
 use crate::api::{Market, API};
-
 use crate::client::Client;
 use crate::errors::Result;
 use crate::model::{ServerTime, ServerTimeResponse};
@@ -25,6 +22,7 @@ impl General {
         // Create a variable called time and set it to an API::Market enum variant with a Market::Time value
         // Call the get method on the client field of self, passing in the time variable and None as arguments, and return the result
         let response: ServerTimeResponse = self.client.get(API::Market(Market::Time), None).await?;
+    
         Ok(response.result)
     }
 }

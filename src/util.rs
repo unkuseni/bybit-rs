@@ -1,51 +1,27 @@
+use rand::distributions::Alphanumeric;
+use rand::{Rng, thread_rng};
 use chrono::{NaiveDate, NaiveTime, TimeZone, Utc};
+use serde::Serialize;
 
 use serde_json::Value;
 use std::collections::BTreeMap;
-use std::time::Instant;
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::fmt::Write;
 
-use std::error::Error;
-
-pub fn build_request(parameters: &BTreeMap<String, String>) -> String {
-    parameters
-        .iter()
-        .map(|(key, value)| format!("{}={}", key, value))
-        .collect::<Vec<_>>()
-        .join("&")
+pub fn build_request<T: ToString>(parameters: &BTreeMap<String, T>) -> String {
+    let mut request = String::with_capacity(parameters.iter().map(|(k, v)| k.len() + v.to_string().len() + 1).sum::<usize>() + parameters.len() * 2);
+    for (key, value) in parameters {
+        if !request.is_empty() {
+            request.push('&');
+        }
+        write!(request, "{}={}", key, value.to_string()).expect("Failed to write to String");
+    }
+    request
 }
 
-pub fn build_signed_request(
-    mut parameters: BTreeMap<String, String>,
-    recv_window: u64,
-) -> Result<String, Box<dyn Error>> {
-    let start = Instant::now();
-    if recv_window > 0 {
-        parameters
-            .entry("recvWindow".into())
-            .or_insert_with(|| recv_window.to_string());
-    }
 
-    let timestamp: u64 = get_timestamp(start);
-    parameters
-        .entry("timestamp".into())
-        .or_insert_with(|| timestamp.to_string());
-
-    Ok(build_request(&parameters))
-}
-
-pub fn build_signed_request_custom(
-    mut parameters: BTreeMap<String, String>,
-    recv_window: Option<u64>,
-    start: Option<Instant>,
-) -> Result<String, Box<dyn Error>> {
-    if let Some(window) = recv_window {
-        parameters.insert("recvWindow".to_string(), window.to_string());
-    }
-
-    let timestamp = get_timestamp(start.unwrap_or_else(Instant::now));
-    parameters.insert("timestamp".to_string(), timestamp.to_string());
-
-    Ok(build_request(&parameters))
+pub fn build_json_request<T: Serialize>(parameters: &BTreeMap<String, T>) -> String {
+    serde_json::to_string(parameters).expect("Failed to serialize parameters to JSON")
 }
 
 pub fn to_i64(value: &Value) -> i64 {
@@ -63,10 +39,13 @@ pub fn to_u64(value: &Value) -> u64 {
         panic!("Invalid value")
     }
 }
-
-pub fn get_timestamp(start: Instant) -> u64 {
-    start.elapsed().as_millis() as u64
+pub fn get_timestamp() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_millis() as u64
 }
+
 
 pub fn date_to_milliseconds(date_str: &str) -> u64 {
     let naive_date = NaiveDate::parse_from_str(date_str, "%d%m%y").unwrap();
@@ -75,4 +54,14 @@ pub fn date_to_milliseconds(date_str: &str) -> u64 {
     let datetime_utc = Utc.from_utc_datetime(&naive_date_time);
     datetime_utc.timestamp_millis() as u64
 
+}
+
+
+ pub fn generate_random_uid(length: usize) -> String {
+    let uid: String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .map(char::from)
+        .collect();
+    uid
 }

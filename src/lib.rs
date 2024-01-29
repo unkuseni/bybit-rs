@@ -7,3 +7,4 @@ pub mod general;
 pub mod client;
 pub mod market;
 pub mod trade;
+pub mod  position;
