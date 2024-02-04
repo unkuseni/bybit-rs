@@ -1,11 +1,15 @@
+use serde_json::{json, Value};
+
 use crate::api::{Trade, API};
 use crate::client::Client;
 use crate::errors::Result;
 use crate::model::{
-    AmendOrderRequest, AmendOrderResponse, CancelOrderRequest, CancelOrderResponse,
-    CancelallRequest, CancelallResponse, Category, OpenOrdersRequest, OpenOrdersResponse,
-    OrderHistoryRequest, OrderHistoryResponse, OrderRequest, OrderResponse, OrderStatus, OrderType,
-    Orders, RequestValue, Side, TradeHistoryRequest, TradeHistoryResponse, TradeHistorySummary,
+    AmendOrderRequest, AmendOrderResponse, AmendedOrder, BatchAmendRequest, BatchAmendResponse,
+    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, BatchedOrder,
+    CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, CanceledOrder,
+    Category, OpenOrdersRequest, OpenOrdersResponse, OrderConfirmation, OrderHistoryRequest,
+    OrderHistoryResponse, OrderRequest, OrderResponse, OrderStatus, OrderType, Orders, Side,
+    TradeHistoryRequest, TradeHistoryResponse, TradeHistorySummary,
 };
 use crate::util::{build_json_request, build_request, date_to_milliseconds, generate_random_uid};
 
@@ -61,129 +65,16 @@ pub struct Trader {
 /// # Spot Stop Order in Different Account Types
 /// - Classic account: New order ID upon stop order trigger.
 /// - Unified account: Order ID remains unchanged upon stop order trigger.
+pub enum Action<'a> {
+    Order(OrderRequest<'a>, bool),
+    Amend(AmendOrderRequest<'a>),
+    Cancel(CancelOrderRequest<'a>),
+}
 impl Trader {
     pub async fn place_custom_order<'a>(&self, req: OrderRequest<'a>) -> Result<OrderStatus> {
-        let mut parameters: BTreeMap<String, RequestValue> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            RequestValue::Str(req.category.as_str().into()),
-        );
-        parameters.insert("symbol".into(), RequestValue::Str(req.symbol.into()));
-        if let Some(leverage) = req.is_leverage {
-            if leverage {
-                // Whether to borrow. Valid for Unified spot only. 0(default): false then spot trading, 1: true then margin trading
-                parameters.insert("leverage".into(), RequestValue::Num(1.into()));
-            }
-        }
-        parameters.insert("side".into(), RequestValue::Str(req.side.as_str().into()));
-        parameters.insert(
-            "orderType".into(),
-            RequestValue::Str(req.order_type.as_str().into()),
-        );
-        // Market, Limit
-        // Order quantity
-        // UTA account
-        // Spot: set marketUnit for market order qty unit, quoteCoin for market buy by default, baseCoin for market sell by default
-        // Perps, Futures & Option: always use base coin as unit
-        // Classic account
-        // Spot: the unit of qty is quote coin for market buy order, for others, it is base coin
-        // Perps, Futures: always use base coin as unit
-        // Perps & Futures: if you pass qty="0" and reduceOnly="true", you can close the whole position of current symbol
-        parameters.insert("qty".into(), RequestValue::Str(req.qty.to_string()));
-        if let Some(market_unit) = req.market_unit {
-            // The unit for qty when create Spot market orders for UTA account
-            // baseCoin: for example, buy BTCUSDT, then "qty" unit is BTC
-            // quoteCoin: for example, sell BTCUSDT, then "qty" unit is USDT/
-            parameters.insert(
-                "marketUnit".into(),
-                RequestValue::Str(market_unit.to_string()),
-            );
-        }
-        if let Some(price) = req.price {
-            // Market order will ignore this field
-            // If you have positions open, price needs  to be better than liquidation price
-            parameters.insert("price".into(), RequestValue::Str(price.to_string()));
-        }
-        if let Some(trigger_direction) = req.trigger_direction {
-            if trigger_direction {
-                // triggered when market rises to trigger price
-                parameters.insert("triggerDirection".into(), RequestValue::Num(1.into()));
-            } else {
-                // triggered when market falls to trigger price
-                parameters.insert("triggerDirection".into(), RequestValue::Num(2.into()));
-            }
-        }
-        if let Some(order_filter) = req.order_filter {
-            // if itsn't passed, order b6y default
-            parameters.insert("orderFilter".into(), RequestValue::Str(order_filter.into()));
-        }
-        if let Some(trigger_price) = req.trigger_price {
-            // price << trigger price || price > trigger price
-            parameters.insert(
-                "triggerPrice".into(),
-                RequestValue::Str(trigger_price.to_string()),
-            );
-        }
-        if let Some(trigger) = req.trigger_by {
-            parameters.insert("triggerBy".into(), RequestValue::Str(trigger.into()));
-        }
-        if let Some(iv) = req.order_iv {
-            parameters.insert("orderIv".into(), RequestValue::Str(iv.to_string()));
-        }
-        if let Some(time_in_force) = req.time_in_force {
-            parameters.insert(
-                "timeInForce".into(),
-                RequestValue::Str(time_in_force.into()),
-            );
-        }
-        if let Some(position_idx) = req.position_idx {
-            parameters.insert("positionIdx".into(), RequestValue::Num(position_idx.into()));
-        }
-        if let Some(order_link_id) = req.order_link_id {
-            parameters.insert(
-                "orderLinkId".into(),
-                RequestValue::Str(order_link_id.into()),
-            );
-        } else {
-            let uuid = generate_random_uid(36);
-            parameters.insert("orderLinkId".into(), RequestValue::Str(uuid));
-        }
-        if let Some(price) = req.take_profit {
-            parameters.insert("takeProfit".into(), RequestValue::Str(price.to_string()));
-        }
-        if let Some(price) = req.stop_loss {
-            parameters.insert("stopLoss".into(), RequestValue::Str(price.to_string()));
-        }
-        if let Some(kind) = req.tp_trigger_by {
-            parameters.insert("tpTriggerBy".into(), RequestValue::Str(kind.into()));
-        }
-        if let Some(kind) = req.sl_trigger_by {
-            parameters.insert("slTriggerBy".into(), RequestValue::Str(kind.into()));
-        }
-        if let Some(reduce) = req.reduce_only {
-            parameters.insert("reduceOnly".into(), RequestValue::Bool(reduce));
-        }
-        if let Some(close) = req.close_on_trigger {
-            parameters.insert("closeOnTrigger".into(), RequestValue::Bool(close));
-        }
-        if let Some(v) = req.mmp {
-            parameters.insert("mmp".into(), RequestValue::Bool(v));
-        }
-        if let Some(v) = req.tpsl_mode {
-            parameters.insert("tpslMode".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.tp_limit_price {
-            parameters.insert("tpTriggerPrice".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.sl_limit_price {
-            parameters.insert("slTriggerPrice".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.tp_order_type {
-            parameters.insert("tpOrderType".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.sl_order_type {
-            parameters.insert("slOrderType".into(), RequestValue::Str(v.into()));
-        }
+        let action = Action::Order(req, false);
+        let parameters = Self::build_orders(action);
+
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
@@ -242,52 +133,8 @@ impl Trader {
     }
 
     pub async fn amend_order<'a>(&self, req: AmendOrderRequest<'a>) -> Result<OrderStatus> {
-        let mut parameters: BTreeMap<String, RequestValue> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            RequestValue::Str(req.category.as_str().into()),
-        );
-        parameters.insert("symbol".into(), RequestValue::Str(req.symbol.into()));
-        if let Some(v) = req.order_id {
-            parameters.insert("orderId".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.order_link_id {
-            parameters.insert("orderLinkId".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.order_iv {
-            parameters.insert("orderIv".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.trigger_price {
-            parameters.insert("triggerPrice".into(), RequestValue::Str(v.to_string()));
-        }
-        parameters.insert("qty".into(), RequestValue::Num(req.qty.into()));
-        if let Some(v) = req.price {
-            parameters.insert("price".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.tpsl_mode {
-            parameters.insert("tpslMode".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.take_profit {
-            parameters.insert("takeProfit".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.stop_loss {
-            parameters.insert("stopLoss".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.tp_trigger_by {
-            parameters.insert("tpTriggerBy".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.sl_trigger_by {
-            parameters.insert("slTriggerBy".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.trigger_by {
-            parameters.insert("triggerBy".into(), RequestValue::Str(v.into()));
-        }
-        if let Some(v) = req.tp_limit_price {
-            parameters.insert("tpLimitPrice".into(), RequestValue::Str(v.to_string()));
-        }
-        if let Some(v) = req.sl_limit_price {
-            parameters.insert("slLimitPrice".into(), RequestValue::Str(v.to_string()));
-        }
+        let action = Action::Amend(req);
+        let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: AmendOrderResponse = self
             .client
@@ -296,18 +143,8 @@ impl Trader {
         Ok(response.result)
     }
     pub async fn cancel_order<'a>(&self, req: CancelOrderRequest<'a>) -> Result<OrderStatus> {
-        let mut parameters: BTreeMap<String, String> = BTreeMap::new();
-        parameters.insert("category".into(), req.category.as_str().into());
-        parameters.insert("symbol".into(), req.symbol.into());
-        if let Some(v) = req.order_id {
-            parameters.insert("orderId".into(), v.into());
-        }
-        if let Some(v) = req.order_link_id {
-            parameters.insert("orderLinkId".into(), v.into());
-        }
-        if let Some(v) = req.order_filter {
-            parameters.insert("orderFilter".into(), v.into());
-        }
+        let action = Action::Cancel(req);
+        let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: CancelOrderResponse = self
             .client
@@ -453,9 +290,284 @@ impl Trader {
             .await?;
         Ok(response.result)
     }
-    pub async fn batch_place_order(&self) {}
-    pub async fn batch_amend_order(&self) {}
-    pub async fn batch_cancel_order(&self) {}
-    pub async fn get_borrow_quota_spot(&self) {}
-    pub async fn set_dcp_options(&self) {}
+    pub async fn batch_place_order<'a>(
+        &self,
+        req: BatchPlaceRequest<'a>,
+    ) -> Result<Vec<(BatchedOrder, OrderConfirmation)>> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        match req.category {
+            Category::Linear | Category::Inverse | Category::Option => {
+                parameters.insert("category".into(), req.category.as_str().into());
+            }
+            _ => {
+                println!("Invalid category");
+            }
+        }
+        let mut requests_array: Vec<Value> = Vec::new();
+        for value in req.requests {
+            let action = Action::Order(value, true);
+            let order_object = Self::build_orders(action); // Assuming this returns the correct object structure
+            let built_orders = json!(order_object);
+            requests_array.push(built_orders);
+        }
+        parameters.insert("request".into(), json!(requests_array));
+        let request = build_json_request(&parameters);
+        println!("{:?}", request);
+        let response: BatchPlaceResponse = self
+            .client
+            .post_signed(API::Trade(Trade::BatchPlace), 3000, Some(request))
+            .await?;
+        if response.result.list.len() != response.ret_ext_info.list.len() {
+            println!("List length not equal");
+        }
+        let paired_list: Vec<(BatchedOrder, OrderConfirmation)> = response
+            .result
+            .list
+            .into_iter()
+            .zip(response.ret_ext_info.list.into_iter())
+            .collect();
+        Ok(paired_list)
+    }
+    pub async fn batch_amend_order<'a>(
+        &self,
+        req: BatchAmendRequest<'a>,
+    ) -> Result<Vec<(AmendedOrder, OrderConfirmation)>> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        match req.category {
+            Category::Linear | Category::Inverse | Category::Option => {
+                parameters.insert("category".into(), req.category.as_str().into());
+            }
+            _ => {
+                println!("Invalid category");
+            }
+        }
+        let mut requests_array: Vec<Value> = Vec::new();
+        for value in req.requests {
+            let action = Action::Amend(value);
+            let amend_object = Self::build_orders(action); // Assuming this returns the correct object structure
+            let built_amends = json!(amend_object);
+            requests_array.push(built_amends);
+        }
+        parameters.insert("request".into(), json!(requests_array));
+        let request = build_json_request(&parameters);
+        println!("{:?}", request);
+        let response: BatchAmendResponse = self
+            .client
+            .post_signed(API::Trade(Trade::BatchAmend), 3000, Some(request))
+            .await?;
+        if response.result.list.len() != response.ret_ext_info.list.len() {
+            println!("List length not equal");
+        }
+        let paired_list: Vec<(AmendedOrder, OrderConfirmation)> = response
+            .result
+            .list
+            .into_iter()
+            .zip(response.ret_ext_info.list.into_iter())
+            .collect();
+        Ok(paired_list)
+    }
+
+    pub async fn batch_cancel_order<'a>(
+        &self,
+        req: BatchCancelRequest<'a>,
+    ) -> Result<Vec<(CanceledOrder, OrderConfirmation)>> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        match req.category {
+            Category::Linear | Category::Inverse | Category::Option => {
+                parameters.insert("category".into(), req.category.as_str().into());
+            }
+            _ => {
+                println!("Invalid category");
+            }
+        }
+        let mut requests_array: Vec<Value> = Vec::new();
+        for value in req.requests {
+            let action = Action::Cancel(value);
+            let cancel_object = Self::build_orders(action); // Assuming this returns the correct object structure
+            let built_cancels = json!(cancel_object);
+            requests_array.push(built_cancels);
+        }
+        parameters.insert("request".into(), json!(requests_array));
+        let request = build_json_request(&parameters);
+        let response: BatchCancelResponse = self
+            .client
+            .post_signed(API::Trade(Trade::BatchCancel), 3000, Some(request))
+            .await?;
+        if response.result.list.len() != response.ret_ext_info.list.len() {
+            println!("List length not equal");
+        }
+        let paired_list: Vec<(CanceledOrder, OrderConfirmation)> = response
+            .result
+            .list
+            .into_iter()
+            .zip(response.ret_ext_info.list.into_iter())
+            .collect();
+        Ok(paired_list)
+    }
+    pub async fn get_borrow_quota_spot(&self) {
+        // TODO: Implement this function
+        todo!("This function has not yet been implemented");
+    }
+    pub async fn set_dcp_options(&self) {
+        // TODO: Implement this function
+        todo!("This function has not yet been implemented");
+    }
+
+    pub fn build_orders<'a>(action: Action<'a>) -> BTreeMap<String, Value> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        match action {
+            Action::Order(req, batch_order) => {
+                if batch_order == false {
+                    parameters.insert("category".into(), req.category.as_str().into());
+                }
+                parameters.insert("symbol".into(), req.symbol.into());
+                if let Some(leverage) = req.is_leverage {
+                    if leverage {
+                        // Whether to borrow. Valid for Unified spot only. 0(default): false then spot trading, 1: true then margin trading
+                        parameters.insert("leverage".into(), 1.into());
+                    }
+                }
+                parameters.insert("side".into(), req.side.as_str().into());
+                parameters.insert("orderType".into(), req.order_type.as_str().into());
+
+                parameters.insert("qty".into(), req.qty.to_string().into());
+                if let Some(market_unit) = req.market_unit {
+                    parameters.insert("marketUnit".into(), market_unit.to_string().into());
+                }
+                if let Some(price) = req.price {
+                    parameters.insert("price".into(), price.to_string().into());
+                }
+                if let Some(trigger_direction) = req.trigger_direction {
+                    if trigger_direction {
+                        parameters.insert("triggerDirection".into(), 1.into());
+                    } else {
+                        parameters.insert("triggerDirection".into(), 2.into());
+                    }
+                }
+                if let Some(order_filter) = req.order_filter {
+                    parameters.insert("orderFilter".into(), order_filter.into());
+                }
+                if let Some(trigger_price) = req.trigger_price {
+                    parameters.insert("triggerPrice".into(), trigger_price.to_string().into());
+                }
+                if let Some(trigger) = req.trigger_by {
+                    parameters.insert("triggerBy".into(), trigger.into());
+                }
+                if let Some(iv) = req.order_iv {
+                    parameters.insert("orderIv".into(), iv.to_string().into());
+                }
+                if let Some(time_in_force) = req.time_in_force {
+                    parameters.insert("timeInForce".into(), time_in_force.into());
+                }
+                if let Some(v) = req.position_idx {
+                    match v {
+                        0 | 1 | 2 => {
+                            parameters.insert("positionIdx".into(), v.to_string().into());
+                        }
+                        _ => println!("Invalid position idx"),
+                    }
+                }
+                if let Some(order_link_id) = req.order_link_id {
+                    parameters.insert("orderLinkId".into(), order_link_id.into());
+                } else {
+                    let uuid = generate_random_uid(36);
+                    parameters.insert("orderLinkId".into(), uuid.into());
+                }
+                if let Some(price) = req.take_profit {
+                    parameters.insert("takeProfit".into(), price.to_string().into());
+                }
+                if let Some(price) = req.stop_loss {
+                    parameters.insert("stopLoss".into(), price.to_string().into());
+                }
+                if let Some(kind) = req.tp_trigger_by {
+                    parameters.insert("tpTriggerBy".into(), kind.into());
+                }
+                if let Some(kind) = req.sl_trigger_by {
+                    parameters.insert("slTriggerBy".into(), kind.into());
+                }
+                if let Some(reduce) = req.reduce_only {
+                    parameters.insert("reduceOnly".into(), reduce.into());
+                }
+                if let Some(close) = req.close_on_trigger {
+                    parameters.insert("closeOnTrigger".into(), close.into());
+                }
+                if let Some(v) = req.mmp {
+                    parameters.insert("mmp".into(), v.into());
+                }
+                if let Some(v) = req.tpsl_mode {
+                    parameters.insert("tpslMode".into(), v.into());
+                }
+                if let Some(v) = req.tp_limit_price {
+                    parameters.insert("tpTriggerPrice".into(), v.to_string().into());
+                }
+                if let Some(v) = req.sl_limit_price {
+                    parameters.insert("slTriggerPrice".into(), v.to_string().into());
+                }
+                if let Some(v) = req.tp_order_type {
+                    parameters.insert("tpOrderType".into(), v.into());
+                }
+                if let Some(v) = req.sl_order_type {
+                    parameters.insert("slOrderType".into(), v.into());
+                }
+            }
+            Action::Amend(req) => {
+                parameters.insert("category".into(), req.category.as_str().into());
+                parameters.insert("symbol".into(), req.symbol.into());
+                if let Some(v) = req.order_id {
+                    parameters.insert("orderId".into(), v.into());
+                }
+                if let Some(v) = req.order_link_id {
+                    parameters.insert("orderLinkId".into(), v.into());
+                }
+                if let Some(v) = req.order_iv {
+                    parameters.insert("orderIv".into(), v.to_string().into());
+                }
+                if let Some(v) = req.trigger_price {
+                    parameters.insert("triggerPrice".into(), v.to_string().into());
+                }
+                parameters.insert("qty".into(), req.qty.into());
+                if let Some(v) = req.price {
+                    parameters.insert("price".into(), v.to_string().into());
+                }
+                if let Some(v) = req.tpsl_mode {
+                    parameters.insert("tpslMode".into(), v.into());
+                }
+                if let Some(v) = req.take_profit {
+                    parameters.insert("takeProfit".into(), v.to_string().into());
+                }
+                if let Some(v) = req.stop_loss {
+                    parameters.insert("stopLoss".into(), v.to_string().into());
+                }
+                if let Some(v) = req.tp_trigger_by {
+                    parameters.insert("tpTriggerBy".into(), v.into());
+                }
+                if let Some(v) = req.sl_trigger_by {
+                    parameters.insert("slTriggerBy".into(), v.into());
+                }
+                if let Some(v) = req.trigger_by {
+                    parameters.insert("triggerBy".into(), v.into());
+                }
+                if let Some(v) = req.tp_limit_price {
+                    parameters.insert("tpLimitPrice".into(), v.to_string().into());
+                }
+                if let Some(v) = req.sl_limit_price {
+                    parameters.insert("slLimitPrice".into(), v.to_string().into());
+                }
+            }
+            Action::Cancel(req) => {
+                parameters.insert("category".into(), req.category.as_str().into());
+                parameters.insert("symbol".into(), req.symbol.into());
+                if let Some(v) = req.order_id {
+                    parameters.insert("orderId".into(), v.into());
+                }
+                if let Some(v) = req.order_link_id {
+                    parameters.insert("orderLinkId".into(), v.into());
+                }
+                if let Some(v) = req.order_filter {
+                    parameters.insert("orderFilter".into(), v.into());
+                }
+            }
+        }
+        parameters
+    }
 }
