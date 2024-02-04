@@ -1,11 +1,19 @@
 use std::collections::BTreeMap;
 
-use serde_json::Value;
+use serde_json::{json, Value};
 
 use crate::api::{Position, API};
 use crate::client::Client;
 use crate::errors::Result;
-use crate::model::*;
+use crate::model::{
+    AddMarginRequest, AddMarginResponse, AddReduceMarginRequest, AddReduceMarginResponse,
+    AddReduceMarginResult, ChangeMarginRequest, ChangeMarginResponse, ClosedPnlRequest,
+    ClosedPnlResponse, ClosedPnlResult, InfoResponse, LeverageRequest, LeverageResponse,
+    MarginModeRequest, MarginModeResponse, MoveHistoryRequest, MoveHistoryResponse,
+    MoveHistoryResult, MovePositionRequest, MovePositionResponse, MovePositionResult, PositionInfo,
+    PositionRequest, SetRiskLimit, SetRiskLimitResponse, SetRiskLimitResult, TradingStopRequest,
+    TradingStopResponse,
+};
 use crate::util::{build_json_request, build_request, date_to_milliseconds};
 
 #[derive(Clone)]
@@ -15,32 +23,32 @@ pub struct PositionManager {
 }
 
 impl PositionManager {
-        /// Asynchronously retrieves information about a position based on the provided request.
-        ///
-        /// # Arguments
-        ///
-        /// * `req` - The position request containing the category, symbol, base coin, settle coin, and limit.
-        ///
-        /// # Returns
-        ///
-        /// A `Result` containing a vector of `PositionInfo` if the operation is successful, or an error if it fails.
-        ///
-        /// # Example
-        ///
-        /// ```
-        /// use crate::model::{PositionRequest, Category};
-        /// use crate::errors::Result;
-        /// use crate::api::PositionInfo;
-        /// use my_module::PositionManager;
-        ///
-        /// #[tokio::main]
-        /// async fn main() -> Result<()> {
-        ///     let position_manager = PositionManager::new();
-        ///     let request = PositionRequest::new(Category::Linear, Some("symbol"), Some("base_coin"), Some("settle_coin"), Some(10));
-        ///     let position_info = position_manager.get_info(request).await?;
-        ///     Ok(())
-        /// }
-        /// ```
+    /// Asynchronously retrieves information about a position based on the provided request.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The position request containing the category, symbol, base coin, settle coin, and limit.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a vector of `PositionInfo` if the operation is successful, or an error if it fails.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use crate::model::{PositionRequest, Category};
+    /// use crate::errors::Result;
+    /// use crate::api::PositionInfo;
+    /// use my_module::PositionManager;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<()> {
+    ///     let position_manager = PositionManager::new();
+    ///     let request = PositionRequest::new(Category::Linear, Some("symbol"), Some("base_coin"), Some("settle_coin"), Some(10));
+    ///     let position_info = position_manager.get_info(request).await?;
+    ///     Ok(())
+    /// }
+    /// ```
     pub async fn get_info<'a>(&self, req: PositionRequest<'a>) -> Result<Vec<PositionInfo>> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -68,6 +76,15 @@ impl PositionManager {
         Ok(response.result.list)
     }
 
+    // Sets the leverage for a given symbol.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The leverage request containing category, symbol, and leverage.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the leverage response.
     pub async fn set_leverage<'a>(&self, req: LeverageRequest<'a>) -> Result<LeverageResponse> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -86,20 +103,23 @@ impl PositionManager {
         Ok(response)
     }
 
+    /// Set the margin mode.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The ChangeMarginRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// * Result<ChangeMarginResponse> - The result of setting the margin mode.
     pub async fn set_margin_mode<'a>(
         &self,
         req: ChangeMarginRequest<'a>,
     ) -> Result<ChangeMarginResponse> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into(),
-        );
+        parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
-        parameters.insert(
-            "tradeMode".into(),
-            req.trade_mode.into(),
-        );
+        parameters.insert("tradeMode".into(), req.trade_mode.into());
         let request = build_json_request(&parameters);
         let response: ChangeMarginResponse = self
             .client
@@ -112,15 +132,21 @@ impl PositionManager {
         Ok(response)
     }
 
+    /// Set the position mode.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The MarginModeRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// * Result<MarginModeResponse> - The result of setting the position mode.
     pub async fn set_position_mode<'a>(
         &self,
         req: MarginModeRequest<'a>,
     ) -> Result<MarginModeResponse> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into(),
-        );
+        parameters.insert("category".into(), req.category.as_str().into());
         if let Some(v) = req.symbol {
             parameters.insert("symbol".into(), v.into());
         }
@@ -140,11 +166,18 @@ impl PositionManager {
         Ok(response)
     }
 
+    /// Set the risk limit.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The SetRiskLimitRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// * Result<SetRiskLimitResult> - The result of setting the risk limit.
     pub async fn set_risk_limit<'a>(&self, req: SetRiskLimit<'a>) -> Result<SetRiskLimitResult> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into());
+        parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
         parameters.insert("riskId".into(), req.risk_id.into());
         if let Some(v) = req.position_idx {
@@ -162,16 +195,22 @@ impl PositionManager {
         Ok(response.result)
     }
 
+    /// Set the trading stop.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The TradingStopRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// * Result<TradingStopResponse> - The result of setting the trading stop.
     pub async fn set_trading_stop<'a>(
         &self,
         req: TradingStopRequest<'a>,
     ) -> Result<TradingStopResponse> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into(),
-        );
-        parameters.insert("symbol".into(),req.symbol.into());
+        parameters.insert("category".into(), req.category.as_str().into());
+        parameters.insert("symbol".into(), req.symbol.into());
         if let Some(v) = req.take_profit {
             parameters.insert("takeProfit".into(), v.into());
         }
@@ -205,9 +244,7 @@ impl PositionManager {
         if let Some(v) = req.sl_limit_price {
             parameters.insert("slLimitPrice".into(), v.into());
         }
-        parameters.insert(
-            "positionIdx".into(),
-            req.position_idx.into());
+        parameters.insert("positionIdx".into(), req.position_idx.into());
         let request = build_json_request(&parameters);
         let response: TradingStopResponse = self
             .client
@@ -222,10 +259,7 @@ impl PositionManager {
 
     pub async fn set_add_margin<'a>(&self, req: AddMarginRequest<'a>) -> Result<AddMarginResponse> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into()
-        );
+        parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
         if req.auto_add {
             parameters.insert("autoAddMargin".into(), 1.into());
@@ -252,9 +286,7 @@ impl PositionManager {
         req: AddReduceMarginRequest<'a>,
     ) -> Result<AddReduceMarginResult> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into());
+        parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
         parameters.insert("margin".into(), req.margin.into());
         if let Some(v) = req.position_idx {
@@ -274,9 +306,7 @@ impl PositionManager {
 
     pub async fn get_closed_pnl<'a>(&self, req: ClosedPnlRequest<'a>) -> Result<ClosedPnlResult> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        parameters.insert(
-            "category".into(),
-            req.category.as_str().into());
+        parameters.insert("category".into(), req.category.as_str().into());
         if let Some(v) = req.symbol {
             parameters.insert("symbol".into(), v.into());
         }
@@ -307,5 +337,68 @@ impl PositionManager {
             .await?;
         Ok(response.result)
     }
-    
+
+    pub async fn move_position<'a>(
+        &self,
+        req: MovePositionRequest<'a>,
+    ) -> Result<MovePositionResult> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        parameters.insert("fromUid".into(), req.from_uid.into());
+        parameters.insert("toUid".into(), req.to_uid.into());
+        parameters.insert("list".into(), json!(req.list));
+        let request = build_json_request(&parameters);
+        let response: MovePositionResponse = self
+            .client
+            .post_signed(
+                API::Position(Position::MovePosition),
+                self.recv_window.into(),
+                Some(request),
+            )
+            .await?;
+        Ok(response.result)
+    }
+
+    pub async fn move_position_history<'a>(
+        &self,
+        req: MoveHistoryRequest<'a>,
+    ) -> Result<MoveHistoryResult> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        if let Some(v) = req.category {
+            parameters.insert("category".into(), v.as_str().into());
+        }
+        if let Some(v) = req.symbol {
+            parameters.insert("symbol".into(), v.into());
+        }
+        if let Some(start_str) = req.start_time.as_ref().map(|s| s.as_ref()) {
+            let start_millis = date_to_milliseconds(start_str);
+            parameters
+                .entry("end".to_owned())
+                .or_insert_with(|| start_millis.to_string().into());
+        }
+        if let Some(end_str) = req.end_time.as_ref().map(|s| s.as_ref()) {
+            let end_millis = date_to_milliseconds(end_str);
+            parameters
+                .entry("end".to_owned())
+                .or_insert_with(|| end_millis.to_string().into());
+        }
+        if let Some(v) = req.status {
+            parameters.insert("status".into(), v.into());
+        }
+        if let Some(v) = req.block_trade_id {
+            parameters.insert("blockTradeId".into(), v.into());
+        }
+        if let Some(v) = req.limit {
+            parameters.insert("limit".into(), v.into());
+        }
+        let request = build_request(&parameters);
+        let response: MoveHistoryResponse = self
+            .client
+            .get_signed(
+                API::Position(Position::MovePositionHistory),
+                self.recv_window.into(),
+                Some(request),
+            )
+            .await?;
+        Ok(response.result)
+    }
 }
