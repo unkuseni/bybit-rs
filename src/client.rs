@@ -1,7 +1,6 @@
-
-use crate::api::API;
+use crate::api::{WebsocketAPI, API};
 use crate::errors::{BybitContentError, ErrorKind, Result};
-use crate::util::get_timestamp;
+use crate::util::{generate_random_uid, get_timestamp};
 use error_chain::bail;
 use hex::encode as hex_encode;
 use hmac::{Hmac, Mac};
@@ -9,8 +8,14 @@ use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE, USER_AGENT},
     Client as ReqwestClient, Response as ReqwestResponse, StatusCode,
 };
+use tungstenite::stream::MaybeTlsStream;
+
 use serde::de::DeserializeOwned;
+use serde_json::json;
 use sha2::Sha256;
+use std::net::TcpStream;
+use tungstenite::{connect, protocol::WebSocket, Message as WsMessage};
+use url::Url as WsUrl;
 
 #[derive(Clone)]
 pub struct Client {
@@ -63,9 +68,7 @@ impl Client {
         }
 
         // Sign the request, passing the query string for signature
-     let headers = self.build_signed_headers(false, true, recv_window, Some(query_string))?;
-     
-
+        let headers = self.build_signed_headers(false, true, recv_window, Some(query_string))?;
 
         // Make the signed HTTP GET request
         let client = &self.inner_client;
@@ -102,9 +105,8 @@ impl Client {
         let url: String = format!("{}{}", self.host, String::from(endpoint));
 
         // Sign the request, passing the raw request body for signature
-        let headers = self
-            .build_signed_headers(true, true, recv_window, raw_request_body.clone())?;
-     
+        let headers =
+            self.build_signed_headers(true, true, recv_window, raw_request_body.clone())?;
 
         // Make the signed HTTP POST request
         let client = &self.inner_client;
@@ -119,48 +121,50 @@ impl Client {
         self.handler(response).await
     }
 
-fn build_signed_headers<'str>(
-    &self,
-    content_type: bool,
-    signed: bool,
-    recv_window: u128,
-    request: Option<String>,
-) -> Result<HeaderMap> {
-    let mut custom_headers = HeaderMap::new();
-    custom_headers.insert(USER_AGENT, HeaderValue::from_static("bybit-rs"));
-  let timestamp = get_timestamp().to_string();
-    let window = recv_window.to_string();
-    let signature  = self.sign_message(&timestamp, &window, request);
     
-    let signature_header = HeaderName::from_static("x-bapi-sign");
-    let api_key_header = HeaderName::from_static("x-bapi-api-key");
-    let timestamp_header = HeaderName::from_static("x-bapi-timestamp");
-    let recv_window_header = HeaderName::from_static("x-bapi-recv-window");
-    
-    if signed {
-        custom_headers.insert(
-            signature_header,
-            HeaderValue::from_str(&signature.to_owned())?,
-        );
-        custom_headers.insert(
-            api_key_header,
-            HeaderValue::from_str(&self.api_key.to_owned())?,
-        );
-    }
-    custom_headers.insert(timestamp_header, HeaderValue::from_str(&timestamp.to_owned())?);
-    custom_headers.insert(recv_window_header, HeaderValue::from_str(&window.to_owned())?);
-    if content_type {
-        custom_headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-    }
-    Ok(custom_headers)
-}
-
-    fn sign_message(
+    fn build_signed_headers<'str>(
         &self,
-        timestamp: &str,
-        recv_window: &str,
+        content_type: bool,
+        signed: bool,
+        recv_window: u128,
         request: Option<String>,
-    ) -> String {
+    ) -> Result<HeaderMap> {
+        let mut custom_headers = HeaderMap::new();
+        custom_headers.insert(USER_AGENT, HeaderValue::from_static("bybit-rs"));
+        let timestamp = get_timestamp().to_string();
+        let window = recv_window.to_string();
+        let signature = self.sign_message(&timestamp, &window, request);
+
+        let signature_header = HeaderName::from_static("x-bapi-sign");
+        let api_key_header = HeaderName::from_static("x-bapi-api-key");
+        let timestamp_header = HeaderName::from_static("x-bapi-timestamp");
+        let recv_window_header = HeaderName::from_static("x-bapi-recv-window");
+
+        if signed {
+            custom_headers.insert(
+                signature_header,
+                HeaderValue::from_str(&signature.to_owned())?,
+            );
+            custom_headers.insert(
+                api_key_header,
+                HeaderValue::from_str(&self.api_key.to_owned())?,
+            );
+        }
+        custom_headers.insert(
+            timestamp_header,
+            HeaderValue::from_str(&timestamp.to_owned())?,
+        );
+        custom_headers.insert(
+            recv_window_header,
+            HeaderValue::from_str(&window.to_owned())?,
+        );
+        if content_type {
+            custom_headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        }
+        Ok(custom_headers)
+    }
+
+    fn sign_message(&self, timestamp: &str, recv_window: &str, request: Option<String>) -> String {
         let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
         let mut sign_message = format!("{}{}{}", timestamp, self.api_key, recv_window);
         if let Some(req) = request {
@@ -197,5 +201,42 @@ fn build_signed_headers<'str>(
             }
             status => bail!("Received error response: {:?}", status),
         }
+    }
+    
+    pub async fn wss_connect<F>(
+        &self,
+        endpoint: WebsocketAPI,
+        request_body: Option<String>,
+        private: bool,
+        alive_dur: u64,
+        mut handler: F,
+    ) -> Result<()>
+    where
+        F: FnMut(WebSocket<MaybeTlsStream<TcpStream>>) -> Result<()> + Send + 'static,
+    {
+        let unparsed_url = format!("{}{}", self.host, String::from(endpoint)).to_string();
+        let url = WsUrl::parse(unparsed_url.as_str())?;
+        let expiry_time = alive_dur * 1000 * 50;
+    
+        let expires = get_timestamp() + expiry_time;
+    
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
+        mac.update(format!("GET/realtime{expires}").as_bytes());
+        let signature = hex_encode(mac.finalize().into_bytes());
+        let uuid = generate_random_uid(5);
+    
+        let (mut ws_stream, _) = connect(url)?;
+        let auth_msg = json!({
+            "req_id": uuid,
+            "op": "auth",
+            "args": [self.api_key, expires, signature]
+        });
+        if private {
+            ws_stream.send(WsMessage::Text(auth_msg.to_string()))?;
+        }
+        let request = request_body.unwrap_or_else(|| String::new());
+        ws_stream.send(WsMessage::Text(request))?;
+        let stream = handler(ws_stream)?;
+        Ok(stream)
     }
 }
