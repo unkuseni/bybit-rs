@@ -468,6 +468,17 @@ pub struct Bid {
     pub qty: f64,
 }
 
+impl Bid {
+    pub fn new(price: f64, qty: f64) -> Bid {
+        Bid { price, qty }
+    }
+}
+impl Ask {
+    pub fn new(price: f64, qty: f64) -> Ask {
+        Ask { price, qty }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FuturesTickersResponse {
@@ -985,7 +996,6 @@ impl Category {
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub enum Side {
@@ -2362,49 +2372,77 @@ pub struct SetRiskLimitResult {
     pub category: String,
 }
 
-
 #[derive(Clone, Default)]
 pub struct TradingStopRequest<'a> {
-        pub category: Category,
-        pub symbol: Cow<'a, str>,
-        pub take_profit: Option<f64>,
-        pub stop_loss: Option<f64>,
-        pub tp_trigger_by: Option<Cow<'a, str>>,
-        pub sl_trigger_by: Option<Cow<'a, str>>,
-        pub tpsl_mode: Option<Cow<'a, str>>,
-        pub tp_order_type: Option<OrderType>,
-        pub sl_order_type: Option<OrderType>,
-        pub tp_size: Option<f64>,
-        pub sl_size: Option<f64>,
-        pub tp_limit_price: Option<f64>,
-        pub sl_limit_price: Option<f64>,
-        pub position_idx: i32,
-    }
+    pub category: Category,
+    pub symbol: Cow<'a, str>,
+    pub take_profit: Option<f64>,
+    pub stop_loss: Option<f64>,
+    pub tp_trigger_by: Option<Cow<'a, str>>,
+    pub sl_trigger_by: Option<Cow<'a, str>>,
+    pub tpsl_mode: Option<Cow<'a, str>>,
+    pub tp_order_type: Option<OrderType>,
+    pub sl_order_type: Option<OrderType>,
+    pub tp_size: Option<f64>,
+    pub sl_size: Option<f64>,
+    pub tp_limit_price: Option<f64>,
+    pub sl_limit_price: Option<f64>,
+    pub position_idx: i32,
+}
 
-    impl <'a> TradingStopRequest<'a> {
-        pub fn new(category: Category, symbol: &'a str, take_profit: Option<f64>, stop_loss: Option<f64>, tp_trigger_by: Option<&'a str>, sl_trigger_by: Option<&'a str>, tpsl_mode: Option<&'a str>, tp_order_type: Option<OrderType>, sl_order_type: Option<OrderType>, tp_size: Option<f64>, sl_size: Option<f64>, tp_limit_price: Option<f64>, sl_limit_price: Option<f64>, position_idx: i32) -> Self {
-            Self {
-                category,
-                symbol: Cow::Borrowed(symbol),
-                take_profit,
-                stop_loss,
-                tp_trigger_by: tp_trigger_by.map(|s| Cow::Borrowed(s)),
-                sl_trigger_by: sl_trigger_by.map(|s| Cow::Borrowed(s)),
-                tpsl_mode: tpsl_mode.map(|s| Cow::Borrowed(s)),
-                tp_order_type,
-                sl_order_type,
-                tp_size,
-                sl_size,
-                tp_limit_price,
-                sl_limit_price,
-                position_idx
-            }
+impl<'a> TradingStopRequest<'a> {
+    pub fn new(
+        category: Category,
+        symbol: &'a str,
+        take_profit: Option<f64>,
+        stop_loss: Option<f64>,
+        tp_trigger_by: Option<&'a str>,
+        sl_trigger_by: Option<&'a str>,
+        tpsl_mode: Option<&'a str>,
+        tp_order_type: Option<OrderType>,
+        sl_order_type: Option<OrderType>,
+        tp_size: Option<f64>,
+        sl_size: Option<f64>,
+        tp_limit_price: Option<f64>,
+        sl_limit_price: Option<f64>,
+        position_idx: i32,
+    ) -> Self {
+        Self {
+            category,
+            symbol: Cow::Borrowed(symbol),
+            take_profit,
+            stop_loss,
+            tp_trigger_by: tp_trigger_by.map(|s| Cow::Borrowed(s)),
+            sl_trigger_by: sl_trigger_by.map(|s| Cow::Borrowed(s)),
+            tpsl_mode: tpsl_mode.map(|s| Cow::Borrowed(s)),
+            tp_order_type,
+            sl_order_type,
+            tp_size,
+            sl_size,
+            tp_limit_price,
+            sl_limit_price,
+            position_idx,
+        }
     }
 
     pub fn default() -> TradingStopRequest<'a> {
-        TradingStopRequest::new(Category::Linear, "BTCUSDT", None, None, None, None, None, None, None, None, None, None, None, 1)
+        TradingStopRequest::new(
+            Category::Linear,
+            "BTCUSDT",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            1,
+        )
     }
-
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -2428,13 +2466,18 @@ pub struct AddMarginRequest<'a> {
     pub position_idx: Option<i32>,
 }
 
-impl <'a> AddMarginRequest<'a> {
-    pub fn new(category: Category, symbol: &'a str, auto_add: bool, position_idx: Option<i32>) -> Self {
+impl<'a> AddMarginRequest<'a> {
+    pub fn new(
+        category: Category,
+        symbol: &'a str,
+        auto_add: bool,
+        position_idx: Option<i32>,
+    ) -> Self {
         Self {
             category,
             symbol: Cow::Borrowed(symbol),
             auto_add,
-            position_idx
+            position_idx,
         }
     }
     pub fn default() -> AddMarginRequest<'a> {
@@ -2463,13 +2506,18 @@ pub struct AddReduceMarginRequest<'a> {
     pub position_idx: Option<i32>,
 }
 
-impl <'a> AddReduceMarginRequest<'a> {
-    pub fn new(category: Category, symbol: &'a str, margin: f64, position_idx: Option<i32>) -> Self {
+impl<'a> AddReduceMarginRequest<'a> {
+    pub fn new(
+        category: Category,
+        symbol: &'a str,
+        margin: f64,
+        position_idx: Option<i32>,
+    ) -> Self {
         Self {
             category,
             symbol: Cow::Borrowed(symbol),
             margin,
-            position_idx
+            position_idx,
         }
     }
     pub fn default() -> AddReduceMarginRequest<'a> {
@@ -2536,7 +2584,6 @@ pub struct AddReduceMarginResult {
     pub updated_time: String,
 }
 
-
 #[derive(Clone, Default)]
 pub struct ClosedPnlRequest<'a> {
     pub category: Category,
@@ -2546,14 +2593,20 @@ pub struct ClosedPnlRequest<'a> {
     pub limit: Option<u64>,
 }
 
-impl <'a> ClosedPnlRequest<'a> {
-    pub fn new(category: Category, symbol: Option<&'a str>, start_time: Option<&'a str>, end_time: Option<&'a str>, limit: Option<u64>) -> Self {
+impl<'a> ClosedPnlRequest<'a> {
+    pub fn new(
+        category: Category,
+        symbol: Option<&'a str>,
+        start_time: Option<&'a str>,
+        end_time: Option<&'a str>,
+        limit: Option<u64>,
+    ) -> Self {
         Self {
             category,
             symbol: symbol.map(|s| Cow::Borrowed(s)),
             start_time: start_time.map(|s| Cow::Borrowed(s)),
             end_time: end_time.map(|s| Cow::Borrowed(s)),
-            limit
+            limit,
         }
     }
     pub fn default() -> ClosedPnlRequest<'a> {
@@ -2569,20 +2622,20 @@ pub struct ClosedPnlResponse {
     pub result: ClosedPnlResult,
     pub ret_ext_info: Empty,
     pub time: u64,
-    }
+}
 
-    #[derive(Serialize, Deserialize, Clone, Debug)]
-    #[serde(rename_all = "camelCase")]
-    pub struct ClosedPnlResult {
-        #[serde(skip_serializing_if = "Option::is_none")]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ClosedPnlResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub next_page_cursor: Option<String>,
     pub category: String,
     pub list: Vec<ClosedPnlItem>,
-    }
+}
 
-    #[derive(Serialize, Deserialize, Clone, Debug)]
-    #[serde(rename_all = "camelCase")]
-    pub struct ClosedPnlItem {
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ClosedPnlItem {
     pub symbol: String,
     pub order_type: String,
     pub leverage: String,
@@ -2606,25 +2659,338 @@ pub struct ClosedPnlResponse {
     pub fill_count: String,
     #[serde(with = "string_to_float")]
     pub cum_exit_value: f64,
+}
+
+#[derive(Clone, Default, Serialize)]
+pub struct MovePositionRequest<'a> {
+    pub from_uid: u64,
+    pub to_uid: u64,
+    pub list: Vec<PositionItem<'a>>,
+}
+
+#[derive(Clone, Default, Serialize)]
+pub struct PositionItem<'a> {
+    pub category: Category,
+    pub symbol: Cow<'a, str>,
+    pub price: f64,
+    pub side: Side,
+    pub qty: f64,
+}
+
+impl<'a> MovePositionRequest<'a> {
+    pub fn new(from_uid: u64, to_uid: u64, list: Vec<PositionItem<'a>>) -> Self {
+        Self {
+            from_uid,
+            to_uid,
+            list,
+        }
     }
-
-
-    #[derive(Clone, Default)]
-    pub struct MovePositionRequest<'a> {
-            pub from_uid: u64,
-            pub to_uid: u64,
-            pub list: Vec<PositionItem<'a>>,
+    pub fn default() -> MovePositionRequest<'a> {
+        MovePositionRequest::new(0, 0, vec![])
+    }
+}
+impl<'a> PositionItem<'a> {
+    pub fn new(category: Category, symbol: &'a str, price: f64, side: Side, qty: f64) -> Self {
+        Self {
+            category,
+            symbol: Cow::Borrowed(symbol),
+            price,
+            side,
+            qty,
         }
+    }
+    pub fn default() -> PositionItem<'a> {
+        PositionItem::new(Category::Linear, "BTCUSDT", 0.0, Side::Buy, 0.0)
+    }
+}
 
-        #[derive(Clone, Default)]
-        pub struct PositionItem<'a> {
-            pub category: Cow<'a, str>,
-            pub symbol: Cow<'a, str>,
-            pub price: f64,
-            pub side: Side,
-            pub qty: f64,
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct MovePositionResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: MovePositionResult,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct MovePositionResult {
+    pub block_trade_id: String,
+    pub status: String,
+    pub reject_party: String,
+}
+
+#[derive(Serialize, Clone, Default)]
+pub struct MoveHistoryRequest<'a> {
+    pub category: Option<Category>,
+    pub symbol: Option<Cow<'a, str>>,
+    pub start_time: Option<Cow<'a, str>>,
+    pub end_time: Option<Cow<'a, str>>,
+    pub status: Option<Cow<'a, str>>,
+    pub block_trade_id: Option<Cow<'a, str>>,
+    pub limit: Option<Cow<'a, str>>,
+}
+
+impl<'a> MoveHistoryRequest<'a> {
+    pub fn new(
+        category: Option<Category>,
+        symbol: Option<&'a str>,
+        start_time: Option<&'a str>,
+        end_time: Option<&'a str>,
+        status: Option<&'a str>,
+        block_trade_id: Option<&'a str>,
+        limit: Option<&'a str>,
+    ) -> Self {
+        Self {
+            category,
+            symbol: symbol.map(|s| Cow::Borrowed(s)),
+            start_time: start_time.map(|s| Cow::Borrowed(s)),
+            end_time: end_time.map(|s| Cow::Borrowed(s)),
+            status: status.map(|s| Cow::Borrowed(s)),
+            block_trade_id: block_trade_id.map(|s| Cow::Borrowed(s)),
+            limit: limit.map(|s| Cow::Borrowed(s)),
         }
+    }
+    pub fn default() -> MoveHistoryRequest<'a> {
+        MoveHistoryRequest::new(None, None, None, None, None, None, None)
+    }
+}
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveHistoryResponse {
+    #[serde(rename = "retCode")]
+    pub ret_code: i16,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    pub result: MoveHistoryResult,
+    #[serde(rename = "retExtInfo")]
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveHistoryResult {
+    pub list: Vec<MoveHistoryEntry>,
+    #[serde(rename = "nextPageCursor")]
+    pub next_page_cursor: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveHistoryEntry {
+    #[serde(rename = "blockTradeId")]
+    pub block_trade_id: String,
+    pub category: String,
+    #[serde(rename = "orderId")]
+    pub order_id: String,
+    #[serde(rename = "userId")]
+    pub user_id: u64,
+    pub symbol: String,
+    pub side: String,
+    pub price: String,
+    pub qty: String,
+    #[serde(rename = "execFee")]
+    pub exec_fee: String,
+    pub status: String,
+    #[serde(rename = "execId")]
+    pub exec_id: String,
+    #[serde(rename = "resultCode")]
+    pub result_code: i16,
+    #[serde(rename = "resultMessage")]
+    pub result_message: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: u64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: u64,
+    #[serde(rename = "rejectParty")]
+    pub reject_party: String,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct Subscription<'a> {
+    pub op: &'a str,
+    pub args: Vec<&'a str>,
+}
+
+impl<'a> Subscription<'a> {
+    pub fn new(op: &'a str, args: Vec<&'a str>) -> Self {
+        Self { op, args }
+    }
+    pub fn default() -> Subscription<'a> {
+        Subscription::new("subscribe", vec![])
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum WebsocketEvents {
+    Pong(PongResponse),
+    OrderBook(WsOrderBook),
+    Trade(Vec<WsTrade>),
+    Ticker(Tickers),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum Tickers {
+    Linear(LinearTickerData),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum PongResponse {
+    PublicPong(PongCategory),
+    PrivatePong(PrivPong),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum PongCategory {
+    Perpetual(PerpetualPong),
+    Spot(SpotPong),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PerpetualPong {
+        pub success: bool,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    #[serde(rename = "connId")]
+    pub conn_id: String,
+    pub req_id: String,
+    pub op: String,
+
+}
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SpotPong {
+    pub success: bool,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    #[serde(rename = "connId")]
+    pub conn_id: String,
+    pub op: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PrivPong {
+    pub req_id: String,
+    pub op: String,
+    pub args: Vec<String>,
+    pub conn_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct OrderBookUpdate {
+    #[serde(rename = "topic")]
+    pub topic: String,
+    #[serde(rename = "type")]
+    pub event_type: String,
+    #[serde(rename = "ts")]
+    pub timestamp: u64,
+    pub data: WsOrderBook,
+    pub cts: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct WsOrderBook {
+    #[serde(rename = "s")]
+    pub symbol: String,
+    #[serde(rename = "a")]
+    pub asks: Vec<Ask>,
+    #[serde(rename = "b")]
+    pub bids: Vec<Bid>,
+    #[serde(rename = "u")]
+    pub update_id: u64,
+    pub seq: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TradeUpdate {
+    #[serde(rename = "topic")]
+    pub topic: String,
+    #[serde(rename = "type")]
+    pub event_type: String,
+    #[serde(rename = "ts")]
+    pub timestamp: u64,
+    pub data: Vec<WsTrade>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WsTrade {
+    #[serde(rename = "T")]
+    pub timestamp: u64,
+    #[serde(rename = "s")]
+    pub symbol: String,
+    #[serde(rename = "S")]
+    pub side: String,
+    #[serde(rename = "v", with = "string_to_float")]
+    pub volume: f64,
+    #[serde(rename = "p", with = "string_to_float")]
+    pub price: f64,
+    #[serde(rename = "L")]
+    pub tick_direction: String,
+    #[serde(rename = "i")]
+    pub id: String,
+    #[serde(rename = "BT")]
+    pub buyer_is_maker: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WsTicker {
+    pub topic: String,
+    #[serde(rename = "type")]
+    pub event_type: String,
+    pub data: Tickers,
+    pub cs: u64,
+    pub ts: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinearTickerData {
+    pub symbol: String,
+    #[serde(rename = "tickDirection")]
+    pub tick_direction: String,
+    #[serde(rename = "price24hPcnt")]
+    pub price_24h_pcnt: String,
+    #[serde(rename = "lastPrice")]
+    pub last_price: String,
+    #[serde(rename = "prevPrice24h")]
+    pub prev_price_24h: String,
+    #[serde(rename = "highPrice24h")]
+    pub high_price_24h: String,
+    #[serde(rename = "lowPrice24h")]
+    pub low_price_24h: String,
+    #[serde(rename = "prevPrice1h")]
+    pub prev_price_1h: String,
+    #[serde(rename = "markPrice")]
+    pub mark_price: String,
+    #[serde(rename = "indexPrice")]
+    pub index_price: String,
+    #[serde(rename = "openInterest")]
+    pub open_interest: String,
+    #[serde(rename = "openInterestValue")]
+    pub open_interest_value: String,
+    #[serde(rename = "turnover24h")]
+    pub turnover_24h: String,
+    #[serde(rename = "volume24h")]
+    pub volume_24h: String,
+    #[serde(rename = "nextFundingTime")]
+    pub next_funding_time: String,
+    #[serde(rename = "fundingRate")]
+    pub funding_rate: String,
+    #[serde(rename = "bid1Price")]
+    pub bid_price: String,
+    #[serde(rename = "bid1Size")]
+    pub bid_size: String,
+    #[serde(rename = "ask1Price")]
+    pub ask_price: String,
+    #[serde(rename = "ask1Size")]
+    pub ask_size: String,
+}
 
 mod string_to_u64 {
     use std::default;

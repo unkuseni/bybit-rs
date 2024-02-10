@@ -310,7 +310,7 @@ impl Trader {
             let built_orders = json!(order_object);
             requests_array.push(built_orders);
         }
-        parameters.insert("request".into(), json!(requests_array));
+        parameters.insert("request".into(), Value::Array(requests_array));
         let request = build_json_request(&parameters);
         println!("{:?}", request);
         let response: BatchPlaceResponse = self
@@ -348,7 +348,7 @@ impl Trader {
             let built_amends = json!(amend_object);
             requests_array.push(built_amends);
         }
-        parameters.insert("request".into(), json!(requests_array));
+        parameters.insert("request".into(), Value::Array(requests_array));
         let request = build_json_request(&parameters);
         println!("{:?}", request);
         let response: BatchAmendResponse = self
@@ -387,7 +387,7 @@ impl Trader {
             let built_cancels = json!(cancel_object);
             requests_array.push(built_cancels);
         }
-        parameters.insert("request".into(), json!(requests_array));
+        parameters.insert("request".into(), Value::Array(requests_array));
         let request = build_json_request(&parameters);
         let response: BatchCancelResponse = self
             .client

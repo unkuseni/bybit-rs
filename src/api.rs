@@ -3,6 +3,9 @@ use crate::config::Config;
 use crate::general::General;
 use crate::market::MarketData;
 use crate::trade::Trader;
+use crate::account::AccountManager;
+use crate::asset::AssetManager;
+use crate::ws::Stream;
 
 pub enum API {
     Market(Market),
@@ -14,6 +17,19 @@ pub enum API {
     SpotMargin(SpotMargin),
 }
 /// Bybit Endpoints
+#[derive(Clone)]
+pub enum WebsocketAPI {
+    Public(Public),
+    Private,
+}
+
+#[derive(Clone)]
+pub enum Public {
+    Spot,
+    Linear,
+    Inverse
+}
+
 
 pub enum Market {
     Time,
@@ -225,6 +241,20 @@ impl From<API> for String {
     }
 }
 
+impl From<WebsocketAPI> for String {
+    fn from(item: WebsocketAPI) -> Self {
+        String::from(match item {
+            WebsocketAPI::Public(route) => match route {
+                Public::Spot => "/public/spot",
+                Public::Linear => "/public/linear",
+                Public::Inverse => "/public/inverse",
+            },
+            WebsocketAPI::Private => "/private",
+
+        })
+    }
+}
+
 pub trait Bybit {
     fn new(api_key: Option<String>, secret_key: Option<String>) -> Self;
 
@@ -280,4 +310,55 @@ impl Bybit for Trader {
             recv_window: config.recv_window,
         }
     }
+}
+
+impl Bybit for AccountManager {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> AccountManager {
+        Self::new_with_config(&Config::default(), api_key, secret_key)
+    }
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> AccountManager {
+        AccountManager {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            recv_window: config.recv_window,
+        }
+    }
+}
+
+impl Bybit for AssetManager {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> AssetManager {
+        Self::new_with_config(&Config::default(), api_key, secret_key)
+    }
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> AssetManager {
+        AssetManager {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            recv_window: config.recv_window,
+        }
+    }
+    
+}
+
+
+impl Bybit for Stream {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> Stream {
+        Self::new_with_config(&Config::default(), api_key, secret_key)
+    }
+
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> Stream {
+        Stream {
+            client: Client::new(api_key, secret_key, config.ws_endpoint.clone()),
+        }
+    }
+    
 }

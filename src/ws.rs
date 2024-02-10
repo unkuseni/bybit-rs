@@ -1,53 +1,140 @@
-use hmac::{Hmac, Mac, NewMac};
-use sha2::Sha256;
-use std::time::{SystemTime, UNIX_EPOCH};
-use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
-use url::Url;
+use crate::api::{Public, WebsocketAPI};
+use crate::client::Client;
+use crate::errors::Result;
+use crate::model::*;
+use crate::util::{build_json_request, generate_random_uid};
+use error_chain::bail;
+use serde_json::Value;
+use std::collections::BTreeMap;
+use std::net::TcpStream;
+use tungstenite::stream::MaybeTlsStream;
+use tungstenite::{Message as WsMessage, WebSocket};
 
-// Create alias for HMAC-SHA256
-type HmacSha256 = Hmac<Sha256>;
-
-async fn authenticate(api_key: &str, api_secret: &str) {
-    // Generate expires
-    let start = SystemTime::now();
-    let expires = start
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards")
-        .as_millis() + 1000; // Adding 1 second to the current time
-
-    // Prepare signature message
-    let message = format!("GET/realtime{}", expires);
-
-    // Create HMAC-SHA256 signature
-    let mut mac = HmacSha256::new_varkey(api_secret.as_bytes())
-        .expect("HMAC can take key of any size");
-    mac.update(message.as_bytes());
-    let signature = hex::encode(mac.finalize().into_bytes());
-
-    // WebSocket URL (replace with actual URL)
-    let url = Url::parse("wss://stream.bybit.com/realtime").unwrap();
-
-    // Connect to WebSocket server
-    let (mut socket, _) = connect_async(url).await.expect("Failed to connect");
-
-    // Authenticate with API
-    let auth_message = json!({
-        "op": "auth",
-        "args": [api_key, expires.to_string(), signature]
-    });
-
-    // Send authentication message
-    socket
-        .send(Message::Text(auth_message.to_string()))
-        .await
-        .expect("Failed to send message");
+pub struct Stream {
+    pub client: Client,
 }
 
-// Usage
-#[tokio::main]
-async fn main() {
-    let api_key = "your_api_key";
-    let api_secret = "your_api_secret";
+impl Stream {
+    pub async fn ws_ping(&self, private: bool) -> Result<()> {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        parameters.insert("req_id".into(), generate_random_uid(8).into());
+        parameters.insert("op".into(), "ping".into());
+        let request = build_json_request(&parameters);
+        let response = self
+            .client
+            .wss_connect(
+                WebsocketAPI::Public(Public::Linear),
+                Some(request),
+                private,
+                None,
+                |event| {
+                    match event {
+                        WebsocketEvents::Pong(pong) => match pong {
+                            PongResponse::PublicPong(category) => match category {
+                                PongCategory::Perpetual(data) => {
+                                    println!("{:#?}", data);
+                                }
+                                PongCategory::Spot(data) => {
+                                    println!("{:#?}", data);
+                                }
+                            },
+                            PongResponse::PrivatePong(data) => println!("{:#?}", data), // Handle Ping event
+                        },
+                        _ => {
+                            bail!("Unexpected event");
+                        }
+                    }
+                    Ok(())
+                },
+            )
+            .await?;
+        Ok(response)
+    }
 
-    authenticate(api_key, api_secret).await;
+    pub async fn ws_priv_subscribe<'a, F>(&self, req: Subscription<'a>, handler: F) -> Result<()>
+    where
+        F: FnMut(WebsocketEvents) -> Result<()> + 'static + Send,
+    {
+        let request = Self::build_subscription(req);
+        let response = self
+            .client
+            .wss_connect(WebsocketAPI::Private, Some(request), true, Some(8), handler)
+            .await?;
+        Ok(response)
+    }
+
+    pub async fn ws_subscribe<'a, F>(
+        &self,
+        req: Subscription<'a>,
+        category: Category,
+        handler: F,
+    ) -> Result<()>
+    where
+        F: FnMut(WebsocketEvents) -> Result<()> + 'static + Send,
+    {
+        let endpoint = {
+            match category {
+                Category::Linear => WebsocketAPI::Public(Public::Linear),
+                Category::Inverse => WebsocketAPI::Public(Public::Inverse),
+                Category::Spot => WebsocketAPI::Public(Public::Spot),
+                _ => bail!("Option has not been implemented"),
+            }
+        };
+        let request = Self::build_subscription(req);
+        let response = self
+            .client
+            .wss_connect(endpoint, Some(request), false, None, handler)
+            .await?;
+        Ok(response)
+    }
+
+    pub async fn ws_unsubscribe<'a>(&self, req: Subscription<'a>) -> Result<()> {
+        let request = Self::build_subscription(req);
+        let response = self
+            .client
+            .wss_connect(WebsocketAPI::Private, Some(request), true, None, |_| Ok(()))
+            .await?;
+        Ok(response)
+    }
+
+    pub fn disconnect(&self) -> Result<()> {
+        drop(&self.client);
+        Ok(())
+    }
+
+    pub fn build_subscription(action: Subscription) -> String {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        parameters.insert("req_id".into(), generate_random_uid(8).into());
+        parameters.insert("op".into(), action.op.into());
+        parameters.insert("args".into(), action.args.into());
+        let request = build_json_request(&parameters);
+        request
+    }
+
+    fn handle_msg(msg: &str, mut parser: impl FnMut(WebsocketEvents) -> Result<()>) -> Result<()> {
+        let update: Value = serde_json::from_str(msg)?;
+        if let Some(data) = update.get("data") {
+            let event = serde_json::from_value::<WebsocketEvents>(data.clone())?;
+            parser(event)?;
+        }
+
+        Ok(())
+    }
+
+    pub fn event_loop(
+        mut stream: WebSocket<MaybeTlsStream<TcpStream>>,
+        mut parser: impl FnMut(WebsocketEvents) -> Result<()> + Send + 'static,
+    ) -> Result<()> {
+        loop {
+            let msg = stream.read()?;
+            match msg {
+                WsMessage::Text(ref msg) => {
+                    if let Err(e) = Stream::handle_msg(msg, &mut parser) {
+                        bail!(format!("Error on handling stream message: {}", e));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
 }
