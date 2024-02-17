@@ -5,10 +5,11 @@ use tokio;
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
-    static API_KEY: &str = "ckvcnbvnbnjklvclibjnj"; //Mockup string
-    static SECRET: &str = "rfogobvjkkblvjlcnm"; // Mockup string
+    static API_KEY: &str = ""; //Mockup string
+    static SECRET: &str = ""; // Mockup string
 
     #[tokio::test]
     async fn test_trade() {
@@ -42,11 +43,44 @@ mod tests {
     #[tokio::test]
     async fn test_trade_history() {
         let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
-        let data: TradeHistoryRequest =
-            TradeHistoryRequest::new(Category::Linear, None, None, None, None, None, None, None, None);
+        let data: TradeHistoryRequest = TradeHistoryRequest::new(
+            Category::Linear,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
         let trade_history = trade.get_trade_history(data).await;
         if let Ok(data) = trade_history {
             println!("{:#?}", data.list);
         }
+    }
+
+    #[tokio::test]
+    async fn test_batch() {
+        let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let request = vec![
+            OrderRequest {
+                symbol: "MATICUSDT".into(),
+                side: Side::Buy,
+                qty: 100.0,
+                order_type: OrderType::Limit,
+                ..Default::default()
+            },
+            OrderRequest {
+                symbol: "BTCUSDT".into(),
+                side: Side::Buy,
+                qty: 100.0,
+                order_type: OrderType::Limit,
+                ..Default::default()
+            },
+        ];
+        let data: BatchPlaceRequest = BatchPlaceRequest::new(Category::Linear, request);
+        let batch = trade.batch_place_order(data).await;
+        println!("{:#?}", batch);
     }
 }

@@ -21,8 +21,9 @@ mod tests {
     #[tokio::test]
     async fn test_time() {
         let market: General = Bybit::new(None, None);
+        let timestamp = get_timestamp();
         let time = market.get_server_time().await;
-        println!("{:#?} , {:?}", time, get_timestamp());
+        println!("{:#?} , {:?}", time, timestamp);
     }
     #[tokio::test]
     async fn test_kline() {
@@ -32,7 +33,7 @@ mod tests {
             "MATICUSDT",
             "60",
             Some("010124"),
-            Some("280124"),
+            Some("050224"),
             None,
         );
         let premium = market.get_klines(request).await;
@@ -59,22 +60,40 @@ mod tests {
     async fn test_market() {
         let market: MarketData = Bybit::new(None, None);
         let five_minutes = Duration::from_secs(5 * 60);
-        let request = OrderbookRequest::new("SKLUSDT", Category::Linear, None);
+        let request = OrderbookRequest::new("GALUSDT", Category::Linear, Some(1));
         let start = Instant::now();
         while Instant::now() - start < five_minutes {
             let order_book = market.get_depth(request.clone()).await;
-            assert!(order_book.is_ok());
             if let Ok(order_book) = order_book {
-                let imbalance = order_book.asks[0].price - order_book.bids[0].price;
-                println!("{:#?} , Imbalance: {:.5}", order_book, imbalance);
+                let mid_price = (order_book.asks[0].price + order_book.bids[0].price) / 2.0;
+                let imbalance = (order_book.bids[0].qty - order_book.asks[0].qty) / (order_book.asks[0].qty + order_book.bids[0].qty);
+                let fees = fee_percent(mid_price, 0.04);
+                let spread = order_book.asks[0].price - order_book.bids[0].price;
+                let arb = spread - fees;
+                println!(
+                    "{:#?} , Spread: {:.5} Arb: {} Imb: {:.4}",
+                    order_book,
+                    spread,
+                    if arb > fee_percent(mid_price, 0.02) {
+                        arb
+                    } else {
+                        0.0
+                    },
+                    imbalance
+                );
             }
         }
+    }
+
+
+    fn fee_percent(value: f64, percent: f64) -> f64 {
+        (percent / 100.0) * value
     }
 
     #[tokio::test]
     async fn test_ticker() {
         let market: MarketData = Bybit::new(None, None);
-        let symbol = "BTCUSDT";
+        let symbol = "MATICUSDT";
         let ticker = market.get_futures_tickers(Some(symbol)).await;
         if let Ok(data) = ticker {
             println!("{:#?}", data[0]);
