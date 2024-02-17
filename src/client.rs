@@ -1,3 +1,5 @@
+use std::net::TcpStream;
+
 use crate::api::{WebsocketAPI, API};
 use crate::errors::{BybitContentError, ErrorKind, Result};
 use crate::util::{generate_random_uid, get_timestamp};
@@ -8,13 +10,12 @@ use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE, USER_AGENT},
     Client as ReqwestClient, Response as ReqwestResponse, StatusCode,
 };
-use tungstenite::stream::MaybeTlsStream;
 
 use serde::de::DeserializeOwned;
 use serde_json::json;
 use sha2::Sha256;
-use std::net::TcpStream;
-use tungstenite::{connect, protocol::WebSocket, Message as WsMessage};
+use tungstenite::stream::MaybeTlsStream;
+use tungstenite::{connect, Message as WsMessage, WebSocket};
 use url::Url as WsUrl;
 
 #[derive(Clone)]
@@ -121,7 +122,6 @@ impl Client {
         self.handler(response).await
     }
 
-    
     fn build_signed_headers<'str>(
         &self,
         content_type: bool,
@@ -202,30 +202,26 @@ impl Client {
             status => bail!("Received error response: {:?}", status),
         }
     }
-    
-    pub async fn wss_connect<F>(
+
+    pub fn wss_connect(
         &self,
         endpoint: WebsocketAPI,
         request_body: Option<String>,
         private: bool,
-        alive_dur: u64,
-        mut handler: F,
-    ) -> Result<()>
-    where
-        F: FnMut(WebSocket<MaybeTlsStream<TcpStream>>) -> Result<()> + Send + 'static,
-    {
+        alive_dur: Option<u64>,
+    ) -> Result<WebSocket<MaybeTlsStream<TcpStream>>> {
         let unparsed_url = format!("{}{}", self.host, String::from(endpoint)).to_string();
         let url = WsUrl::parse(unparsed_url.as_str())?;
-        let expiry_time = alive_dur * 1000 * 50;
-    
+        let expiry_time = alive_dur.unwrap_or(0) * 1000 * 60;
         let expires = get_timestamp() + expiry_time;
-    
+
         let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
         mac.update(format!("GET/realtime{expires}").as_bytes());
         let signature = hex_encode(mac.finalize().into_bytes());
         let uuid = generate_random_uid(5);
-    
+
         let (mut ws_stream, _) = connect(url)?;
+        println!("Connected successfully");
         let auth_msg = json!({
             "req_id": uuid,
             "op": "auth",
@@ -236,7 +232,6 @@ impl Client {
         }
         let request = request_body.unwrap_or_else(|| String::new());
         ws_stream.send(WsMessage::Text(request))?;
-        let stream = handler(ws_stream)?;
-        Ok(stream)
+        Ok(ws_stream)
     }
 }

@@ -2824,61 +2824,41 @@ impl<'a> Subscription<'a> {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum WebsocketEvents {
-    Pong(PongResponse),
-    OrderBook(WsOrderBook),
-    Trade(Vec<WsTrade>),
-    Ticker(Tickers),
+    OrderBookEvent(OrderBookUpdate),
+    TradeEvent(TradeUpdate),
+    TickerEvent(WsTicker),
+    LiquidationEvent(Liquidation),
+    KlineEvent(WsKline),
+    PositionEvent(PositionEvent),
+    ExecutionEvent(Execution),
+    OrderEvent(OrderEvent),
+    Wallet(WalletEvent),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Tickers {
     Linear(LinearTickerData),
+    Spot(SpotTickerData),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum PongResponse {
-    PublicPong(PongCategory),
-    PrivatePong(PrivPong),
+    PublicPong(PongData),
+    PrivatePong(PongData),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum PongCategory {
-    Perpetual(PerpetualPong),
-    Spot(SpotPong),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct PerpetualPong {
-        pub success: bool,
-    #[serde(rename = "retMsg")]
-    pub ret_msg: String,
-    #[serde(rename = "connId")]
-    pub conn_id: String,
-    pub req_id: String,
-    pub op: String,
-
-}
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SpotPong {
+pub struct PongData {
     pub success: bool,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
-    #[serde(rename = "connId")]
     pub conn_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub req_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub args: Option<Vec<String>>,
     pub op: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PrivPong {
-    pub req_id: String,
-    pub op: String,
-    pub args: Vec<String>,
-    pub conn_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2990,6 +2970,390 @@ pub struct LinearTickerData {
     pub ask_price: String,
     #[serde(rename = "ask1Size")]
     pub ask_size: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SpotTickerData {
+    #[serde(rename = "symbol")]
+    pub symbol: String,
+    #[serde(rename = "lastPrice")]
+    pub last_price: String,
+    #[serde(rename = "highPrice24h")]
+    pub high_price_24h: String,
+    #[serde(rename = "lowPrice24h")]
+    pub low_price_24h: String,
+    #[serde(rename = "prevPrice24h")]
+    pub prev_price_24h: String,
+    #[serde(rename = "volume24h")]
+    pub volume_24h: String,
+    #[serde(rename = "turnover24h")]
+    pub turnover_24h: String,
+    #[serde(rename = "price24hPcnt")]
+    pub price_24h_pcnt: String,
+    #[serde(rename = "usdIndexPrice")]
+    pub usd_index_price: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Liquidation {
+    #[serde(rename = "topic")]
+    pub topic: String,
+    #[serde(rename = "type")]
+    pub event_type: String,
+    #[serde(rename = "ts")]
+    pub ts: u64,
+    #[serde(rename = "data")]
+    pub data: LiquidationData,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LiquidationData {
+    #[serde(rename = "updatedTime")]
+    pub updated_time: u64,
+    #[serde(rename = "symbol")]
+    pub symbol: String,
+    #[serde(rename = "side")]
+    pub side: String,
+    #[serde(with = "string_to_float")]
+    pub size: f64,
+    #[serde(with = "string_to_float")]
+    pub price: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WsKline {
+    pub topic: String,
+    pub data: Vec<KlineData>,
+    #[serde(rename = "ts")]
+    pub timestamp: u64,
+    #[serde(rename = "type")]
+    pub event_type: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct KlineData {
+    pub start: u64,
+    pub end: u64,
+    pub interval: String,
+    pub open: String,
+    pub close: String,
+    pub high: String,
+    pub low: String,
+    pub volume: String,
+    pub turnover: String,
+    pub confirm: bool,
+    pub timestamp: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PositionEvent {
+    pub id: String,
+    pub topic: String,
+    #[serde(rename = "creationTime")]
+    pub creation_time: u64,
+    pub data: Vec<PositionData>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PositionData {
+    #[serde(rename = "positionIdx")]
+    pub position_idx: u8,
+    #[serde(rename = "tradeMode")]
+    pub trade_mode: u8,
+    #[serde(rename = "riskId")]
+    pub risk_id: u8,
+    #[serde(rename = "riskLimitValue")]
+    pub risk_limit_value: String,
+    pub symbol: String,
+    pub side: String,
+    pub size: String,
+    #[serde(rename = "entryPrice")]
+    pub entry_price: String,
+    pub leverage: String,
+    #[serde(rename = "positionValue")]
+    pub position_value: String,
+    #[serde(rename = "positionBalance")]
+    pub position_balance: String,
+    #[serde(rename = "markPrice")]
+    pub mark_price: String,
+    #[serde(rename = "positionIM")]
+    pub position_im: String,
+    #[serde(rename = "positionMM")]
+    pub position_mm: String,
+    #[serde(rename = "takeProfit")]
+    pub take_profit: String,
+    #[serde(rename = "stopLoss")]
+    pub stop_loss: String,
+    #[serde(rename = "trailingStop")]
+    pub trailing_stop: String,
+    #[serde(rename = "unrealisedPnl")]
+    pub unrealised_pnl: String,
+    #[serde(rename = "cumRealisedPnl")]
+    pub cum_realised_pnl: String,
+    #[serde(rename = "createdTime")]
+    pub created_time: String,
+    #[serde(rename = "updatedTime")]
+    pub updated_time: String,
+    #[serde(rename = "tpslMode")]
+    pub tpsl_mode: String,
+    #[serde(rename = "liqPrice")]
+    pub liq_price: String,
+    #[serde(rename = "bustPrice")]
+    pub bust_price: String,
+    pub category: String,
+    #[serde(rename = "positionStatus")]
+    pub position_status: String,
+    #[serde(rename = "adlRankIndicator")]
+    pub adl_rank_indicator: u8,
+    #[serde(rename = "autoAddMargin")]
+    pub auto_add_margin: u8,
+    #[serde(rename = "leverageSysUpdatedTime")]
+    pub leverage_sys_updated_time: String,
+    #[serde(rename = "mmrSysUpdatedTime")]
+    pub mmr_sys_updated_time: String,
+    pub seq: u64,
+    #[serde(rename = "isReduceOnly")]
+    pub is_reduce_only: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Execution {
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "topic")]
+    pub topic: String,
+    #[serde(rename = "creationTime")]
+    pub creation_time: u64,
+    #[serde(rename = "data")]
+    pub data: Vec<ExecutionData>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ExecutionData {
+    #[serde(rename = "category")]
+    pub category: String,
+    #[serde(rename = "symbol")]
+    pub symbol: String,
+    #[serde(rename = "execFee")]
+    pub exec_fee: String,
+    #[serde(rename = "execId")]
+    pub exec_id: String,
+    #[serde(rename = "execPrice")]
+    pub exec_price: String,
+    #[serde(rename = "execQty")]
+    pub exec_qty: String,
+    #[serde(rename = "execType")]
+    pub exec_type: String,
+    #[serde(rename = "execValue")]
+    pub exec_value: String,
+    #[serde(rename = "isMaker")]
+    pub is_maker: bool,
+    #[serde(rename = "feeRate")]
+    pub fee_rate: String,
+    #[serde(rename = "tradeIv")]
+    pub trade_iv: String,
+    #[serde(rename = "markIv")]
+    pub mark_iv: String,
+    #[serde(rename = "blockTradeId")]
+    pub block_trade_id: String,
+    #[serde(rename = "markPrice")]
+    pub mark_price: String,
+    #[serde(rename = "indexPrice")]
+    pub index_price: String,
+    #[serde(rename = "underlyingPrice")]
+    pub underlying_price: String,
+    #[serde(rename = "leavesQty")]
+    pub leaves_qty: String,
+    #[serde(rename = "orderId")]
+    pub order_id: String,
+    #[serde(rename = "orderLinkId")]
+    pub order_link_id: String,
+    #[serde(rename = "orderPrice")]
+    pub order_price: String,
+    #[serde(rename = "orderQty")]
+    pub order_qty: String,
+    #[serde(rename = "orderType")]
+    pub order_type: String,
+    #[serde(rename = "stopOrderType")]
+    pub stop_order_type: String,
+    #[serde(rename = "side")]
+    pub side: String,
+    #[serde(rename = "execTime")]
+    pub exec_time: String,
+    #[serde(rename = "isLeverage")]
+    pub is_leverage: String,
+    #[serde(rename = "closedSize")]
+    pub closed_size: String,
+    #[serde(rename = "seq")]
+    pub seq: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OrderData {
+    pub symbol: String,
+    #[serde(rename = "orderId")]
+    pub order_id: String,
+    pub side: String,
+    #[serde(rename = "orderType")]
+    pub order_type: String,
+    #[serde(rename = "cancelType")]
+    pub cancel_type: String,
+    pub price: String,
+    pub qty: String,
+    #[serde(rename = "orderIv")]
+    pub order_iv: String,
+    #[serde(rename = "timeInForce")]
+    pub time_in_force: String,
+    #[serde(rename = "orderStatus")]
+    pub order_status: String,
+    #[serde(rename = "orderLinkId")]
+    pub order_link_id: String,
+    #[serde(rename = "lastPriceOnCreated")]
+    pub last_price_on_created: String,
+    #[serde(rename = "reduceOnly")]
+    pub reduce_only: bool,
+    #[serde(rename = "leavesQty")]
+    pub leaves_qty: String,
+    #[serde(rename = "leavesValue")]
+    pub leaves_value: String,
+    #[serde(rename = "cumExecQty")]
+    pub cum_exec_qty: String,
+    #[serde(rename = "cumExecValue")]
+    pub cum_exec_value: String,
+    #[serde(rename = "avgPrice")]
+    pub avg_price: String,
+    #[serde(rename = "blockTradeId")]
+    pub block_trade_id: String,
+    #[serde(rename = "positionIdx")]
+    pub position_idx: u8,
+    #[serde(rename = "cumExecFee")]
+    pub cum_exec_fee: String,
+    #[serde(rename = "createdTime")]
+    pub created_time: String,
+    #[serde(rename = "updatedTime")]
+    pub updated_time: String,
+    #[serde(rename = "rejectReason")]
+    pub reject_reason: String,
+    #[serde(rename = "stopOrderType")]
+    pub stop_order_type: String,
+    #[serde(rename = "tpslMode")]
+    pub tpsl_mode: String,
+    #[serde(rename = "triggerPrice")]
+    pub trigger_price: String,
+    #[serde(rename = "takeProfit")]
+    pub take_profit: String,
+    #[serde(rename = "stopLoss")]
+    pub stop_loss: String,
+    #[serde(rename = "tpTriggerBy")]
+    pubtp_trigger_by: String,
+    #[serde(rename = "slTriggerBy")]
+    pub sl_trigger_by: String,
+    #[serde(rename = "tpLimitPrice")]
+    pub tp_limit_price: String,
+    #[serde(rename = "slLimitPrice")]
+    pub sl_limit_price: String,
+    #[serde(rename = "triggerDirection")]
+    pub trigger_direction: u8,
+    #[serde(rename = "triggerBy")]
+    pub trigger_by: String,
+    #[serde(rename = "closeOnTrigger")]
+    pub close_on_trigger: bool,
+    pub category: String,
+    #[serde(rename = "placeType")]
+    pub place_type: String,
+    #[serde(rename = "smpType")]
+    pub smp_type: String,
+    #[serde(rename = "smpGroup")]
+    pub smp_group: u8,
+    #[serde(rename = "smpOrderId")]
+    pub smp_order_id: String,
+    #[serde(rename = "feeCurrency")]
+    pub fee_currency: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OrderEvent {
+    pub id: String,
+    pub topic: String,
+    #[serde(rename = "creationTime")]
+    pub creation_time: u64,
+    pub data: Vec<OrderData>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WalletEvent {
+    pub id: String,
+    pub topic: String,
+    #[serde(rename = "creationTime")]
+    pub creation_time: u64,
+    pub data: Vec<WalletData>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct WalletData {
+    #[serde(rename = "accountIMRate")]
+    pub account_im_rate: String,
+    #[serde(rename = "accountMMRate")]
+    pub account_mm_rate: String,
+    #[serde(rename = "totalEquity")]
+    pub total_equity: String,
+    #[serde(rename = "totalWalletBalance")]
+    pub total_wallet_balance: String,
+    #[serde(rename = "totalMarginBalance")]
+    pub total_margin_balance: String,
+    #[serde(rename = "totalAvailableBalance")]
+    pub total_available_balance: String,
+    #[serde(rename = "totalPerpUPL")]
+    pub total_perp_upl: String,
+    #[serde(rename = "totalInitialMargin")]
+    pub total_initial_margin: String,
+    #[serde(rename = "totalMaintenanceMargin")]
+    pub total_maintenance_margin: String,
+    #[serde(rename = "coin")]
+    pub coin: Vec<CoinData>,
+    #[serde(rename = "accountLTV")]
+    pub account_ltv: String,
+    #[serde(rename = "accountType")]
+    pub account_type: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CoinData {
+    #[serde(rename = "coin")]
+    pub coin: String,
+    #[serde(rename = "equity")]
+    pub equity: String,
+    #[serde(rename = "usdValue")]
+    pub usd_value: String,
+    #[serde(rename = "walletBalance")]
+    pub wallet_balance: String,
+    #[serde(rename = "availableToWithdraw")]
+    pub available_to_withdraw: String,
+    #[serde(rename = "availableToBorrow")]
+    pub available_to_borrow: String,
+    #[serde(rename = "borrowAmount")]
+    pub borrow_amount: String,
+    #[serde(rename = "accruedInterest")]
+    pub accrued_interest: String,
+    #[serde(rename = "totalOrderIM")]
+    pub total_order_im: String,
+    #[serde(rename = "totalPositionIM")]
+    pub total_position_im: String,
+    #[serde(rename = "totalPositionMM")]
+    pub total_position_mm: String,
+    #[serde(rename = "unrealisedPnl")]
+    pub unrealised_pnl: String,
+    #[serde(rename = "cumRealisedPnl")]
+    pub cum_realised_pnl: String,
+    pub bonus: String,
+    #[serde(rename = "collateralSwitch")]
+    pub collateral_switch: bool,
+    #[serde(rename = "marginCollateral")]
+    pub margin_collateral: bool,
+    #[serde(rename = "locked")]
+    pub locked: String,
+    #[serde(rename = "spotHedgingQty")]
+    pub spot_hedging_qty: String,
 }
 
 mod string_to_u64 {
