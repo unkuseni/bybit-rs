@@ -78,7 +78,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Place), 5000, Some(request))
+            .post_signed(API::Trade(Trade::Place), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result)
     }
@@ -127,7 +127,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Place), 5000, Some(request))
+            .post_signed(API::Trade(Trade::Place), self.recv_window.into(), Some(request))
             .await?;
         Ok(response)
     }
@@ -138,7 +138,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: AmendOrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Amend), 5000, Some(request))
+            .post_signed(API::Trade(Trade::Amend), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result)
     }
@@ -148,7 +148,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: CancelOrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Cancel), 5000, Some(request))
+            .post_signed(API::Trade(Trade::Cancel), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result)
     }
@@ -212,7 +212,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: CancelallResponse = self
             .client
-            .post_signed(API::Trade(Trade::CancelAll), 5000, Some(request))
+            .post_signed(API::Trade(Trade::CancelAll), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result.list)
     }
@@ -255,7 +255,7 @@ impl Trader {
         let request = build_request(&parameters);
         let response: OrderHistoryResponse = self
             .client
-            .get_signed(API::Trade(Trade::History), 5000, Some(request))
+            .get_signed(API::Trade(Trade::History), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result.list)
     }
@@ -286,7 +286,7 @@ impl Trader {
         let request = build_request(&parameters);
         let response: TradeHistoryResponse = self
             .client
-            .get_signed(API::Trade(Trade::TradeHistory), 5000, Some(request))
+            .get_signed(API::Trade(Trade::TradeHistory), self.recv_window.into(), Some(request))
             .await?;
         Ok(response.result)
     }
@@ -315,7 +315,7 @@ impl Trader {
         println!("{:?}", request);
         let response: BatchPlaceResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchPlace), 3000, Some(request))
+            .post_signed(API::Trade(Trade::BatchPlace), self.recv_window.into(), Some(request))
             .await?;
         if response.result.list.len() != response.ret_ext_info.list.len() {
             println!("List length not equal");
@@ -353,7 +353,7 @@ impl Trader {
         println!("{:?}", request);
         let response: BatchAmendResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchAmend), 3000, Some(request))
+            .post_signed(API::Trade(Trade::BatchAmend), self.recv_window.into(), Some(request))
             .await?;
         if response.result.list.len() != response.ret_ext_info.list.len() {
             println!("List length not equal");
@@ -391,7 +391,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: BatchCancelResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchCancel), 3000, Some(request))
+            .post_signed(API::Trade(Trade::BatchCancel), self.recv_window.into(), Some(request))
             .await?;
         if response.result.list.len() != response.ret_ext_info.list.len() {
             println!("List length not equal");

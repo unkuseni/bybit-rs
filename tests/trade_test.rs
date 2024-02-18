@@ -68,14 +68,14 @@ mod tests {
                 symbol: "MATICUSDT".into(),
                 side: Side::Buy,
                 qty: 100.0,
-                order_type: OrderType::Limit,
+                order_type: OrderType::Market,
                 ..Default::default()
             },
             OrderRequest {
                 symbol: "BTCUSDT".into(),
                 side: Side::Buy,
                 qty: 100.0,
-                order_type: OrderType::Limit,
+                order_type: OrderType::Market,
                 ..Default::default()
             },
         ];

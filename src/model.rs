@@ -2806,6 +2806,80 @@ pub struct MoveHistoryEntry {
     pub reject_party: String,
 }
 
+// = = = = = = = = =  ==  = = == = = == =  = = = = = = = = = = = = = = = =
+//
+//  ACCOUNT STRUCTS AND RESPONSES
+//
+// = = = = = = = = = = = = = = = = = = ==  = = = = ==  = = == = =  = = = =
+
+#[derive(Serialize, Clone, Default)]
+
+pub struct WalletRequest<'a> {
+    pub account_type: Cow<'a, str>,
+    pub coin: Option<Cow<'a, str>>,
+}
+
+impl<'a> WalletRequest<'a> {
+    pub fn new(account_type: &'a str, coin: Option<&'a str>) -> Self {
+        Self {
+            account_type: Cow::Borrowed(account_type),
+            coin: coin.map(|s| Cow::Borrowed(s)),
+        }
+    }
+
+    pub fn default() -> WalletRequest<'a> {
+        WalletRequest::new("UNIFIED", None)
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct WalletResponse {
+    #[serde(rename = "retCode")]
+    pub ret_code: i32,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    pub result: AccountInfo,
+    #[serde(rename = "retExtInfo")]
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct AccountInfo {
+    #[serde(rename = "totalEquity")]
+    pub total_equity: String,
+    #[serde(rename = "accountIMRate")]
+    pub account_im_rate: String,
+    #[serde(rename = "totalMarginBalance")]
+    pub total_margin_balance: String,
+    #[serde(rename = "totalInitialMargin")]
+    pub total_initial_margin: String,
+    #[serde(rename = "accountType")]
+    pub account_type: String,
+    #[serde(rename = "totalAvailableBalance")]
+    pub total_available_balance: String,
+    #[serde(rename = "accountMMRate")]
+    pub account_mm_rate: String,
+    #[serde(rename = "totalPerpUPL")]
+    pub total_perp_upl: String,
+    #[serde(rename = "totalWalletBalance")]
+    pub total_wallet_balance: String,
+    #[serde(rename = "accountLTV")]
+    pub account_ltv: String,
+    #[serde(rename = "totalMaintenanceMargin")]
+    pub total_maintenance_margin: String,
+    pub coin: Vec<CoinData>,
+}
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+//
+// WEBSOCKET STRUCTS AND RESPONSES
+//
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
 #[derive(Clone, Debug, Default)]
 pub struct Subscription<'a> {
     pub op: &'a str,
@@ -3313,8 +3387,8 @@ pub struct WalletData {
     pub coin: Vec<CoinData>,
     #[serde(rename = "accountLTV")]
     pub account_ltv: String,
-    #[serde(rename = "accountType")]
-    pub account_type: String,
+    #[serde(rename = "accountType", skip_serializing_if = "Option::is_none")]
+    pub account_type: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

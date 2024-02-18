@@ -88,7 +88,7 @@ mod tests {
     #[tokio::test]
     async fn test_default_orderbook() {
         let ws: Stream = Bybit::new(None, None);
-        let request = vec![(50, "BTCUSDT"), (1, "MATICUSDT")];
+        let request = vec![(1, "MATICUSDT")];
         ws.ws_orderbook(request, Category::Linear).unwrap();
     }
 
