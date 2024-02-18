@@ -1,3 +1,37 @@
+# AN API CONNECTOR FOR BYBIT V5 API IN RUST
+
+## Table of Contents
+
+- [Description](#description)
+- [Features](#features)
+- [Installation](#Installation)
+- [Usage](#usage)
+
+
+### DESCRIPTION
+This is simply a bybit V5 api connector using binance-rs implementation, Some parts of the api have not been completed yet...Anyone is welcome to branch/fork the repository and add their own upgrades. If you think you've made substantial improvements to the module, submit a pull request and we'll gladly take a look.
+
+### FEATURES
+- REST
+- Websocket API
+
+### INSTALLATION
+
+this module can be installed by adding the following to your `Cargo.toml`:
+
+```
+[dependencies]
+bybit-rs = "*"
+
+```
+### USAGE  
+
+Take a look at tests for usage.
+
+
+### CONTACT
+if you have any issues contact me on twitter @unkuseni
+
 
 ## Risk Warning
 
