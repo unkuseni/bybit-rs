@@ -3,7 +3,7 @@ name = "bybit-rs"
 version = "0.1.0"
 edition = "2021"
 readme = "README.md"
-license = "MIT or Apache-2.0"
+license = "MIT"
 categories = ["api-bindings"]
 description = "Bybit V5 API bindings in Rust"
 
