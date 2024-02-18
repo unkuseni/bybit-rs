@@ -1,8 +1,8 @@
-use bybit_rs::api::*;
-use bybit_rs::config::*;
-use bybit_rs::general::General;
-use bybit_rs::market::*;
-use bybit_rs::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest};
+use bybit::api::*;
+use bybit::config::*;
+use bybit::general::General;
+use bybit::market::*;
+use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest};
 use tokio;
 use tokio::time::{Duration, Instant};
 
@@ -10,7 +10,7 @@ use tokio::time::{Duration, Instant};
 mod tests {
 
     use super::*;
-    use bybit_rs::{
+    use bybit::{
         model::{
             FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
             RecentTradesRequest, RiskLimitRequest,

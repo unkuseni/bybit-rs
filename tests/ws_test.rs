@@ -1,10 +1,10 @@
-use bybit_rs::api::*;
+use bybit::api::*;
 use tokio;
 
 #[cfg(test)]
 mod tests {
 
-    use bybit_rs::{
+    use bybit::{
         model::{Category, Subscription, Tickers, WebsocketEvents},
         ws::Stream,
     };

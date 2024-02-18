@@ -1,6 +1,6 @@
-use bybit_rs::api::*;
-use bybit_rs::model::*;
-use bybit_rs::trade::*;
+use bybit::api::*;
+use bybit::model::*;
+use bybit::trade::*;
 use tokio;
 
 #[cfg(test)]

@@ -1,11 +1,11 @@
 
-use bybit_rs::api::*;
-use bybit_rs::model::*;
+use bybit::api::*;
+use bybit::model::*;
 use tokio;
 
 #[cfg(test)]
 mod tests {
-    use bybit_rs::account::AccountManager;
+    use bybit::account::AccountManager;
 
     use super::*;
     static API_KEY: &str = ""; //Mockup string
