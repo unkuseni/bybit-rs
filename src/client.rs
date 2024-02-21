@@ -177,6 +177,24 @@ impl Client {
         hex_signature
     }
 
+    fn _sign_post_message(
+        &self,
+        timestamp: &str,
+        recv_window: &str,
+        request: Option<String>,
+    ) -> String {
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
+        mac.update(timestamp.as_bytes());
+        mac.update(self.api_key.as_bytes());
+        mac.update(recv_window.as_bytes());
+        if let Some(req) = request {
+            mac.update(req.as_bytes());
+        }
+        let hex_signature = hex_encode(mac.finalize().into_bytes());
+
+        hex_signature
+    }
+
     async fn handler<T: DeserializeOwned + Send + 'static>(
         &self,
         response: ReqwestResponse,

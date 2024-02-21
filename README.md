@@ -21,7 +21,7 @@ this module can be installed by adding the following to your `Cargo.toml`:
 
 ```
 [dependencies]
-bybit-rs = "*"
+rs_bybit = "*"
 
 ```
 ### USAGE  

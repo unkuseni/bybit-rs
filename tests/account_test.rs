@@ -1,4 +1,3 @@
-
 use bybit::api::*;
 use bybit::model::*;
 use tokio;
@@ -11,14 +10,20 @@ mod tests {
     static API_KEY: &str = ""; //Mockup string
     static SECRET: &str = ""; // Mockup string
 
-
     #[tokio::test]
     async fn test_wallet() {
         let account: AccountManager =
             Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
-            let req = WalletRequest::new("UNIFIED", Some("BTC"));
-        let wallet = account.get_wallet_balance(req)
-            .await;
+        let wallet = account.get_wallet_balance("UNIFIED", None).await;
+
+        println!("{:?}", wallet);
+    }
+
+    #[tokio::test]
+    async fn test_borrow_history() {
+        let account: AccountManager =
+            Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let wallet = account.get_fee_rate(Category::Spot, None).await;
 
         println!("{:?}", wallet);
     }

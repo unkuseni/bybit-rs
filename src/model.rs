@@ -2812,26 +2812,6 @@ pub struct MoveHistoryEntry {
 //
 // = = = = = = = = = = = = = = = = = = ==  = = = = ==  = = == = =  = = = =
 
-#[derive(Serialize, Clone, Default)]
-
-pub struct WalletRequest<'a> {
-    pub account_type: Cow<'a, str>,
-    pub coin: Option<Cow<'a, str>>,
-}
-
-impl<'a> WalletRequest<'a> {
-    pub fn new(account_type: &'a str, coin: Option<&'a str>) -> Self {
-        Self {
-            account_type: Cow::Borrowed(account_type),
-            coin: coin.map(|s| Cow::Borrowed(s)),
-        }
-    }
-
-    pub fn default() -> WalletRequest<'a> {
-        WalletRequest::new("UNIFIED", None)
-    }
-}
-
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletResponse {
@@ -2839,39 +2819,384 @@ pub struct WalletResponse {
     pub ret_code: i32,
     #[serde(rename = "retMsg")]
     pub ret_msg: String,
-    pub result: AccountInfo,
+    pub result: WalletList,
     #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct WalletList {
+    pub list: Vec<WalletData>,
+}
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct UTAResponse {
+    #[serde(rename = "retCode")]
+    pub ret_code: i32,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    pub result: UTAUpdateStatus,
+    #[serde(rename = "retExtInfo")]
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UTAUpdateStatus {
+    #[serde(rename = "unifiedUpdateStatus")]
+    pub unified_update_status: String,
+    #[serde(rename = "unifiedUpdateMsg")]
+    pub unified_update_msg: UnifiedUpdateMsg,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct UnifiedUpdateMsg {
+    pub msg: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct BorrowHistoryRequest<'a> {
+    pub coin: Option<Cow<'a, str>>,
+    pub start_time: Option<Cow<'a, str>>,
+    pub end_time: Option<Cow<'a, str>>,
+    pub limit: Option<Cow<'a, str>>,
+}
+
+impl<'a> BorrowHistoryRequest<'a> {
+    pub fn new(
+        coin: Option<&'a str>,
+        start_time: Option<&'a str>,
+        end_time: Option<&'a str>,
+        limit: Option<&'a str>,
+    ) -> Self {
+        Self {
+            coin: coin.map(|s| Cow::Borrowed(s)),
+            start_time: start_time.map(|s| Cow::Borrowed(s)),
+            end_time: end_time.map(|s| Cow::Borrowed(s)),
+            limit: limit.map(|s| Cow::Borrowed(s)),
+        }
+    }
+    pub fn default() -> BorrowHistoryRequest<'a> {
+        BorrowHistoryRequest::new(None, None, None, None)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BorrowHistoryResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: BorrowHistory,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BorrowHistory {
+    pub next_page_cursor: String,
+    pub rows: Vec<BorrowHistoryEntry>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BorrowHistoryEntry {
+    #[serde(rename = "borrowAmount")]
+    pub borrow_amount: String,
+    #[serde(rename = "costExemption")]
+    pub cost_exemption: String,
+    #[serde(rename = "freeBorrowedAmount")]
+    pub free_borrowed_amount: String,
+    #[serde(rename = "createdTime")]
+    pub created_time: u64,
+    #[serde(rename = "InterestBearingBorrowSize")]
+    pub interest_bearing_borrow_size: String,
+    pub currency: String,
+    #[serde(rename = "unrealisedLoss")]
+    pub unrealised_loss: String,
+    #[serde(rename = "hourlyBorrowRate")]
+    pub hourly_borrow_rate: String,
+    #[serde(rename = "borrowCost")]
+    pub borrow_cost: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RepayLiabilityResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: LiabilityQty,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LiabilityQty {
+    pub list: Vec<LiabilityQtyData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct LiabilityQtyData {
+    pub coin: String,
+    pub repayment_qty: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SetCollateralCoinResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: Empty,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BatchSetCollateralCoinResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: SwitchList,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SwitchList {
+    pub list: Vec<SwitchListData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SwitchListData {
+    pub coin: String,
+    pub collateral_switch: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CollateralInfoResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: CollateralInfoList,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CollateralInfoList {
+    pub list: Vec<CollateralInfo>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CollateralInfo {
+    #[serde(rename = "availableToBorrow")]
+    pub available_to_borrow: String,
+    #[serde(rename = "freeBorrowingAmount")]
+    pub free_borrowing_amount: String,
+    #[serde(rename = "freeBorrowAmount")]
+    pub free_borrow_amount: String,
+    #[serde(rename = "maxBorrowingAmount")]
+    pub max_borrowing_amount: String,
+    #[serde(rename = "hourlyBorrowRate")]
+    pub hourly_borrow_rate: String,
+    #[serde(rename = "borrowUsageRate")]
+    pub borrow_usage_rate: String,
+    #[serde(rename = "collateralSwitch")]
+    pub collateral_switch: bool,
+    #[serde(rename = "borrowAmount")]
+    pub borrow_amount: String,
+    #[serde(rename = "borrowable")]
+    pub borrowable: bool,
+    pub currency: String,
+    #[serde(rename = "marginCollateral")]
+    pub margin_collateral: bool,
+    #[serde(rename = "freeBorrowingLimit")]
+    pub free_borrowing_limit: String,
+    #[serde(rename = "collateralRatio")]
+    pub collateral_ratio: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FeeRateResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: FeeRateList,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FeeRateList {
+    pub list: Vec<FeeRate>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FeeRate {
+    pub symbol: String,
+    pub maker_fee_rate: String,
+    pub taker_fee_rate: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AccountInfoResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: AccountInfo,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct AccountInfo {
-    #[serde(rename = "totalEquity")]
-    pub total_equity: String,
-    #[serde(rename = "accountIMRate")]
-    pub account_im_rate: String,
-    #[serde(rename = "totalMarginBalance")]
-    pub total_margin_balance: String,
-    #[serde(rename = "totalInitialMargin")]
-    pub total_initial_margin: String,
-    #[serde(rename = "accountType")]
-    pub account_type: String,
-    #[serde(rename = "totalAvailableBalance")]
-    pub total_available_balance: String,
-    #[serde(rename = "accountMMRate")]
-    pub account_mm_rate: String,
-    #[serde(rename = "totalPerpUPL")]
-    pub total_perp_upl: String,
-    #[serde(rename = "totalWalletBalance")]
-    pub total_wallet_balance: String,
-    #[serde(rename = "accountLTV")]
-    pub account_ltv: String,
-    #[serde(rename = "totalMaintenanceMargin")]
-    pub total_maintenance_margin: String,
-    pub coin: Vec<CoinData>,
+    pub margin_mode: String,
+    pub updated_time: String,
+    pub unified_margin_status: i8,
+    pub dcp_status: String,
+    pub time_window: i32,
+    pub smp_group: i8,
+    pub is_master_trader: bool,
+    pub spot_hedging_status: String,
+}
+
+#[derive(Clone, Default)]
+pub struct TransactionLogRequest<'a> {
+    pub account_type: Option<Cow<'a, str>>,
+    pub category: Option<Category>,
+    pub currency: Option<Cow<'a, str>>,
+    pub base_coin: Option<Cow<'a, str>>,
+    pub log_type: Option<Cow<'a, str>>,
+    pub start_time: Option<Cow<'a, str>>,
+    pub end_time: Option<Cow<'a, str>>,
+    pub limit: Option<u32>,
+}
+
+impl<'a> TransactionLogRequest<'a> {
+    pub fn new(
+        account_type: Option<&'a str>,
+        category: Option<Category>,
+        currency: Option<&'a str>,
+        base_coin: Option<&'a str>,
+        log_type: Option<&'a str>,
+        start_time: Option<&'a str>,
+        end_time: Option<&'a str>,
+        limit: Option<u32>,
+    ) -> Self {
+        Self {
+            account_type: account_type.map(|s| Cow::Borrowed(s)),
+            category,
+            currency: currency.map(|s| Cow::Borrowed(s)),
+            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
+            log_type: log_type.map(|s| Cow::Borrowed(s)),
+            start_time: start_time.map(|s| Cow::Borrowed(s)),
+            end_time: end_time.map(|s| Cow::Borrowed(s)),
+            limit,
+        }
+    }
+    pub fn default() -> Self {
+        Self::new(None, None, None, None, None, None, None, None)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionLogEntry {
+    pub id: String,
+    pub symbol: String,
+    pub side: String,
+    pub funding: Option<String>,
+    pub order_link_id: Option<String>,
+    pub order_id: String,
+    pub fee: String,
+    pub change: String,
+    pub cash_flow: String,
+    pub transaction_time: String,
+    pub type_field: String,
+    #[serde(rename = "feeRate")]
+    pub fee_rate: String,
+    pub bonus_change: Option<String>,
+    pub size: String,
+    pub qty: String,
+    pub cash_balance: String,
+    pub currency: String,
+    pub category: String,
+    pub trade_price: String,
+    pub trade_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionLogResult {
+    pub next_page_cursor: String,
+    pub list: Vec<TransactionLogEntry>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TransactionLogResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: TransactionLogResult,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SmpResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: SmpResult,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SmpResult {
+    pub smp_group: u8,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SetMarginModeResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub result: MarginModeResult,
+    pub ret_ext_info: Empty,
+    pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MarginModeResult {
+    pub reason: Vec<ReasonObject>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ReasonObject {
+    pub reason_code: String,
+    pub reason_msg: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SpotHedgingResponse {
+    pub ret_code: i32,
+    pub ret_msg: String,
 }
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =

@@ -1,7 +1,7 @@
 use crate::api::{Public, WebsocketAPI};
 use crate::client::Client;
 use crate::errors::Result;
-use crate::model::*;
+use crate::model::{Category, PongResponse, Subscription, Tickers, WebsocketEvents};
 use crate::util::{build_json_request, generate_random_uid};
 use error_chain::bail;
 use serde_json::Value;
