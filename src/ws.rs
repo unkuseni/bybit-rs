@@ -11,6 +11,7 @@ use std::net::TcpStream;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message as WsMessage, WebSocket};
 
+#[derive(Clone)]
 pub struct Stream {
     pub client: Client,
 }

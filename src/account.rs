@@ -1,14 +1,14 @@
-#![allow(unused_imports, unreachable_code, unused_variables)]
 use std::collections::BTreeMap;
 
 use crate::api::{Account, API};
 use crate::client::Client;
 use crate::errors::Result;
-use serde_json::{json, Value};
-
 use crate::model::{
     BatchSetCollateralCoinResponse, BorrowHistoryRequest, BorrowHistoryResponse, Category, CollateralInfoList, CollateralInfoResponse, LiabilityQty, MarginModeResult, RepayLiabilityResponse, SetCollateralCoinResponse, SetMarginModeResponse, SmpResponse, SmpResult, SpotHedgingResponse, SwitchList, TransactionLogRequest, TransactionLogResponse, TransactionLogResult, UTAResponse, UTAUpdateStatus, WalletList, WalletResponse
 };
+
+use serde_json::{json, Value};
+
 use crate::util::{build_json_request, build_request, date_to_milliseconds};
 
 #[derive(Clone)]
