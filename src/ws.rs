@@ -5,7 +5,6 @@ use crate::model::{Category, PongResponse, Subscription, Tickers, WebsocketEvent
 use crate::util::{build_json_request, generate_random_uid};
 use error_chain::bail;
 use serde_json::Value;
-
 use std::collections::BTreeMap;
 use std::net::TcpStream;
 use tungstenite::stream::MaybeTlsStream;
@@ -27,12 +26,9 @@ impl Stream {
         } else {
             WebsocketAPI::Public(Public::Linear)
         };
-        let mut response = self.client.wss_connect(
-            endpoint,
-            Some(request),
-            private,
-            None,
-        )?;
+        let mut response = self
+            .client
+            .wss_connect(endpoint, Some(request), private, None)?;
         let data = response.read()?;
         match data {
             WsMessage::Text(data) => {
@@ -260,7 +256,7 @@ impl Stream {
         })
     }
 
-     pub fn ws_orders(&self, cat: Option<Category>) -> Result<()> {
+    pub fn ws_orders(&self, cat: Option<Category>) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "order.linear",
@@ -294,32 +290,45 @@ impl Stream {
             }
             Ok(())
         })
-    } 
-
-    fn handle_msg(msg: &str, mut parser: impl FnMut(WebsocketEvents) -> Result<()>) -> Result<()> {
-        let update: Value = serde_json::from_str(msg)?;
-
-        if let Ok(event) = serde_json::from_value::<WebsocketEvents>(update.clone()) {
-            parser(event)?;
-        }
-
-        Ok(())
     }
 
-    pub fn event_loop(
+    pub fn event_loop<H>(
         mut stream: WebSocket<MaybeTlsStream<TcpStream>>,
-        mut parser: impl FnMut(WebsocketEvents) -> Result<()> + Send + 'static,
-    ) -> Result<()> {
+        mut handler: H,
+    ) -> Result<()>
+    where
+        H: WebSocketHandler,
+    {
         loop {
             let msg = stream.read()?;
             match msg {
                 WsMessage::Text(ref msg) => {
-                    if let Err(e) = Stream::handle_msg(msg, &mut parser) {
-                        bail!(format!("Error on handling stream message: {}", e));
+                    if let Err(e) = handler.handle_msg(msg) {
+                        bail!(format!("Error handling stream message: {:?}", e));
                     }
                 }
                 _ => {}
             }
         }
+    }
+}
+
+pub trait WebSocketHandler {
+    type Event;
+    fn handle_msg(&mut self, msg: &str) -> Result<()>;
+}
+
+impl<F> WebSocketHandler for F
+where
+    F: FnMut(WebsocketEvents) -> Result<()>,
+{
+    type Event = WebsocketEvents;
+    fn handle_msg(&mut self, msg: &str) -> Result<()> {
+        let update: Value = serde_json::from_str(msg)?;
+        if let Ok(event) = serde_json::from_value::<WebsocketEvents>(update.clone()) {
+            self(event)?;
+        }
+
+        Ok(())
     }
 }

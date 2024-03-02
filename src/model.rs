@@ -3260,6 +3260,9 @@ pub struct PongData {
     pub op: String,
 }
 
+unsafe impl Send for PongData {}
+unsafe impl Sync for PongData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderBookUpdate {
@@ -3272,6 +3275,9 @@ pub struct OrderBookUpdate {
     pub data: WsOrderBook,
     pub cts: u64,
 }
+
+unsafe impl Send for OrderBookUpdate {}
+unsafe impl Sync for OrderBookUpdate {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3287,6 +3293,9 @@ pub struct WsOrderBook {
     pub seq: u64,
 }
 
+unsafe impl Send for WsOrderBook {}
+unsafe impl Sync for WsOrderBook {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TradeUpdate {
     #[serde(rename = "topic")]
@@ -3297,6 +3306,9 @@ pub struct TradeUpdate {
     pub timestamp: u64,
     pub data: Vec<WsTrade>,
 }
+
+unsafe impl Send for TradeUpdate {}
+unsafe impl Sync for TradeUpdate {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WsTrade {
@@ -3318,6 +3330,9 @@ pub struct WsTrade {
     pub buyer_is_maker: bool,
 }
 
+unsafe impl Send for WsTrade {}
+unsafe impl Sync for WsTrade {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WsTicker {
     pub topic: String,
@@ -3327,6 +3342,9 @@ pub struct WsTicker {
     pub cs: u64,
     pub ts: u64,
 }
+
+unsafe impl Send for WsTicker {}
+unsafe impl Sync for WsTicker {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LinearTickerData {
@@ -3371,6 +3389,9 @@ pub struct LinearTickerData {
     pub ask_size: String,
 }
 
+unsafe impl Send for LinearTickerData {}
+unsafe impl Sync for LinearTickerData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SpotTickerData {
     #[serde(rename = "symbol")]
@@ -3393,6 +3414,9 @@ pub struct SpotTickerData {
     pub usd_index_price: String,
 }
 
+unsafe impl Send for SpotTickerData {}
+unsafe impl Sync for SpotTickerData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Liquidation {
     #[serde(rename = "topic")]
@@ -3404,6 +3428,9 @@ pub struct Liquidation {
     #[serde(rename = "data")]
     pub data: LiquidationData,
 }
+
+unsafe impl Send for Liquidation {}
+unsafe impl Sync for Liquidation {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LiquidationData {
@@ -3419,6 +3446,9 @@ pub struct LiquidationData {
     pub price: f64,
 }
 
+unsafe impl Send for LiquidationData {}
+unsafe impl Sync for LiquidationData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WsKline {
     pub topic: String,
@@ -3428,6 +3458,9 @@ pub struct WsKline {
     #[serde(rename = "type")]
     pub event_type: String,
 }
+
+unsafe impl Send for WsKline {}
+unsafe impl Sync for WsKline {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct KlineData {
@@ -3444,6 +3477,9 @@ pub struct KlineData {
     pub timestamp: u64,
 }
 
+unsafe impl Send for KlineData {}
+unsafe impl Sync for KlineData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PositionEvent {
     pub id: String,
@@ -3452,6 +3488,9 @@ pub struct PositionEvent {
     pub creation_time: u64,
     pub data: Vec<PositionData>,
 }
+
+unsafe impl Send for PositionEvent {}
+unsafe impl Sync for PositionEvent {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PositionData {
@@ -3515,6 +3554,9 @@ pub struct PositionData {
     pub is_reduce_only: bool,
 }
 
+unsafe impl Send for PositionData {}
+unsafe impl Sync for PositionData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Execution {
     #[serde(rename = "id")]
@@ -3526,6 +3568,9 @@ pub struct Execution {
     #[serde(rename = "data")]
     pub data: Vec<ExecutionData>,
 }
+
+unsafe impl Send for Execution {}
+unsafe impl Sync for Execution {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExecutionData {
@@ -3586,6 +3631,9 @@ pub struct ExecutionData {
     #[serde(rename = "seq")]
     pub seq: u64,
 }
+
+unsafe impl Send for ExecutionData {}
+unsafe impl Sync for ExecutionData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderData {
@@ -3670,6 +3718,9 @@ pub struct OrderData {
     pub fee_currency: String,
 }
 
+unsafe impl Send for OrderData {}
+unsafe impl Sync for OrderData {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderEvent {
     pub id: String,
@@ -3679,6 +3730,9 @@ pub struct OrderEvent {
     pub data: Vec<OrderData>,
 }
 
+unsafe impl Send for OrderEvent {}
+unsafe impl Sync for OrderEvent {}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletEvent {
     pub id: String,
@@ -3687,6 +3741,8 @@ pub struct WalletEvent {
     pub creation_time: u64,
     pub data: Vec<WalletData>,
 }
+unsafe impl Send for WalletEvent {}
+unsafe impl Sync for WalletEvent {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WalletData {
@@ -3715,7 +3771,8 @@ pub struct WalletData {
     #[serde(rename = "accountType", skip_serializing_if = "Option::is_none")]
     pub account_type: Option<String>,
 }
-
+unsafe impl Send for WalletData {}
+unsafe impl Sync for WalletData {}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CoinData {
     #[serde(rename = "coin")]
@@ -3754,6 +3811,9 @@ pub struct CoinData {
     #[serde(rename = "spotHedgingQty")]
     pub spot_hedging_qty: String,
 }
+
+unsafe impl Send for CoinData {}
+unsafe impl Sync for CoinData {}
 
 mod string_to_u64 {
     use std::default;
