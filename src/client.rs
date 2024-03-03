@@ -1,4 +1,4 @@
-use std::net::TcpStream;
+use tokio::net::TcpStream;
 
 use crate::api::{WebsocketAPI, API};
 use crate::errors::{BybitContentError, ErrorKind, Result};
@@ -11,11 +11,12 @@ use reqwest::{
     Client as ReqwestClient, Response as ReqwestResponse, StatusCode,
 };
 
+use futures::sink::SinkExt;
 use serde::de::DeserializeOwned;
 use serde_json::json;
 use sha2::Sha256;
-use tungstenite::stream::MaybeTlsStream;
-use tungstenite::{connect, Message as WsMessage, WebSocket};
+use tokio_tungstenite::WebSocketStream;
+use tokio_tungstenite::{connect_async, tungstenite::Message as WsMessage, MaybeTlsStream};
 use url::Url as WsUrl;
 
 #[derive(Clone)]
@@ -221,13 +222,13 @@ impl Client {
         }
     }
 
-    pub fn wss_connect(
+    pub async fn wss_connect(
         &self,
         endpoint: WebsocketAPI,
         request_body: Option<String>,
         private: bool,
         alive_dur: Option<u64>,
-    ) -> Result<WebSocket<MaybeTlsStream<TcpStream>>> {
+    ) -> Result<WebSocketStream<MaybeTlsStream<TcpStream>>> {
         let unparsed_url = format!("{}{}", self.host, String::from(endpoint)).to_string();
         let url = WsUrl::parse(unparsed_url.as_str())?;
         let expiry_time = alive_dur.unwrap_or(0) * 1000 * 60;
@@ -238,18 +239,23 @@ impl Client {
         let signature = hex_encode(mac.finalize().into_bytes());
         let uuid = generate_random_uid(5);
 
-        let (mut ws_stream, _) = connect(url)?;
-        println!("Connected successfully");
-        let auth_msg = json!({
-            "req_id": uuid,
-            "op": "auth",
-            "args": [self.api_key, expires, signature]
-        });
-        if private {
-            ws_stream.send(WsMessage::Text(auth_msg.to_string()))?;
+        if let Ok((mut ws_stream, _)) = connect_async(url).await {
+            println!("Connected successfully");
+            let auth_msg = json!({
+                "req_id": uuid,
+                "op": "auth",
+                "args": [self.api_key, expires, signature]
+            });
+            if private {
+                ws_stream
+                    .send(WsMessage::Text(auth_msg.to_string()))
+                    .await?;
+            }
+            let request = request_body.unwrap_or_else(|| String::new());
+            ws_stream.send(WsMessage::Text(request)).await?;
+            Ok(ws_stream)
+        } else {
+            bail!("Failed to connect");
         }
-        let request = request_body.unwrap_or_else(|| String::new());
-        ws_stream.send(WsMessage::Text(request))?;
-        Ok(ws_stream)
     }
 }

@@ -18,13 +18,13 @@ mod tests {
     #[tokio::test]
     async fn test_auth() {
         let ws: Stream = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
-        ws.ws_wallet().unwrap();
+        ws.ws_wallet().await.unwrap();
     }
 
     #[tokio::test]
     async fn ping() {
         let ws: Stream = Bybit::new(None, None);
-        let response = ws.ws_ping(true);
+        let response = ws.ws_ping(true).await;
         println!("{:#?}", response);
     }
 
@@ -81,7 +81,7 @@ mod tests {
                 }
             };
             Ok(())
-        });
+        }).await;
         println!("{:#?}", response);
     }
 
@@ -89,27 +89,27 @@ mod tests {
     async fn test_default_orderbook() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec![(1, "MATICUSDT")];
-        ws.ws_orderbook(request, Category::Linear).unwrap();
+        ws.ws_orderbook(request, Category::Linear).await.unwrap();
     }
 
     #[tokio::test]
     async fn test_default_trades() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec!["BTCUSDT", "MATICUSDT", "ETHUSDT", "ADAUSDT"];
-        ws.ws_trades(request, Category::Linear).unwrap();
+        ws.ws_trades(request, Category::Linear).await.unwrap();
     }
 
     #[tokio::test]
     async fn test_default_tickers() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec!["ADAUSDT", "MATICUSDT"];
-        ws.ws_tickers(request, Category::Spot).unwrap();
+        ws.ws_tickers(request, Category::Spot).await.unwrap();
     }
 
     #[tokio::test]
     async fn test_default_klines() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec![("1", "MATICUSDT")];
-        ws.ws_klines(request, Category::Linear).unwrap();
+        ws.ws_klines(request, Category::Linear).await.unwrap();
     }
 }

@@ -4,11 +4,12 @@ use crate::errors::Result;
 use crate::model::{Category, PongResponse, Subscription, Tickers, WebsocketEvents};
 use crate::util::{build_json_request, generate_random_uid};
 use error_chain::bail;
+use futures::StreamExt;
 use serde_json::Value;
 use std::collections::BTreeMap;
-use std::net::TcpStream;
-use tungstenite::stream::MaybeTlsStream;
-use tungstenite::{Message as WsMessage, WebSocket};
+use tokio::net::TcpStream;
+use tokio_tungstenite::WebSocketStream;
+use tokio_tungstenite::{tungstenite::Message as WsMessage, MaybeTlsStream};
 
 #[derive(Clone)]
 pub struct Stream {
@@ -16,7 +17,7 @@ pub struct Stream {
 }
 
 impl Stream {
-    pub fn ws_ping(&self, private: bool) -> Result<()> {
+    pub async fn ws_ping(&self, private: bool) -> Result<()> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("req_id".into(), generate_random_uid(8).into());
         parameters.insert("op".into(), "ping".into());
@@ -28,8 +29,9 @@ impl Stream {
         };
         let mut response = self
             .client
-            .wss_connect(endpoint, Some(request), private, None)?;
-        let data = response.read()?;
+            .wss_connect(endpoint, Some(request), private, None)
+            .await?;
+        let data = response.next().await.unwrap()?;
         match data {
             WsMessage::Text(data) => {
                 let response: PongResponse = serde_json::from_str(&data)?;
@@ -49,19 +51,20 @@ impl Stream {
         Ok(())
     }
 
-    pub fn ws_priv_subscribe<'a, F>(&self, req: Subscription<'a>, handler: F) -> Result<()>
+    pub async fn ws_priv_subscribe<'a, F>(&self, req: Subscription<'a>, handler: F) -> Result<()>
     where
         F: FnMut(WebsocketEvents) -> Result<()> + 'static + Send,
     {
         let request = Self::build_subscription(req);
-        let response =
-            self.client
-                .wss_connect(WebsocketAPI::Private, Some(request), true, Some(9))?;
-        Self::event_loop(response, handler)?;
+        let response = self
+            .client
+            .wss_connect(WebsocketAPI::Private, Some(request), true, Some(9))
+            .await?;
+        Self::event_loop(response, handler).await?;
         Ok(())
     }
 
-    pub fn ws_subscribe<'a, F>(
+    pub async fn ws_subscribe<'a, F>(
         &self,
         req: Subscription<'a>,
         category: Category,
@@ -81,8 +84,9 @@ impl Stream {
         let request = Self::build_subscription(req);
         let response = self
             .client
-            .wss_connect(endpoint, Some(request), false, None)?;
-        Self::event_loop(response, handler)?;
+            .wss_connect(endpoint, Some(request), false, None)
+            .await?;
+        Self::event_loop(response, handler).await?;
         Ok(())
     }
 
@@ -114,7 +118,7 @@ impl Stream {
     /// use your_crate_name::Category;
     /// let subs = vec![(1, "BTC"), (2, "ETH")];
     /// ```
-    pub fn ws_orderbook(&self, subs: Vec<(i32, &str)>, category: Category) -> Result<()> {
+    pub async fn ws_orderbook(&self, subs: Vec<(i32, &str)>, category: Category) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(num, sym)| format!("orderbook.{}.{}", num, sym.to_uppercase()))
@@ -125,7 +129,7 @@ impl Stream {
                 println!("{:#?}", order_book.data);
             }
             Ok(())
-        })
+        }).await
     }
 
     /// This function subscribes to the specified trades and handles the trade events.
@@ -142,7 +146,7 @@ impl Stream {
     /// let category = Category::Linear;
     /// ws_trades(subs, category);
     /// ```
-    pub fn ws_trades(&self, subs: Vec<&str>, category: Category) -> Result<()> {
+    pub async fn ws_trades(&self, subs: Vec<&str>, category: Category) -> Result<()> {
         let arr: Vec<String> = subs
             .iter()
             .map(|&sub| format!("publicTrade.{}", sub.to_uppercase()))
@@ -157,7 +161,7 @@ impl Stream {
             Ok(())
         };
 
-        self.ws_subscribe(request, category, handler)
+        self.ws_subscribe(request, category, handler).await
     }
 
     /// Subscribes to ticker events for the specified symbols and category.
@@ -175,7 +179,7 @@ impl Stream {
     /// let category = Category::Linear;
     /// ws_tickers(subs, category);
     /// ```
-    pub fn ws_tickers(&self, subs: Vec<&str>, category: Category) -> Result<()> {
+    pub async fn ws_tickers(&self, subs: Vec<&str>, category: Category) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|sub| format!("tickers.{}", sub.to_uppercase()))
@@ -192,10 +196,10 @@ impl Stream {
             Ok(())
         };
 
-        self.ws_subscribe(request, category, handler)
+        self.ws_subscribe(request, category, handler).await
     }
 
-    pub fn ws_klines(&self, subs: Vec<(&str, &str)>, category: Category) -> Result<()> {
+    pub async fn ws_klines(&self, subs: Vec<(&str, &str)>, category: Category) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(interval, sym)| format!("kline.{}.{}", interval, sym.to_uppercase()))
@@ -208,10 +212,10 @@ impl Stream {
                 }
             }
             Ok(())
-        })
+        }).await
     }
 
-    pub fn ws_position(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_position(&self, cat: Option<Category>) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "position.linear",
@@ -230,10 +234,10 @@ impl Stream {
                 }
             }
             Ok(())
-        })
+        }).await
     }
 
-    pub fn ws_executions(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_executions(&self, cat: Option<Category>) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "execution.linear",
@@ -253,10 +257,10 @@ impl Stream {
                 }
             }
             Ok(())
-        })
+        }).await
     }
 
-    pub fn ws_orders(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_orders(&self, cat: Option<Category>) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "order.linear",
@@ -276,10 +280,10 @@ impl Stream {
                 }
             }
             Ok(())
-        })
+        }).await
     }
 
-    pub fn ws_wallet(&self) -> Result<()> {
+    pub async fn ws_wallet(&self) -> Result<()> {
         let sub_str = "wallet";
         let request = Subscription::new("subscribe", vec![sub_str]);
         self.ws_priv_subscribe(request, |event| {
@@ -289,18 +293,18 @@ impl Stream {
                 }
             }
             Ok(())
-        })
+        }).await
     }
 
-    pub fn event_loop<H>(
-        mut stream: WebSocket<MaybeTlsStream<TcpStream>>,
+    pub async fn event_loop<H>(
+        mut stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
         mut handler: H,
     ) -> Result<()>
     where
         H: WebSocketHandler,
     {
         loop {
-            let msg = stream.read()?;
+            let msg = stream.next().await.unwrap()?;
             match msg {
                 WsMessage::Text(ref msg) => {
                     if let Err(e) = handler.handle_msg(msg) {
