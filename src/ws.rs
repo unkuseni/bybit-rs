@@ -1,13 +1,17 @@
 use crate::api::{Public, WebsocketAPI};
 use crate::client::Client;
 use crate::errors::Result;
-use crate::model::{Category, PongResponse, Subscription, Tickers, WebsocketEvents};
+use crate::model::{
+    Category, ExecutionData, KlineData, OrderBookUpdate, OrderData, PongResponse, PositionData,
+    Subscription, Tickers, WalletData, WebsocketEvents, WsTrade,
+};
 use crate::util::{build_json_request, generate_random_uid};
 use error_chain::bail;
 use futures::StreamExt;
 use serde_json::Value;
 use std::collections::BTreeMap;
 use tokio::net::TcpStream;
+use tokio::sync::mpsc;
 use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{tungstenite::Message as WsMessage, MaybeTlsStream};
 
@@ -118,18 +122,24 @@ impl Stream {
     /// use your_crate_name::Category;
     /// let subs = vec![(1, "BTC"), (2, "ETH")];
     /// ```
-    pub async fn ws_orderbook(&self, subs: Vec<(i32, &str)>, category: Category) -> Result<()> {
+    pub async fn ws_orderbook(
+        &self,
+        subs: Vec<(i32, &str)>,
+        category: Category,
+        sender: mpsc::UnboundedSender<OrderBookUpdate>,
+    ) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(num, sym)| format!("orderbook.{}.{}", num, sym.to_uppercase()))
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
-        self.ws_subscribe(request, category, |event| {
+        self.ws_subscribe(request, category, move |event| {
             if let WebsocketEvents::OrderBookEvent(order_book) = event {
-                println!("{:#?}", order_book.data);
+                sender.send(order_book).unwrap();
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
     /// This function subscribes to the specified trades and handles the trade events.
@@ -146,16 +156,21 @@ impl Stream {
     /// let category = Category::Linear;
     /// ws_trades(subs, category);
     /// ```
-    pub async fn ws_trades(&self, subs: Vec<&str>, category: Category) -> Result<()> {
+    pub async fn ws_trades(
+        &self,
+        subs: Vec<&str>,
+        category: Category,
+        sender: mpsc::UnboundedSender<WsTrade>,
+    ) -> Result<()> {
         let arr: Vec<String> = subs
             .iter()
             .map(|&sub| format!("publicTrade.{}", sub.to_uppercase()))
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
-        let handler = |event| {
+        let handler = move |event| {
             if let WebsocketEvents::TradeEvent(trades) = event {
                 for trade in trades.data {
-                    println!("Trade: {:#?}", trade);
+                    sender.send(trade).unwrap();
                 }
             }
             Ok(())
@@ -177,20 +192,28 @@ impl Stream {
     /// use your_crate_name::Category;
     /// let subs = vec!["BTCUSD", "ETHUSD"];
     /// let category = Category::Linear;
-    /// ws_tickers(subs, category);
+    /// let sender = UnboundedSender<Tickers>;
+    /// ws_tickers(subs, category, sender);
     /// ```
-    pub async fn ws_tickers(&self, subs: Vec<&str>, category: Category) -> Result<()> {
+    pub async fn ws_tickers(
+        &self,
+        subs: Vec<&str>,
+        category: Category,
+        sender: mpsc::UnboundedSender<Tickers>,
+    ) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|sub| format!("tickers.{}", sub.to_uppercase()))
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(String::as_str).collect());
 
-        let handler = |event| {
+        let handler = move |event| {
             if let WebsocketEvents::TickerEvent(tickers) = event {
                 match tickers.data {
-                    Tickers::Linear(linear_ticker) => println!("{:#?}", linear_ticker),
-                    Tickers::Spot(spot_ticker) => println!("{:#?}", spot_ticker),
+                    Tickers::Linear(linear_ticker) => {
+                        sender.send(Tickers::Linear(linear_ticker)).unwrap()
+                    }
+                    Tickers::Spot(spot_ticker) => sender.send(Tickers::Spot(spot_ticker)).unwrap(),
                 }
             }
             Ok(())
@@ -199,23 +222,33 @@ impl Stream {
         self.ws_subscribe(request, category, handler).await
     }
 
-    pub async fn ws_klines(&self, subs: Vec<(&str, &str)>, category: Category) -> Result<()> {
+    pub async fn ws_klines(
+        &self,
+        subs: Vec<(&str, &str)>,
+        category: Category,
+        sender: mpsc::UnboundedSender<KlineData>,
+    ) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(interval, sym)| format!("kline.{}.{}", interval, sym.to_uppercase()))
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
-        self.ws_subscribe(request, category, |event| {
+        self.ws_subscribe(request, category, move |event| {
             if let WebsocketEvents::KlineEvent(kline) = event {
                 for v in kline.data {
-                    println!("{:#?}", v);
+                    sender.send(v).unwrap();
                 }
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
-    pub async fn ws_position(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_position(
+        &self,
+        cat: Option<Category>,
+        sender: mpsc::UnboundedSender<PositionData>,
+    ) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "position.linear",
@@ -227,17 +260,22 @@ impl Stream {
         };
 
         let request = Subscription::new("subscribe", vec![sub_str]);
-        self.ws_priv_subscribe(request, |event| {
+        self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::PositionEvent(position) = event {
                 for v in position.data {
-                    println!("{:#?}", v);
+                    sender.send(v).unwrap();
                 }
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
-    pub async fn ws_executions(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_executions(
+        &self,
+        cat: Option<Category>,
+        sender: mpsc::UnboundedSender<ExecutionData>,
+    ) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "execution.linear",
@@ -250,17 +288,22 @@ impl Stream {
         };
 
         let request = Subscription::new("subscribe", vec![sub_str]);
-        self.ws_priv_subscribe(request, |event| {
+        self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::ExecutionEvent(execute) = event {
                 for v in execute.data {
-                    println!("{:#?}", v);
+                    sender.send(v).unwrap();
                 }
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
-    pub async fn ws_orders(&self, cat: Option<Category>) -> Result<()> {
+    pub async fn ws_orders(
+        &self,
+        cat: Option<Category>,
+        sender: mpsc::UnboundedSender<OrderData>,
+    ) -> Result<()> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "order.linear",
@@ -273,27 +316,29 @@ impl Stream {
         };
 
         let request = Subscription::new("subscribe", vec![sub_str]);
-        self.ws_priv_subscribe(request, |event| {
+        self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::OrderEvent(order) = event {
                 for v in order.data {
-                    println!("{:#?}", v);
+                    sender.send(v).unwrap();
                 }
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
-    pub async fn ws_wallet(&self) -> Result<()> {
+    pub async fn ws_wallet(&self, sender: mpsc::UnboundedSender<WalletData>) -> Result<()> {
         let sub_str = "wallet";
         let request = Subscription::new("subscribe", vec![sub_str]);
-        self.ws_priv_subscribe(request, |event| {
+        self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::Wallet(wallet) = event {
                 for v in wallet.data {
-                    println!("{:#?}", v);
+                    sender.send(v).unwrap();
                 }
             }
             Ok(())
-        }).await
+        })
+        .await
     }
 
     pub async fn event_loop<H>(
