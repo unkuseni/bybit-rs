@@ -2,8 +2,8 @@ use crate::api::{Public, WebsocketAPI};
 use crate::client::Client;
 use crate::errors::Result;
 use crate::model::{
-    Category, ExecutionData, KlineData, OrderBookUpdate, OrderData, PongResponse, PositionData,
-    Subscription, Tickers, WalletData, WebsocketEvents, WsTrade,
+    Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
+    PositionData, Subscription, Tickers, WalletData, WebsocketEvents, WsKline, WsTrade,
 };
 use crate::util::{build_json_request, generate_random_uid};
 use error_chain::bail;
@@ -221,12 +221,32 @@ impl Stream {
 
         self.ws_subscribe(request, category, handler).await
     }
+    pub async fn ws_liquidations(
+        &self,
+        subs: Vec<&str>,
+        category: Category,
+        sender: mpsc::UnboundedSender<LiquidationData>,
+    ) -> Result<()> {
+        let arr: Vec<String> = subs
+            .into_iter()
+            .map(|sub| format!("liquidation.{}", sub.to_uppercase()))
+            .collect();
+        let request = Subscription::new("subscribe", arr.iter().map(String::as_str).collect());
 
+        let handler = move |event| {
+            if let WebsocketEvents::LiquidationEvent(liquidation) = event {
+                sender.send(liquidation.data).unwrap();
+            }
+            Ok(())
+        };
+
+        self.ws_subscribe(request, category, handler).await
+    }
     pub async fn ws_klines(
         &self,
         subs: Vec<(&str, &str)>,
         category: Category,
-        sender: mpsc::UnboundedSender<KlineData>,
+        sender: mpsc::UnboundedSender<WsKline>,
     ) -> Result<()> {
         let arr: Vec<String> = subs
             .into_iter()
@@ -235,9 +255,7 @@ impl Stream {
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
         self.ws_subscribe(request, category, move |event| {
             if let WebsocketEvents::KlineEvent(kline) = event {
-                for v in kline.data {
-                    sender.send(v).unwrap();
-                }
+                sender.send(kline).unwrap();
             }
             Ok(())
         })
