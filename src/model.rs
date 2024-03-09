@@ -3692,7 +3692,7 @@ pub struct OrderData {
     #[serde(rename = "stopLoss")]
     pub stop_loss: String,
     #[serde(rename = "tpTriggerBy")]
-    pubtp_trigger_by: String,
+    pub tp_trigger_by: String,
     #[serde(rename = "slTriggerBy")]
     pub sl_trigger_by: String,
     #[serde(rename = "tpLimitPrice")]

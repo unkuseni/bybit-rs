@@ -6,6 +6,7 @@ readme = "README.md"
 license = "MIT"
 categories = ["api-bindings"]
 description = "Bybit V5 API bindings in Rust"
+github = "https://github.com/unkuseni/bybit-rs"
 
 [lib]
 name = "bybit"
