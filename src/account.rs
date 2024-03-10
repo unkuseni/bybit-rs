@@ -4,7 +4,7 @@ use crate::api::{Account, API};
 use crate::client::Client;
 use crate::errors::Result;
 use crate::model::{
-    BatchSetCollateralCoinResponse, BorrowHistoryRequest, BorrowHistoryResponse, Category, CollateralInfoList, CollateralInfoResponse, LiabilityQty, MarginModeResult, RepayLiabilityResponse, SetCollateralCoinResponse, SetMarginModeResponse, SmpResponse, SmpResult, SpotHedgingResponse, SwitchList, TransactionLogRequest, TransactionLogResponse, TransactionLogResult, UTAResponse, UTAUpdateStatus, WalletList, WalletResponse
+    AccountInfo, AccountInfoResponse, BatchSetCollateralCoinResponse, BorrowHistoryRequest, BorrowHistoryResponse, Category, CollateralInfoList, CollateralInfoResponse, FeeRate, FeeRateResponse, LiabilityQty, MarginModeResult, RepayLiabilityResponse, SetCollateralCoinResponse, SetMarginModeResponse, SmpResponse, SmpResult, SpotHedgingResponse, SwitchList, TransactionLogRequest, TransactionLogResponse, TransactionLogResult, UTAResponse, UTAUpdateStatus, WalletList, WalletResponse
 };
 
 use serde_json::{json, Value};
@@ -167,26 +167,26 @@ impl AccountManager {
             .await?;
         Ok(response.result)
     }
-    pub async fn get_fee_rate(&self, category: Category, symbol: Option<String>) -> Result<Value> {
+    pub async fn get_fee_rate(&self, category: Category, symbol: Option<String>) -> Result<Vec<FeeRate>> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), category.as_str().into());
         if let Some(s) = symbol {
             parameters.insert("symbol".into(), s.into());
         }
         let req = build_request(&parameters);
-        let _response: Value = self
+        let response: FeeRateResponse= self
             .client
-            .get_signed(
+            .post_signed(
                 API::Account(Account::FeeRate),
                 self.recv_window.into(),
                 Some(req),
             )
             .await?;
-        Ok(_response)
+        Ok(response.result.list)
     }
 
-    pub async fn get_account_info(&self) -> Result<Value> {
-        let response: Value = self
+    pub async fn get_account_info(&self) -> Result<AccountInfo> {
+        let response: AccountInfoResponse = self
             .client
             .get_signed(
                 API::Account(Account::Information),
@@ -194,7 +194,7 @@ impl AccountManager {
                 None,
             )
             .await?;
-        Ok(response)
+        Ok(response.result)
     }
 
     pub async fn get_transaction_log<'a>(

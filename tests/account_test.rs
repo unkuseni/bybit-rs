@@ -20,6 +20,15 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_fee_rate() {
+        let account: AccountManager =
+            Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let wallet = account.get_fee_rate(Category::Linear, Some("BTCUSDT".to_string())).await;
+
+        println!("{:?}", wallet);
+    }
+
+    #[tokio::test]
     async fn test_borrow_history() {
         let account: AccountManager =
             Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));

@@ -312,7 +312,6 @@ impl Trader {
         }
         parameters.insert("request".into(), Value::Array(requests_array));
         let request = build_json_request(&parameters);
-        println!("{:?}", request);
         let response: BatchPlaceResponse = self
             .client
             .post_signed(API::Trade(Trade::BatchPlace), self.recv_window.into(), Some(request))
@@ -350,7 +349,6 @@ impl Trader {
         }
         parameters.insert("request".into(), Value::Array(requests_array));
         let request = build_json_request(&parameters);
-        println!("{:?}", request);
         let response: BatchAmendResponse = self
             .client
             .post_signed(API::Trade(Trade::BatchAmend), self.recv_window.into(), Some(request))
