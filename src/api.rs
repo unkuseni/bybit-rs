@@ -1,11 +1,11 @@
+use crate::account::AccountManager;
+use crate::asset::AssetManager;
 use crate::client::Client;
 use crate::config::Config;
 use crate::general::General;
 use crate::market::MarketData;
 use crate::position::PositionManager;
 use crate::trade::Trader;
-use crate::account::AccountManager;
-use crate::asset::AssetManager;
 use crate::ws::Stream;
 
 pub enum API {
@@ -28,9 +28,8 @@ pub enum WebsocketAPI {
 pub enum Public {
     Spot,
     Linear,
-    Inverse
+    Inverse,
 }
-
 
 pub enum Market {
     Time,
@@ -115,7 +114,7 @@ pub enum Asset {
     QueryInfo,
     QueryAsset,
     Withdraw,
-    CanceWithdraw,
+    CancelWithdraw,
     Deposit,
     QuerySubmemberAddress,
     OrderRecord,
@@ -212,7 +211,22 @@ impl From<API> for String {
                 Asset::CoinExchangeRecord => "/v5/asset/exchange/order-record",
                 Asset::DeliveryRecord => "/v5/asset/delivery-record",
                 Asset::SettlementRecord => "/v5/asset/settlement-record",
-
+                Asset::QueryAssetInfo => "/v5/asset/transfer/query-asset-info",
+                Asset::QueryAccountCoinBalance => "/v5/asset/transfer/query-account-coins-balance",
+                Asset::QueryTransferCoinList => "/v5/asset/transfer/query-transfer-coin-list",
+                Asset::Intertransfer => "/v5/asset/transfer/inter-transfer",
+                Asset::QueryTransferList => "/v5/asset/transfer/query-inter-transfer-list",
+                Asset::QueryTransferSubmemberList => "/v5/asset/transfer/query-sub-member-list",
+                Asset::UniversalTransfer => "/v5/asset/transfer/universal-transfer",
+                Asset::QueryUniversalTransferList => {
+                    "/v5/asset/transfer/query-universal-transfer-list"
+                }
+                Asset::QueryAllowedList => "/v5/asset/deposit/query-allowed-list",
+                Asset::Withdraw => "/v5/asset/withdraw/create",
+                Asset::CancelWithdraw => "/v5/asset/withdraw/cancel",
+                Asset::QueryInfo => "/v5/asset/coin/query-info",
+                Asset::QueryRecord => "/v5/asset/deposit/query-record",
+                Asset::QuerySubmemberAddress => "/v5/asset/deposit/query-sub-member-address",
                 _ => {
                     todo!("Asset route not implemented");
                 }
@@ -251,7 +265,6 @@ impl From<WebsocketAPI> for String {
                 Public::Inverse => "/public/inverse",
             },
             WebsocketAPI::Private => "/private",
-
         })
     }
 }
@@ -311,7 +324,8 @@ impl Bybit for Trader {
             recv_window: config.recv_window,
         }
     }
-}impl Bybit for PositionManager {
+}
+impl Bybit for PositionManager {
     fn new(api_key: Option<String>, secret_key: Option<String>) -> PositionManager {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
@@ -357,9 +371,7 @@ impl Bybit for AssetManager {
             recv_window: config.recv_window,
         }
     }
-    
 }
-
 
 impl Bybit for Stream {
     fn new(api_key: Option<String>, secret_key: Option<String>) -> Stream {
@@ -375,5 +387,4 @@ impl Bybit for Stream {
             client: Client::new(api_key, secret_key, config.ws_endpoint.to_string()),
         }
     }
-    
 }
