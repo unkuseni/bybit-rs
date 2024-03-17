@@ -2,6 +2,7 @@ use crate::client::Client;
 use crate::config::Config;
 use crate::general::General;
 use crate::market::MarketData;
+use crate::position::PositionManager;
 use crate::trade::Trader;
 use crate::account::AccountManager;
 use crate::asset::AssetManager;
@@ -276,7 +277,7 @@ impl Bybit for General {
         secret_key: Option<String>,
     ) -> General {
         General {
-            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
         }
     }
 }
@@ -291,7 +292,7 @@ impl Bybit for MarketData {
         secret_key: Option<String>,
     ) -> MarketData {
         MarketData {
-            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
             recv_window: config.recv_window,
         }
     }
@@ -306,7 +307,21 @@ impl Bybit for Trader {
         secret_key: Option<String>,
     ) -> Trader {
         Trader {
-            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
+            recv_window: config.recv_window,
+        }
+    }
+}impl Bybit for PositionManager {
+    fn new(api_key: Option<String>, secret_key: Option<String>) -> PositionManager {
+        Self::new_with_config(&Config::default(), api_key, secret_key)
+    }
+    fn new_with_config(
+        config: &Config,
+        api_key: Option<String>,
+        secret_key: Option<String>,
+    ) -> PositionManager {
+        PositionManager {
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
             recv_window: config.recv_window,
         }
     }
@@ -322,7 +337,7 @@ impl Bybit for AccountManager {
         secret_key: Option<String>,
     ) -> AccountManager {
         AccountManager {
-            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
             recv_window: config.recv_window,
         }
     }
@@ -338,7 +353,7 @@ impl Bybit for AssetManager {
         secret_key: Option<String>,
     ) -> AssetManager {
         AssetManager {
-            client: Client::new(api_key, secret_key, config.rest_api_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
             recv_window: config.recv_window,
         }
     }
@@ -357,7 +372,7 @@ impl Bybit for Stream {
         secret_key: Option<String>,
     ) -> Stream {
         Stream {
-            client: Client::new(api_key, secret_key, config.ws_endpoint.clone()),
+            client: Client::new(api_key, secret_key, config.ws_endpoint.to_string()),
         }
     }
     

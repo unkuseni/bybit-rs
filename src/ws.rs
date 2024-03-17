@@ -1,17 +1,18 @@
 use crate::api::{Public, WebsocketAPI};
 use crate::client::Client;
-use crate::errors::Result;
+use crate::errors::BybitError;
 use crate::model::{
     Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
     PositionData, Subscription, Tickers, WalletData, WebsocketEvents, WsKline, WsTrade,
 };
 use crate::util::{build_json_request, generate_random_uid};
-use error_chain::bail;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
 use serde_json::Value;
 use std::collections::BTreeMap;
+use std::time::Instant;
 use tokio::net::TcpStream;
 use tokio::sync::mpsc;
+use tokio::time::Duration;
 use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{tungstenite::Message as WsMessage, MaybeTlsStream};
 
@@ -21,7 +22,7 @@ pub struct Stream {
 }
 
 impl Stream {
-    pub async fn ws_ping(&self, private: bool) -> Result<()> {
+    pub async fn ws_ping(&self, private: bool) -> Result<(), BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("req_id".into(), generate_random_uid(8).into());
         parameters.insert("op".into(), "ping".into());
@@ -55,16 +56,23 @@ impl Stream {
         Ok(())
     }
 
-    pub async fn ws_priv_subscribe<'a, F>(&self, req: Subscription<'a>, handler: F) -> Result<()>
+    pub async fn ws_priv_subscribe<'a, F>(
+        &self,
+        req: Subscription<'a>,
+        handler: F,
+    ) -> Result<(), BybitError>
     where
-        F: FnMut(WebsocketEvents) -> Result<()> + 'static + Send,
+        F: FnMut(WebsocketEvents) -> Result<(), BybitError> + 'static + Send,
     {
         let request = Self::build_subscription(req);
         let response = self
             .client
             .wss_connect(WebsocketAPI::Private, Some(request), true, Some(9))
             .await?;
-        Self::event_loop(response, handler).await?;
+        match Self::event_loop(response, handler).await {
+            Ok(_) => {}
+            Err(_) => {}
+        }
         Ok(())
     }
 
@@ -73,16 +81,16 @@ impl Stream {
         req: Subscription<'a>,
         category: Category,
         handler: F,
-    ) -> Result<()>
+    ) -> Result<(), BybitError>
     where
-        F: FnMut(WebsocketEvents) -> Result<()> + 'static + Send,
+        F: FnMut(WebsocketEvents) -> Result<(), BybitError> + 'static + Send,
     {
         let endpoint = {
             match category {
                 Category::Linear => WebsocketAPI::Public(Public::Linear),
                 Category::Inverse => WebsocketAPI::Public(Public::Inverse),
                 Category::Spot => WebsocketAPI::Public(Public::Spot),
-                _ => bail!("Option has not been implemented"),
+                _ => unimplemented!("Option has not been implemented"),
             }
         };
         let request = Self::build_subscription(req);
@@ -127,7 +135,7 @@ impl Stream {
         subs: Vec<(i32, &str)>,
         category: Category,
         sender: mpsc::UnboundedSender<OrderBookUpdate>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(num, sym)| format!("orderbook.{}.{}", num, sym.to_uppercase()))
@@ -161,7 +169,7 @@ impl Stream {
         subs: Vec<&str>,
         category: Category,
         sender: mpsc::UnboundedSender<WsTrade>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let arr: Vec<String> = subs
             .iter()
             .map(|&sub| format!("publicTrade.{}", sub.to_uppercase()))
@@ -200,7 +208,7 @@ impl Stream {
         subs: Vec<&str>,
         category: Category,
         sender: mpsc::UnboundedSender<Tickers>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|sub| format!("tickers.{}", sub.to_uppercase()))
@@ -226,7 +234,7 @@ impl Stream {
         subs: Vec<&str>,
         category: Category,
         sender: mpsc::UnboundedSender<LiquidationData>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|sub| format!("liquidation.{}", sub.to_uppercase()))
@@ -247,7 +255,7 @@ impl Stream {
         subs: Vec<(&str, &str)>,
         category: Category,
         sender: mpsc::UnboundedSender<WsKline>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|(interval, sym)| format!("kline.{}.{}", interval, sym.to_uppercase()))
@@ -266,12 +274,12 @@ impl Stream {
         &self,
         cat: Option<Category>,
         sender: mpsc::UnboundedSender<PositionData>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "position.linear",
                 Category::Inverse => "position.inverse",
-                _ => bail!("Option and Spot has not been implemented"),
+                _ => "",
             }
         } else {
             "position"
@@ -293,7 +301,7 @@ impl Stream {
         &self,
         cat: Option<Category>,
         sender: mpsc::UnboundedSender<ExecutionData>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "execution.linear",
@@ -321,7 +329,7 @@ impl Stream {
         &self,
         cat: Option<Category>,
         sender: mpsc::UnboundedSender<OrderData>,
-    ) -> Result<()> {
+    ) -> Result<(), BybitError> {
         let sub_str = if let Some(v) = cat {
             match v {
                 Category::Linear => "order.linear",
@@ -345,7 +353,10 @@ impl Stream {
         .await
     }
 
-    pub async fn ws_wallet(&self, sender: mpsc::UnboundedSender<WalletData>) -> Result<()> {
+    pub async fn ws_wallet(
+        &self,
+        sender: mpsc::UnboundedSender<WalletData>,
+    ) -> Result<(), BybitError> {
         let sub_str = "wallet";
         let request = Subscription::new("subscribe", vec![sub_str]);
         self.ws_priv_subscribe(request, move |event| {
@@ -362,19 +373,38 @@ impl Stream {
     pub async fn event_loop<H>(
         mut stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
         mut handler: H,
-    ) -> Result<()>
+    ) -> Result<(), BybitError>
     where
         H: WebSocketHandler,
     {
+        let mut interval = Instant::now();
         loop {
-            let msg = stream.next().await.unwrap()?;
+            let msg = stream
+                .next()
+                .await
+                .unwrap()
+                .map_err(|e| BybitError::Tungstenite(e));
             match msg {
-                WsMessage::Text(ref msg) => {
-                    if let Err(e) = handler.handle_msg(msg) {
-                        bail!(format!("Error handling stream message: {:?}", e));
+                Ok(WsMessage::Text(msg)) => {
+                    if let Err(_) = handler.handle_msg(&msg) {
+                        return Err(BybitError::Base(
+                            "Error handling stream message".to_string(),
+                        ));
                     }
                 }
                 _ => {}
+            }
+
+            if interval.elapsed() > Duration::from_secs(300) {
+                let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+                parameters.insert("req_id".into(), generate_random_uid(8).into());
+                parameters.insert("op".into(), "ping".into());
+                let request = build_json_request(&parameters);
+                let _ = stream
+                    .send(WsMessage::Text(request))
+                    .await
+                    .map_err(BybitError::from);
+                interval = Instant::now();
             }
         }
     }
@@ -382,15 +412,15 @@ impl Stream {
 
 pub trait WebSocketHandler {
     type Event;
-    fn handle_msg(&mut self, msg: &str) -> Result<()>;
+    fn handle_msg(&mut self, msg: &str) -> Result<(), BybitError>;
 }
 
 impl<F> WebSocketHandler for F
 where
-    F: FnMut(WebsocketEvents) -> Result<()>,
+    F: FnMut(WebsocketEvents) -> Result<(), BybitError>,
 {
     type Event = WebsocketEvents;
-    fn handle_msg(&mut self, msg: &str) -> Result<()> {
+    fn handle_msg(&mut self, msg: &str) -> Result<(), BybitError> {
         let update: Value = serde_json::from_str(msg)?;
         if let Ok(event) = serde_json::from_value::<WebsocketEvents>(update.clone()) {
             self(event)?;

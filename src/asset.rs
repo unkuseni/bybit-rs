@@ -2,7 +2,6 @@
 use serde_json::{json, Value};
 use crate::api::{API, Asset};
 use crate::client::Client;
-use crate::errors::Result;
 
 use crate::util::{build_json_request, build_request};
 

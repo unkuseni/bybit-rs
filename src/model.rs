@@ -1,8 +1,9 @@
 #![allow(unused_imports)]
-use crate::errors::{Error, ErrorKind, Result};
+use crate::errors::BybitError;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_value, Value};
 use std::{borrow::Cow, collections::BTreeMap};
+use thiserror::Error;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Empty {}
@@ -11,7 +12,7 @@ pub struct Empty {}
 ///  RESPONSE STRUCTS FOR MARKET REQUESTS
 /// ----------------------------------------
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ServerTimeResponse {
     #[serde(rename = "retCode")]
@@ -99,7 +100,7 @@ pub struct Kline {
     pub quote_asset_volume: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkPriceKlineResponse {
     #[serde(rename = "retCode")]
@@ -131,7 +132,7 @@ pub struct MarkPriceKline {
     pub close_price: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexPriceKlineResponse {
     #[serde(rename = "retCode")]
@@ -163,7 +164,7 @@ pub struct IndexPriceKline {
     pub close_price: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct PremiumIndexPriceKlineResponse {
     #[serde(rename = "retCode")]
@@ -224,7 +225,7 @@ impl<'a> InstrumentRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FuturesInstrumentsInfoResponse {
     #[serde(rename = "retCode")]
@@ -281,7 +282,7 @@ pub struct FuturesInstrument {
     pub copy_trading: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotInstrumentsInfoResponse {
     #[serde(rename = "retCode")]
@@ -422,7 +423,7 @@ impl<'a> OrderbookRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderBookResponse {
     #[serde(rename = "retCode")]
@@ -479,7 +480,7 @@ impl Ask {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FuturesTickersResponse {
     #[serde(rename = "retCode")]
@@ -491,7 +492,7 @@ pub struct FuturesTickersResponse {
     pub ret_ext_info: Empty,
     pub time: u64,
 }
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotTickersResponse {
     #[serde(rename = "retCode")]
@@ -627,7 +628,7 @@ impl<'a> FundingHistoryRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FundingRateResponse {
     #[serde(rename = "retCode")]
@@ -683,7 +684,7 @@ impl<'a> RecentTradesRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RecentTradesResponse {
     #[serde(rename = "retCode")]
@@ -752,7 +753,7 @@ impl<'a> OpenInterestRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OpeninterestResponse {
     #[serde(rename = "retCode")]
@@ -811,7 +812,7 @@ impl<'a> HistoricalVolatilityRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HistoricalVolatilityResponse {
     #[serde(rename = "retCode")]
@@ -833,7 +834,7 @@ pub struct HistoricalVolatility {
     pub timestamp: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct InsuranceResponse {
     #[serde(rename = "retCode")]
@@ -881,7 +882,7 @@ impl<'a> RiskLimitRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RiskLimitResponse {
     #[serde(rename = "retCode")]
     pub ret_code: i16,
@@ -915,7 +916,7 @@ pub struct RiskLimit {
     pub max_leverage: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DeliveryPriceResponse {
     pub ret_code: i16,
@@ -943,7 +944,7 @@ pub struct DeliveryPrice {
     pub delivery_time: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LongShortRatioResponse {
     #[serde(rename = "retCode")]
@@ -1048,7 +1049,7 @@ impl TimeInForce {
         }
     }
 }
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Serialize, Debug)]
 pub struct OrderRequest<'a> {
     pub category: Category,                 // String
     pub symbol: Cow<'a, str>,               // String
@@ -1395,7 +1396,7 @@ pub struct AmendOrderResponse {
     pub time: u64,
 }
 
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Serialize, Debug)]
 pub struct AmendOrderRequest<'a> {
     pub category: Category,   // String
     pub symbol: Cow<'a, str>, // String
@@ -1475,7 +1476,7 @@ impl<'a> AmendOrderRequest<'a> {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Debug, Deserialize)]
 pub struct CancelOrderRequest<'a> {
     pub category: Category,
     pub symbol: Cow<'a, str>,

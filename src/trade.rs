@@ -2,14 +2,12 @@ use serde_json::{json, Value};
 
 use crate::api::{Trade, API};
 use crate::client::Client;
-use crate::errors::Result;
+use crate::errors::BybitError;
 use crate::model::{
-    AmendOrderRequest, AmendOrderResponse, AmendedOrder, BatchAmendRequest, BatchAmendResponse,
-    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, BatchedOrder,
-    CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, CanceledOrder,
-    Category, OpenOrdersRequest, OpenOrdersResponse, OrderConfirmation, OrderHistoryRequest,
-    OrderHistoryResponse, OrderRequest, OrderResponse, OrderStatus, OrderType, Orders, Side,
-    TradeHistoryRequest, TradeHistoryResponse, TradeHistorySummary,
+    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse,
+    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category, OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest,
+    OrderHistoryResponse, OrderRequest, OrderResponse, OrderType, Side,
+    TradeHistoryRequest, TradeHistoryResponse,
 };
 use crate::util::{build_json_request, build_request, date_to_milliseconds, generate_random_uid};
 
@@ -71,16 +69,23 @@ pub enum Action<'a> {
     Cancel(CancelOrderRequest<'a>),
 }
 impl Trader {
-    pub async fn place_custom_order<'a>(&self, req: OrderRequest<'a>) -> Result<OrderStatus> {
+    pub async fn place_custom_order<'a>(
+        &self,
+        req: OrderRequest<'a>,
+    ) -> Result<OrderResponse, BybitError> {
         let action = Action::Order(req, false);
         let parameters = Self::build_orders(action);
 
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Place), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::Place),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn place_futures_limit_order(
@@ -91,7 +96,7 @@ impl Trader {
         qty: f64,
         price: f64,
         mode: u8,
-    ) -> Result<OrderResponse> {
+    ) -> Result<OrderResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let req = OrderRequest {
             category,
@@ -117,7 +122,7 @@ impl Trader {
                 0 | 1 | 2 => {
                     parameters.insert("positionIdx".into(), v.to_string());
                 }
-                _ => return Err("Invalid position index".into()),
+                _ => return Err(BybitError::from("Invalid position index".to_string())),
             }
         }
         if let Some(v) = req.price {
@@ -127,32 +132,53 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Place), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::Place),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
         Ok(response)
     }
 
-    pub async fn amend_order<'a>(&self, req: AmendOrderRequest<'a>) -> Result<OrderStatus> {
+    pub async fn amend_order<'a>(
+        &self,
+        req: AmendOrderRequest<'a>,
+    ) -> Result<AmendOrderResponse, BybitError> {
         let action = Action::Amend(req);
         let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: AmendOrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Amend), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::Amend),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
-    pub async fn cancel_order<'a>(&self, req: CancelOrderRequest<'a>) -> Result<OrderStatus> {
+    pub async fn cancel_order<'a>(
+        &self,
+        req: CancelOrderRequest<'a>,
+    ) -> Result<CancelOrderResponse, BybitError> {
         let action = Action::Cancel(req);
         let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: CancelOrderResponse = self
             .client
-            .post_signed(API::Trade(Trade::Cancel), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::Cancel),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
-    pub async fn get_open_orders<'a>(&self, req: OpenOrdersRequest<'a>) -> Result<Vec<Orders>> {
+    pub async fn get_open_orders<'a>(
+        &self,
+        req: OpenOrdersRequest<'a>,
+    ) -> Result<OpenOrdersResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
 
         parameters.insert("category".into(), req.category.as_str().into());
@@ -188,12 +214,12 @@ impl Trader {
             .get_signed(API::Trade(Trade::OpenOrders), 5000, Some(request))
             .await?;
 
-        Ok(response.result.list)
+        Ok(response)
     }
     pub async fn cancel_all_orders<'a>(
         &self,
         req: CancelallRequest<'a>,
-    ) -> Result<Vec<OrderStatus>> {
+    ) -> Result<CancelallResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -212,9 +238,13 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: CancelallResponse = self
             .client
-            .post_signed(API::Trade(Trade::CancelAll), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::CancelAll),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     /// Retrieves the order history based on the given request parameters.
@@ -226,7 +256,10 @@ impl Trader {
     /// A `Result` wrapping `OrderHistory` which contains the historical orders' data.
     /// If the operation fails, it returns an error.
     ///
-    pub async fn get_order_history<'a>(&self, req: OrderHistoryRequest<'a>) -> Result<Vec<Orders>> {
+    pub async fn get_order_history<'a>(
+        &self,
+        req: OrderHistoryRequest<'a>,
+    ) -> Result<OrderHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         req.symbol
@@ -255,14 +288,18 @@ impl Trader {
         let request = build_request(&parameters);
         let response: OrderHistoryResponse = self
             .client
-            .get_signed(API::Trade(Trade::History), self.recv_window.into(), Some(request))
+            .get_signed(
+                API::Trade(Trade::History),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
     pub async fn get_trade_history<'a>(
         &self,
         req: TradeHistoryRequest<'a>,
-    ) -> Result<TradeHistorySummary> {
+    ) -> Result<TradeHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         req.symbol
@@ -286,14 +323,18 @@ impl Trader {
         let request = build_request(&parameters);
         let response: TradeHistoryResponse = self
             .client
-            .get_signed(API::Trade(Trade::TradeHistory), self.recv_window.into(), Some(request))
+            .get_signed(
+                API::Trade(Trade::TradeHistory),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     pub async fn batch_place_order<'a>(
         &self,
         req: BatchPlaceRequest<'a>,
-    ) -> Result<Vec<(BatchedOrder, OrderConfirmation)>> {
+    ) -> Result<BatchPlaceResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
             Category::Linear | Category::Inverse | Category::Option => {
@@ -314,23 +355,19 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: BatchPlaceResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchPlace), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::BatchPlace),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        if response.result.list.len() != response.ret_ext_info.list.len() {
-            println!("List length not equal");
-        }
-        let paired_list: Vec<(BatchedOrder, OrderConfirmation)> = response
-            .result
-            .list
-            .into_iter()
-            .zip(response.ret_ext_info.list.into_iter())
-            .collect();
-        Ok(paired_list)
+
+        Ok(response)
     }
     pub async fn batch_amend_order<'a>(
         &self,
         req: BatchAmendRequest<'a>,
-    ) -> Result<Vec<(AmendedOrder, OrderConfirmation)>> {
+    ) -> Result<BatchAmendResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
             Category::Linear | Category::Inverse | Category::Option => {
@@ -351,24 +388,19 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: BatchAmendResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchAmend), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::BatchAmend),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        if response.result.list.len() != response.ret_ext_info.list.len() {
-            println!("List length not equal");
-        }
-        let paired_list: Vec<(AmendedOrder, OrderConfirmation)> = response
-            .result
-            .list
-            .into_iter()
-            .zip(response.ret_ext_info.list.into_iter())
-            .collect();
-        Ok(paired_list)
+        Ok(response)
     }
 
     pub async fn batch_cancel_order<'a>(
         &self,
         req: BatchCancelRequest<'a>,
-    ) -> Result<Vec<(CanceledOrder, OrderConfirmation)>> {
+    ) -> Result<BatchCancelResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
             Category::Linear | Category::Inverse | Category::Option => {
@@ -389,18 +421,13 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: BatchCancelResponse = self
             .client
-            .post_signed(API::Trade(Trade::BatchCancel), self.recv_window.into(), Some(request))
+            .post_signed(
+                API::Trade(Trade::BatchCancel),
+                self.recv_window.into(),
+                Some(request),
+            )
             .await?;
-        if response.result.list.len() != response.ret_ext_info.list.len() {
-            println!("List length not equal");
-        }
-        let paired_list: Vec<(CanceledOrder, OrderConfirmation)> = response
-            .result
-            .list
-            .into_iter()
-            .zip(response.ret_ext_info.list.into_iter())
-            .collect();
-        Ok(paired_list)
+        Ok(response)
     }
     pub async fn get_borrow_quota_spot(&self) {
         // TODO: Implement this function

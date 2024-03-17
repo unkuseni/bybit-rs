@@ -2,9 +2,13 @@ use std::collections::BTreeMap;
 
 use crate::api::{Account, API};
 use crate::client::Client;
-use crate::errors::Result;
+use crate::errors::BybitError;
 use crate::model::{
-    AccountInfo, AccountInfoResponse, BatchSetCollateralCoinResponse, BorrowHistoryRequest, BorrowHistoryResponse, Category, CollateralInfoList, CollateralInfoResponse, FeeRate, FeeRateResponse, LiabilityQty, MarginModeResult, RepayLiabilityResponse, SetCollateralCoinResponse, SetMarginModeResponse, SmpResponse, SmpResult, SpotHedgingResponse, SwitchList, TransactionLogRequest, TransactionLogResponse, TransactionLogResult, UTAResponse, UTAUpdateStatus, WalletList, WalletResponse
+    AccountInfoResponse, BatchSetCollateralCoinResponse, BorrowHistoryRequest,
+    BorrowHistoryResponse, Category, CollateralInfoResponse, FeeRateResponse,
+    RepayLiabilityResponse, SetCollateralCoinResponse, SetMarginModeResponse, SmpResponse,
+    SpotHedgingResponse, TransactionLogRequest, TransactionLogResponse, UTAResponse,
+    WalletResponse,
 };
 
 use serde_json::{json, Value};
@@ -22,7 +26,7 @@ impl AccountManager {
         &self,
         account: &str,
         coin: Option<&str>,
-    ) -> Result<WalletList> {
+    ) -> Result<WalletResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("accountType".into(), account.into());
         if let Some(c) = coin {
@@ -37,10 +41,11 @@ impl AccountManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+
+        Ok(response)
     }
 
-    pub async fn upgrade_to_uta(&self) -> Result<UTAUpdateStatus> {
+    pub async fn upgrade_to_uta(&self) -> Result<UTAResponse, BybitError> {
         let response: UTAResponse = self
             .client
             .post_signed(
@@ -49,13 +54,13 @@ impl AccountManager {
                 None,
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn get_borrow_history<'a>(
         &self,
         req: BorrowHistoryRequest<'_>,
-    ) -> Result<BorrowHistoryResponse> {
+    ) -> Result<BorrowHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if let Some(c) = req.coin {
             parameters.insert("coin".into(), c.into());
@@ -87,7 +92,10 @@ impl AccountManager {
         Ok(response)
     }
 
-    pub async fn repay_liability(&self, coin: Option<&str>) -> Result<LiabilityQty> {
+    pub async fn repay_liability(
+        &self,
+        coin: Option<&str>,
+    ) -> Result<RepayLiabilityResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if let Some(c) = coin {
             parameters.insert("coin".into(), c.into());
@@ -101,14 +109,14 @@ impl AccountManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn set_collateral_coin(
         &self,
         coin: &str,
         switch: bool,
-    ) -> Result<SetCollateralCoinResponse> {
+    ) -> Result<SetCollateralCoinResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("coin".into(), coin.into());
         if switch == true {
@@ -128,7 +136,10 @@ impl AccountManager {
         Ok(response)
     }
 
-    pub async fn batch_set_collateral(&self, requests: Vec<(&str, bool)>) -> Result<SwitchList> {
+    pub async fn batch_set_collateral(
+        &self,
+        requests: Vec<(&str, bool)>,
+    ) -> Result<BatchSetCollateralCoinResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         let mut requests_array: Vec<Value> = Vec::new();
         for (coin, switch) in requests {
@@ -148,10 +159,13 @@ impl AccountManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
-    pub async fn get_collateral_info(&self, coin: Option<&str>) -> Result<CollateralInfoList> {
+    pub async fn get_collateral_info(
+        &self,
+        coin: Option<&str>,
+    ) -> Result<CollateralInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if let Some(v) = coin {
             parameters.insert("currency".into(), v.into());
@@ -165,16 +179,20 @@ impl AccountManager {
                 Some(req),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
-    pub async fn get_fee_rate(&self, category: Category, symbol: Option<String>) -> Result<Vec<FeeRate>> {
+    pub async fn get_fee_rate(
+        &self,
+        category: Category,
+        symbol: Option<String>,
+    ) -> Result<FeeRateResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), category.as_str().into());
         if let Some(s) = symbol {
             parameters.insert("symbol".into(), s.into());
         }
         let req = build_request(&parameters);
-        let response: FeeRateResponse= self
+        let response: FeeRateResponse = self
             .client
             .post_signed(
                 API::Account(Account::FeeRate),
@@ -182,10 +200,10 @@ impl AccountManager {
                 Some(req),
             )
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
-    pub async fn get_account_info(&self) -> Result<AccountInfo> {
+    pub async fn get_account_info(&self) -> Result<AccountInfoResponse, BybitError> {
         let response: AccountInfoResponse = self
             .client
             .get_signed(
@@ -194,13 +212,13 @@ impl AccountManager {
                 None,
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn get_transaction_log<'a>(
         &self,
         req: TransactionLogRequest<'a>,
-    ) -> Result<TransactionLogResult> {
+    ) -> Result<TransactionLogResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if let Some(v) = req.account_type {
             parameters.insert("accountType".into(), v.into());
@@ -243,10 +261,10 @@ impl AccountManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
-    pub async fn get_smp_id(&self) -> Result<SmpResult> {
+    pub async fn get_smp_id(&self) -> Result<SmpResponse, BybitError> {
         let response: SmpResponse = self
             .client
             .get_signed(
@@ -255,10 +273,13 @@ impl AccountManager {
                 None,
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
-    pub async fn set_margin_mode(&self, margin_mode: &str) -> Result<MarginModeResult> {
+    pub async fn set_margin_mode(
+        &self,
+        margin_mode: &str,
+    ) -> Result<SetMarginModeResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("setMarginMode".into(), margin_mode.into());
         let request = build_json_request(&parameters);
@@ -270,10 +291,13 @@ impl AccountManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
-    pub async fn set_spot_hedging(&self, spot_hedging: bool) -> Result<SpotHedgingResponse> {
+    pub async fn set_spot_hedging(
+        &self,
+        spot_hedging: bool,
+    ) -> Result<SpotHedgingResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if spot_hedging == true {
             parameters.insert("setHedgingMode".into(), "ON".into());

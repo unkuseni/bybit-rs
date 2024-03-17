@@ -1,6 +1,5 @@
 use bybit::api::*;
 use bybit::config::*;
-use bybit::general::General;
 use bybit::market::*;
 use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest};
 use tokio;
@@ -10,21 +9,11 @@ use tokio::time::{Duration, Instant};
 mod tests {
 
     use super::*;
-    use bybit::{
-        model::{
-            FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
-            RecentTradesRequest, RiskLimitRequest,
-        },
-        util::get_timestamp,
+    use bybit::model::{
+        FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
+        RecentTradesRequest, RiskLimitRequest,
     };
 
-    #[tokio::test]
-    async fn test_time() {
-        let market: General = Bybit::new(None, None);
-        let timestamp = get_timestamp();
-        let time = market.get_server_time().await;
-        println!("{:#?} , {:?}", time, timestamp);
-    }
     #[tokio::test]
     async fn test_kline() {
         let market: MarketData = Bybit::new(None, None);
@@ -38,7 +27,7 @@ mod tests {
         );
         let premium = market.get_klines(request).await;
         if let Ok(data) = premium {
-            println!("{:#?}", data.list);
+            println!("{:#?}", data.result.list);
         }
     }
 
@@ -48,11 +37,11 @@ mod tests {
         let request = InstrumentRequest::new(Category::Linear, Some("MATICUSDT"), None, None, None);
         let instrument = market.get_futures_instrument_info(request.clone()).await;
         if let Ok(data) = instrument {
-            println!("{:#?}", data[0]);
+            println!("{:#?}", data.result.list[0]);
         }
         let spot_instrument = market.get_spot_instrument_info(request).await;
         if let Ok(data) = spot_instrument {
-            println!("{:#?}", data[0]);
+            println!("{:#?}", data.result.list[0]);
         }
     }
 
@@ -60,13 +49,15 @@ mod tests {
     async fn test_market() {
         let market: MarketData = Bybit::new(None, None);
         let five_minutes = Duration::from_secs(5 * 60);
-        let request = OrderbookRequest::new("GALUSDT", Category::Linear, Some(1));
+        let request = OrderbookRequest::new("GALAUSDT", Category::Linear, Some(1));
         let start = Instant::now();
         while Instant::now() - start < five_minutes {
             let order_book = market.get_depth(request.clone()).await;
-            if let Ok(order_book) = order_book {
+            if let Ok(data) = order_book {
+                let order_book = data.result;
                 let mid_price = (order_book.asks[0].price + order_book.bids[0].price) / 2.0;
-                let imbalance = (order_book.bids[0].qty - order_book.asks[0].qty) / (order_book.asks[0].qty + order_book.bids[0].qty);
+                let imbalance = (order_book.bids[0].qty - order_book.asks[0].qty)
+                    / (order_book.asks[0].qty + order_book.bids[0].qty);
                 let fees = fee_percent(mid_price, 0.04);
                 let spread = order_book.asks[0].price - order_book.bids[0].price;
                 let arb = spread - fees;
@@ -85,7 +76,6 @@ mod tests {
         }
     }
 
-
     fn fee_percent(value: f64, percent: f64) -> f64 {
         (percent / 100.0) * value
     }
@@ -96,11 +86,11 @@ mod tests {
         let symbol = "MATICUSDT";
         let ticker = market.get_futures_tickers(Some(symbol)).await;
         if let Ok(data) = ticker {
-            println!("{:#?}", data[0]);
+            println!("{:#?}", data.result.list);
         }
         let spot_ticker = market.get_spot_tickers(Some(symbol)).await;
         if let Ok(data) = spot_ticker {
-            println!("{:#?}", data[0]);
+            println!("{:#?}", data.result.list);
         }
     }
 
@@ -110,7 +100,7 @@ mod tests {
         let request = RecentTradesRequest::new(Category::Linear, Some("MATICUSDT"), None, None);
         let trades = market.get_recent_trades(request).await;
         if let Ok(data) = trades {
-            println!("{:#?}", data);
+            println!("{:#?}", data.result.list);
         }
     }
 
@@ -121,7 +111,7 @@ mod tests {
         let request = FundingHistoryRequest::new(Category::Linear, symbol, None, None, None);
         let funding_rate = market.get_funding_history(request).await;
         if let Ok(data) = funding_rate {
-            println!("{:#?}", data.last().unwrap());
+            println!("{:#?}", data.result.list.last().unwrap());
         }
     }
 
@@ -132,7 +122,7 @@ mod tests {
             OpenInterestRequest::new(Category::Linear, "MATICUSDT", "4h", None, None, None);
         let open_interest = market.get_open_interest(request).await;
         if let Ok(data) = open_interest {
-            println!("{:#?}", data.list.last().unwrap());
+            println!("{:#?}", data.result.list.last().unwrap());
         }
     }
 
@@ -144,7 +134,7 @@ mod tests {
             HistoricalVolatilityRequest::new(Some(symbol), None, None, None);
         let historical_volatility = market.get_historical_volatility(request).await;
         if let Ok(data) = historical_volatility {
-            println!("{:#?}", data);
+            println!("{:#?}", data.result);
         }
     }
 
@@ -154,7 +144,7 @@ mod tests {
         let symbol = Some("BTC");
         let insurance = market.get_insurance(symbol).await;
         if let Ok(data) = insurance {
-            println!("{:#?}", data);
+            println!("{:#?}", data.result);
         }
     }
 
@@ -166,7 +156,7 @@ mod tests {
         let request: RiskLimitRequest<'_> = RiskLimitRequest::new(Category::Linear, Some(symbol));
         let risk_limit = market.get_risk_limit(request).await;
         if let Ok(data) = risk_limit {
-            println!("{:#?}", data);
+            println!("{:#?}", data.result);
         }
     }
 
@@ -175,9 +165,11 @@ mod tests {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "BTCUSDT";
         let delivery_price = market
-            .get_delivery_price(Category::Linear, Some(symbol), None, None)
+            .get_delivery_price(Category::Option, Some(symbol), None, None)
             .await;
-        println!("{:#?}", delivery_price);
+        if let Ok(data) = delivery_price {
+            println!("{:#?}", data.result);
+        }
     }
 
     #[tokio::test]
@@ -188,7 +180,7 @@ mod tests {
             .get_longshort_ratio(Category::Linear, symbol, "4h", None)
             .await;
         if let Ok(data) = longshort_ratio {
-            println!("{:#?}", data);
+            println!("{:#?}", data.result);
         }
     }
 }

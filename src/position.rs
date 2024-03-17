@@ -4,14 +4,13 @@ use serde_json::{json, Value};
 
 use crate::api::{Position, API};
 use crate::client::Client;
-use crate::errors::Result;
+use crate::errors::BybitError;
 use crate::model::{
     AddMarginRequest, AddMarginResponse, AddReduceMarginRequest, AddReduceMarginResponse,
-    AddReduceMarginResult, ChangeMarginRequest, ChangeMarginResponse, ClosedPnlRequest,
-    ClosedPnlResponse, ClosedPnlResult, InfoResponse, LeverageRequest, LeverageResponse,
+    ChangeMarginRequest, ChangeMarginResponse, ClosedPnlRequest,
+    ClosedPnlResponse, InfoResponse, LeverageRequest, LeverageResponse,
     MarginModeRequest, MarginModeResponse, MoveHistoryRequest, MoveHistoryResponse,
-    MoveHistoryResult, MovePositionRequest, MovePositionResponse, MovePositionResult, PositionInfo,
-    PositionRequest, SetRiskLimit, SetRiskLimitResponse, SetRiskLimitResult, TradingStopRequest,
+    MovePositionRequest, MovePositionResponse, PositionRequest, SetRiskLimit, SetRiskLimitResponse, TradingStopRequest,
     TradingStopResponse,
 };
 use crate::util::{build_json_request, build_request, date_to_milliseconds};
@@ -49,7 +48,7 @@ impl PositionManager {
     ///     Ok(())
     /// }
     /// ```
-    pub async fn get_info<'a>(&self, req: PositionRequest<'a>) -> Result<Vec<PositionInfo>> {
+    pub async fn get_info<'a>(&self, req: PositionRequest<'a>) -> Result<InfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         if let Some(v) = req.symbol {
@@ -73,7 +72,7 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     // Sets the leverage for a given symbol.
@@ -85,7 +84,10 @@ impl PositionManager {
     /// # Returns
     ///
     /// A result containing the leverage response.
-    pub async fn set_leverage<'a>(&self, req: LeverageRequest<'a>) -> Result<LeverageResponse> {
+    pub async fn set_leverage<'a>(
+        &self,
+        req: LeverageRequest<'a>,
+    ) -> Result<LeverageResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -115,7 +117,7 @@ impl PositionManager {
     pub async fn set_margin_mode<'a>(
         &self,
         req: ChangeMarginRequest<'a>,
-    ) -> Result<ChangeMarginResponse> {
+    ) -> Result<ChangeMarginResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -144,7 +146,7 @@ impl PositionManager {
     pub async fn set_position_mode<'a>(
         &self,
         req: MarginModeRequest<'a>,
-    ) -> Result<MarginModeResponse> {
+    ) -> Result<MarginModeResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         if let Some(v) = req.symbol {
@@ -175,7 +177,10 @@ impl PositionManager {
     /// # Returns
     ///
     /// * Result<SetRiskLimitResult> - The result of setting the risk limit.
-    pub async fn set_risk_limit<'a>(&self, req: SetRiskLimit<'a>) -> Result<SetRiskLimitResult> {
+    pub async fn set_risk_limit<'a>(
+        &self,
+        req: SetRiskLimit<'a>,
+    ) -> Result<SetRiskLimitResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -192,7 +197,7 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Set the trading stop.
@@ -207,7 +212,7 @@ impl PositionManager {
     pub async fn set_trading_stop<'a>(
         &self,
         req: TradingStopRequest<'a>,
-    ) -> Result<TradingStopResponse> {
+    ) -> Result<TradingStopResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -257,7 +262,10 @@ impl PositionManager {
         Ok(response)
     }
 
-    pub async fn set_add_margin<'a>(&self, req: AddMarginRequest<'a>) -> Result<AddMarginResponse> {
+    pub async fn set_add_margin<'a>(
+        &self,
+        req: AddMarginRequest<'a>,
+    ) -> Result<AddMarginResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -284,7 +292,7 @@ impl PositionManager {
     pub async fn add_or_reduce_margin<'a>(
         &self,
         req: AddReduceMarginRequest<'a>,
-    ) -> Result<AddReduceMarginResult> {
+    ) -> Result<AddReduceMarginResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -301,10 +309,13 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
-    pub async fn get_closed_pnl<'a>(&self, req: ClosedPnlRequest<'a>) -> Result<ClosedPnlResult> {
+    pub async fn get_closed_pnl<'a>(
+        &self,
+        req: ClosedPnlRequest<'a>,
+    ) -> Result<ClosedPnlResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         if let Some(v) = req.symbol {
@@ -335,13 +346,13 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn move_position<'a>(
         &self,
         req: MovePositionRequest<'a>,
-    ) -> Result<MovePositionResult> {
+    ) -> Result<MovePositionResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("fromUid".into(), req.from_uid.into());
         parameters.insert("toUid".into(), req.to_uid.into());
@@ -355,13 +366,13 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     pub async fn move_position_history<'a>(
         &self,
         req: MoveHistoryRequest<'a>,
-    ) -> Result<MoveHistoryResult> {
+    ) -> Result<MoveHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         if let Some(v) = req.category {
             parameters.insert("category".into(), v.as_str().into());
@@ -399,6 +410,6 @@ impl PositionManager {
                 Some(request),
             )
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 }

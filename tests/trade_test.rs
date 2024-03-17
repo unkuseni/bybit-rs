@@ -56,7 +56,7 @@ mod tests {
         );
         let trade_history = trade.get_trade_history(data).await;
         if let Ok(data) = trade_history {
-            println!("{:#?}", data.list);
+            println!("{:#?}", data.result.list);
         }
     }
 

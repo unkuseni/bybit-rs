@@ -1,8 +1,14 @@
 use crate::api::{Market, API};
 use crate::client::Client;
-use crate::errors::Result;
+use crate::errors::BybitError;
 use crate::model::{
-    Category, DeliveryPriceResponse, DeliveryPriceSummary, FundingHistoryRequest, FundingRate, FundingRateResponse, FuturesInstrument, FuturesInstrumentsInfoResponse, FuturesTicker, FuturesTickersResponse, HistoricalVolatility, HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse, IndexPriceKlineSummary, InstrumentRequest, InsuranceResponse, InsuranceSummary, KlineRequest, KlineResponse, KlineSummary, LongShortRatioResponse, LongShortRatioSummary, MarkPriceKlineResponse, MarkPriceKlineSummary, OpenInterestRequest, OpenInterestSummary, OpeninterestResponse, OptionsInstrument, OrderBook, OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, PremiumIndexPriceKlineSummary, RecentTrades, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, RiskLimitSummary, SpotInstrument, SpotInstrumentsInfoResponse, SpotTicker, SpotTickersResponse
+    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse, FuturesInstrumentsInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
+    HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse,
+    LongShortRatioResponse, MarkPriceKlineResponse,
+    OpenInterestRequest, OpeninterestResponse,
+    OptionsInstrument, OrderBookResponse, OrderbookRequest,
+    PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse,
+    SpotInstrumentsInfoResponse, SpotTickersResponse,
 };
 use crate::util::{build_request, date_to_milliseconds};
 
@@ -17,26 +23,26 @@ pub struct MarketData {
 /// Market Data endpoints
 
 impl MarketData {
-   /// Retrieves historical price klines.
-   ///
-   /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
-   /// and interval. It supports additional parameters to define a date range and to limit the response size.
-   ///
-   /// Suitable for USDT perpetual, USDC contract, and Inverse contract categories.
-   ///
-   /// # Arguments
-   ///
-   /// * `category` - The market category for which to retrieve klines (optional).
-   /// * `symbol` - The trading pair or symbol for which to retrieve klines.
-   /// * `interval` - The time interval between klines.
-   /// * `start` - The start date for the kline data retrieval in `DDMMYY` format (optional).
-   /// * `end` - The end date for the kline data retrieval in `DDMMYY` format (optional).
-   /// * `limit` - The maximum number of klines to return (optional).
-   ///
-   /// # Returns
-   ///
-   /// A `Result<Vec<KlineData>, Error>` containing the requested kline data if successful, or an error otherwise.
-    pub async fn get_klines<'a>(&self, req: KlineRequest<'a>) -> Result<KlineSummary> {
+    /// Retrieves historical price klines.
+    ///
+    /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
+    /// and interval. It supports additional parameters to define a date range and to limit the response size.
+    ///
+    /// Suitable for USDT perpetual, USDC contract, and Inverse contract categories.
+    ///
+    /// # Arguments
+    ///
+    /// * `category` - The market category for which to retrieve klines (optional).
+    /// * `symbol` - The trading pair or symbol for which to retrieve klines.
+    /// * `interval` - The time interval between klines.
+    /// * `start` - The start date for the kline data retrieval in `DDMMYY` format (optional).
+    /// * `end` - The end date for the kline data retrieval in `DDMMYY` format (optional).
+    /// * `limit` - The maximum number of klines to return (optional).
+    ///
+    /// # Returns
+    ///
+    /// A `Result<Vec<KlineData>, Error>` containing the requested kline data if successful, or an error otherwise.
+    pub async fn get_klines<'a>(&self, req: KlineRequest<'a>) -> Result<KlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(cat) = req.category {
             parameters
@@ -71,7 +77,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::Kline), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     /// Retrieves historical mark price klines.
     ///
@@ -97,14 +103,18 @@ impl MarketData {
     pub async fn get_mark_price_klines<'a>(
         &self,
         req: KlineRequest<'a>,
-    ) -> Result<MarkPriceKlineSummary> {
+    ) -> Result<MarkPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(category) = req.category {
             match category {
                 Category::Linear | Category::Inverse => {
                     parameters.insert("category".to_owned(), category.as_str().to_owned());
                 }
-                _ => return Err("Category must be either Linear or Inverse".into()),
+                _ => {
+                    return Err(BybitError::from(
+                        "Category must be either Linear or Inverse".to_string(),
+                    ))
+                }
             }
         } else {
             parameters.insert("category".to_owned(), Category::Linear.as_str().to_string());
@@ -134,7 +144,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::MarkPriceKline), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     /// Fetches index price klines based on specified criteria.
     ///
@@ -158,14 +168,18 @@ impl MarketData {
     pub async fn get_index_price_klines<'a>(
         &self,
         req: KlineRequest<'a>,
-    ) -> Result<IndexPriceKlineSummary> {
+    ) -> Result<IndexPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(category) = req.category {
             match category {
                 Category::Linear | Category::Inverse => {
                     parameters.insert("category".to_owned(), category.as_str().to_owned());
                 }
-                _ => return Err("Category must be either Linear or Inverse".into()),
+                _ => {
+                    return Err(BybitError::from(
+                        "Category must be either Linear or Inverse".to_string(),
+                    ))
+                }
             }
         } else {
             parameters.insert("category".to_owned(), Category::Linear.as_str().to_string());
@@ -195,7 +209,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::IndexPriceKline), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     /// Retrieves premium index price klines based on specified criteria.
     ///
@@ -223,7 +237,7 @@ impl MarketData {
     pub async fn get_premium_index_price_klines<'a>(
         &self,
         req: KlineRequest<'a>,
-    ) -> Result<PremiumIndexPriceKlineSummary> {
+    ) -> Result<PremiumIndexPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".to_owned(), Category::Linear.as_str().to_string());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -250,7 +264,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::PremiumIndexPriceKline), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     /// Retrieves a list of futures instruments based on the specified filters.
     ///
@@ -272,12 +286,16 @@ impl MarketData {
     pub async fn get_futures_instrument_info<'a>(
         &self,
         req: InstrumentRequest<'a>,
-    ) -> Result<Vec<FuturesInstrument>> {
+    ) -> Result<FuturesInstrumentsInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
-            _ => return Err("Category must be either Linear or Inverse".into()),
+            _ => {
+                return Err(BybitError::from(
+                    "Category must be either Linear or Inverse".to_string(),
+                ))
+            }
         };
         parameters.insert("category".into(), category_value.into());
         if let Some(symbol) = req.symbol {
@@ -297,7 +315,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::InstrumentsInfo), Some(request))
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     /// Fetches details for spot instruments based on provided filters.
@@ -316,7 +334,7 @@ impl MarketData {
     pub async fn get_spot_instrument_info<'a>(
         &self,
         req: InstrumentRequest<'a>,
-    ) -> Result<Vec<SpotInstrument>> {
+    ) -> Result<SpotInstrumentsInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), "Spot".into());
         if let Some(symbol) = req.symbol {
@@ -338,13 +356,13 @@ impl MarketData {
             .client
             .get(API::Market(Market::InstrumentsInfo), Some(request))
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     pub async fn get_options_instrument_info<'a>(
         &self,
         _req: InstrumentRequest<'a>,
-    ) -> Result<Vec<OptionsInstrument>> {
+    ) -> Result<Vec<OptionsInstrument>, BybitError> {
         todo!()
     }
 
@@ -362,7 +380,10 @@ impl MarketData {
     ///
     /// A `Result<OrderBook, Error>` which is Ok if the order book is successfully retrieved,
     /// or an Err with a detailed error message otherwise.
-    pub async fn get_depth<'a>(&self, req: OrderbookRequest<'a>) -> Result<OrderBook> {
+    pub async fn get_depth<'a>(
+        &self,
+        req: OrderbookRequest<'a>,
+    ) -> Result<OrderBookResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -375,7 +396,7 @@ impl MarketData {
             .get(API::Market(Market::OrderBook), Some(request))
             .await?;
 
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Asynchronously retrieves spot tickers based on the provided symbol.
@@ -387,7 +408,10 @@ impl MarketData {
     /// # Returns
     ///
     /// A Result containing a vector of SpotTicker objects, or an error if the retrieval fails.
-    pub async fn get_spot_tickers(&self, symbol: Option<&str>) -> Result<Vec<SpotTicker>> {
+    pub async fn get_spot_tickers(
+        &self,
+        symbol: Option<&str>,
+    ) -> Result<SpotTickersResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), Category::Spot.as_str().into());
         if let Some(symbol) = symbol {
@@ -398,7 +422,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::Tickers), Some(request))
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     /// Asynchronously retrieves Futures tickers based on the provided symbol.
@@ -410,7 +434,10 @@ impl MarketData {
     /// # Returns
     ///
     /// A Result containing a vector of FuturesTicker objects, or an error if the retrieval fails.
-    pub async fn get_futures_tickers(&self, symbol: Option<&str>) -> Result<Vec<FuturesTicker>> {
+    pub async fn get_futures_tickers(
+        &self,
+        symbol: Option<&str>,
+    ) -> Result<FuturesTickersResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), Category::Linear.as_str().into());
         if let Some(symbol) = symbol {
@@ -421,7 +448,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::Tickers), Some(request))
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
 
     /// Asynchronously retrieves the funding history based on specified criteria.
@@ -448,12 +475,16 @@ impl MarketData {
     pub async fn get_funding_history<'a>(
         &self,
         req: FundingHistoryRequest<'a>,
-    ) -> Result<Vec<FundingRate>> {
+    ) -> Result<FundingRateResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
-            _ => return Err("Category must be either Linear or Inverse".into()),
+            _ => {
+                return Err(BybitError::from(
+                    "Category must be either Linear or Inverse".to_string(),
+                ))
+            }
         };
         parameters.insert("category".into(), category_value.into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -480,7 +511,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::FundingRate), Some(request))
             .await?;
-        Ok(response.result.list)
+        Ok(response)
     }
     /// Retrieves a list of the most recent trades for a specified market category.
     /// Filtering by symbol and basecoin is supported, and the number of trades returned can be limited.
@@ -499,7 +530,7 @@ impl MarketData {
     pub async fn get_recent_trades<'a>(
         &self,
         req: RecentTradesRequest<'a>,
-    ) -> Result<RecentTrades> {
+    ) -> Result<RecentTradesResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         if let Some(s) = req.symbol {
@@ -517,7 +548,7 @@ impl MarketData {
             .get(API::Market(Market::RecentTrades), Some(request))
             .await?;
 
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Retrieves open interest for a specific market category and symbol over a defined time interval.
@@ -542,12 +573,16 @@ impl MarketData {
     pub async fn get_open_interest<'a>(
         &self,
         req: OpenInterestRequest<'a>,
-    ) -> Result<OpenInterestSummary> {
+    ) -> Result<OpeninterestResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
-            _ => return Err("Category must be either Linear or Inverse".into()),
+            _ => {
+                return Err(BybitError::from(
+                    "Category must be either Linear or Inverse".to_string(),
+                ))
+            }
         };
         parameters.insert("category".into(), category_value.into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -574,7 +609,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::OpenInterest), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
     /// Fetches historical volatility data for a specified base coin.
     ///
@@ -596,7 +631,7 @@ impl MarketData {
     pub async fn get_historical_volatility<'a>(
         &self,
         req: HistoricalVolatilityRequest<'a>,
-    ) -> Result<Vec<HistoricalVolatility>> {
+    ) -> Result<HistoricalVolatilityResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), Category::Option.as_str().into());
         if let Some(b) = req.base_coin {
@@ -618,7 +653,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::HistoricalVolatility), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Fetches insurance information for a specific coin.
@@ -630,7 +665,7 @@ impl MarketData {
     /// # Returns
     ///
     /// Returns a `Result` containing the insurance summary if successful, or an error if not.
-    pub async fn get_insurance(&self, coin: Option<&str>) -> Result<InsuranceSummary> {
+    pub async fn get_insurance(&self, coin: Option<&str>) -> Result<InsuranceResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), Category::Option.as_str().into());
         if let Some(c) = coin {
@@ -641,7 +676,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::Insurance), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Retrieves the risk limit information based on market category and specific symbol if provided.
@@ -654,12 +689,19 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<RiskLimitSummary>` which is either the risk limit details on success or an error on failure.
-    pub async fn get_risk_limit<'a>(&self, req: RiskLimitRequest<'a>) -> Result<RiskLimitSummary> {
+    pub async fn get_risk_limit<'a>(
+        &self,
+        req: RiskLimitRequest<'a>,
+    ) -> Result<RiskLimitResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
-            _ => return Err("Category must be either Linear or Inverse".into()),
+            _ => {
+                return Err(BybitError::from(
+                    "Category must be either Linear or Inverse".to_string(),
+                ))
+            }
         };
         parameters.insert("category".into(), category_value.into());
         if let Some(s) = req.symbol {
@@ -670,7 +712,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::RiskLimit), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Retrieves the delivery price for a given category, symbol, base coin, and limit.
@@ -691,7 +733,7 @@ impl MarketData {
         symbol: Option<&str>,
         base_coin: Option<&str>,
         limit: Option<u64>,
-    ) -> Result<DeliveryPriceSummary> {
+    ) -> Result<DeliveryPriceResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), category.as_str().into());
         if let Some(s) = symbol {
@@ -708,7 +750,7 @@ impl MarketData {
             .client
             .get(API::Market(Market::DeliveryPrice), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 
     /// Retrieves the long/short ratio for a given market category, symbol, period, and limit.
@@ -734,13 +776,17 @@ impl MarketData {
         symbol: &str,
         period: &str,
         limit: Option<u64>,
-    ) -> Result<LongShortRatioSummary> {
+    ) -> Result<LongShortRatioResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         match category {
             Category::Linear | Category::Inverse => {
                 parameters.insert("category".into(), category.as_str().into())
             }
-            _ => return Err("Category must be either Linear or Inverse".into()),
+            _ => {
+                return Err(BybitError::from(
+                    "Category must be either Linear or Inverse".to_string(),
+                ))
+            }
         };
         parameters.insert("symbol".into(), symbol.into());
         parameters.insert("period".into(), period.into());
@@ -752,6 +798,6 @@ impl MarketData {
             .client
             .get(API::Market(Market::LongShortRatio), Some(request))
             .await?;
-        Ok(response.result)
+        Ok(response)
     }
 }
