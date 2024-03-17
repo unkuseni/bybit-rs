@@ -1049,7 +1049,7 @@ impl TimeInForce {
         }
     }
 }
-#[derive(Clone, Default, Serialize, Debug)]
+#[derive(Clone, Default, Serialize)]
 pub struct OrderRequest<'a> {
     pub category: Category,                 // String
     pub symbol: Cow<'a, str>,               // String
@@ -1396,7 +1396,7 @@ pub struct AmendOrderResponse {
     pub time: u64,
 }
 
-#[derive(Clone, Default, Serialize, Debug)]
+#[derive(Clone, Default, Serialize)]
 pub struct AmendOrderRequest<'a> {
     pub category: Category,   // String
     pub symbol: Cow<'a, str>, // String
@@ -1476,7 +1476,7 @@ impl<'a> AmendOrderRequest<'a> {
     }
 }
 
-#[derive(Clone, Serialize, Debug, Deserialize)]
+#[derive(Clone, Serialize)]
 pub struct CancelOrderRequest<'a> {
     pub category: Category,
     pub symbol: Cow<'a, str>,
