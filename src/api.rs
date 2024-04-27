@@ -22,6 +22,7 @@ pub enum API {
 pub enum WebsocketAPI {
     Public(Public),
     Private,
+    TradeStream,
 }
 
 #[derive(Clone)]
@@ -265,6 +266,7 @@ impl From<WebsocketAPI> for String {
                 Public::Inverse => "/public/inverse",
             },
             WebsocketAPI::Private => "/private",
+            WebsocketAPI::TradeStream => "/trade",
         })
     }
 }

@@ -76,6 +76,26 @@ impl Stream {
         Ok(())
     }
 
+    pub async fn ws_trade_stream<'a, F>(
+        &self,
+        req: Subscription<'a>,
+        handler: F,
+    ) -> Result<(), BybitError>
+    where
+        F: FnMut(WebsocketEvents) -> Result<(), BybitError> + 'static + Send,
+    {
+        let request = Self::build_subscription(req);
+        let response = self
+            .client
+            .wss_connect(WebsocketAPI::TradeStream, Some(request), true, None)
+            .await?;
+        match Self::event_loop(response, handler).await {
+            Ok(_) => {}
+            Err(_) => {}
+        }
+        Ok(())
+    }
+
     pub async fn ws_subscribe<'a, F>(
         &self,
         req: Subscription<'a>,
