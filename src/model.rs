@@ -3200,6 +3200,35 @@ pub struct SpotHedgingResponse {
     pub ret_msg: String,
 }
 
+// = = = = = = = = = = = = ==  = == = =  =  = = = = ==
+// HEADER STRUCT FOR TRADESTREM RESPONSE
+// = = = = = = = = = = = = ==  = == = =  =  = = = = ==
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Header {
+    #[serde(rename = "X-Bapi-Limit")]
+    pub x_bapi_limit: String,
+    #[serde(rename = "X-Bapi-Limit-Status")]
+    pub x_bapi_limit_status: String,
+    #[serde(rename = "X-Bapi-Limit-Reset-Timestamp")]
+    pub x_bapi_limit_reset_timestamp: String,
+    #[serde(rename = "Traceid")]
+    pub traceid: String,
+    #[serde(rename = "Timenow")]
+    pub timenow: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub  struct HeaderRequest {
+    #[serde(rename = "X-BAPI-TIMESTAMP")]
+    pub x_bapi_timestamp: String,
+    #[serde(rename = "X-BAPI-RECV-WINDOW")]
+    pub x_bapi_recv_window: String,
+    #[serde(rename = "Referer", skip_serializing_if = "Option::is_none")]
+    pub referer: Option<String>,
+}
+
+
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 //
 // WEBSOCKET STRUCTS AND RESPONSES
@@ -3233,6 +3262,7 @@ pub enum WebsocketEvents {
     ExecutionEvent(Execution),
     OrderEvent(OrderEvent),
     Wallet(WalletEvent),
+    TradeStream(TradeStreamEvent),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -3263,6 +3293,34 @@ pub struct PongData {
 
 unsafe impl Send for PongData {}
 unsafe impl Sync for PongData {}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TradeStreamEvent {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub req_id: Option<String>,
+    pub ret_code: i32,
+    pub ret_msg: String,
+    pub op: String,
+    pub data: OrderStatus,
+    pub header: Header,
+    pub conn_id: String,
+}
+
+unsafe impl Send for TradeStreamEvent {}
+unsafe impl Sync for TradeStreamEvent {}
+
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TradeStreamRequest<'a> {
+   pub req_id: Option<Cow<'a, str>>,
+   pub header: HeaderRequest,
+   pub op: Cow<'a, str>,
+   pub args: Vec<Value>,
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
