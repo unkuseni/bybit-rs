@@ -4,10 +4,7 @@ use crate::api::{Trade, API};
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse,
-    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category, OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest,
-    OrderHistoryResponse, OrderRequest, OrderResponse, OrderType, Side,
-    TradeHistoryRequest, TradeHistoryResponse,
+    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse, BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category, OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest, OrderHistoryResponse, OrderRequest, OrderResponse, OrderType, RequestType, Side, TradeHistoryRequest, TradeHistoryResponse
 };
 use crate::util::{build_json_request, build_request, date_to_milliseconds, generate_random_uid};
 
@@ -65,9 +62,11 @@ pub struct Trader {
 /// - Unified account: Order ID remains unchanged upon stop order trigger.
 pub enum Action<'a> {
     Order(OrderRequest<'a>, bool),
-    Amend(AmendOrderRequest<'a>),
-    Cancel(CancelOrderRequest<'a>),
+    Amend(AmendOrderRequest<'a>, bool),
+    Cancel(CancelOrderRequest<'a>, bool),
 }
+
+
 impl Trader {
     pub async fn place_custom_order<'a>(
         &self,
@@ -145,7 +144,7 @@ impl Trader {
         &self,
         req: AmendOrderRequest<'a>,
     ) -> Result<AmendOrderResponse, BybitError> {
-        let action = Action::Amend(req);
+        let action = Action::Amend(req, false);
         let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: AmendOrderResponse = self
@@ -162,7 +161,7 @@ impl Trader {
         &self,
         req: CancelOrderRequest<'a>,
     ) -> Result<CancelOrderResponse, BybitError> {
-        let action = Action::Cancel(req);
+        let action = Action::Cancel(req, false);
         let parameters = Self::build_orders(action);
         let request = build_json_request(&parameters);
         let response: CancelOrderResponse = self
@@ -379,7 +378,7 @@ impl Trader {
         }
         let mut requests_array: Vec<Value> = Vec::new();
         for value in req.requests {
-            let action = Action::Amend(value);
+            let action = Action::Amend(value, true);
             let amend_object = Self::build_orders(action); // Assuming this returns the correct object structure
             let built_amends = json!(amend_object);
             requests_array.push(built_amends);
@@ -412,7 +411,7 @@ impl Trader {
         }
         let mut requests_array: Vec<Value> = Vec::new();
         for value in req.requests {
-            let action = Action::Cancel(value);
+            let action = Action::Cancel(value, true);
             let cancel_object = Self::build_orders(action); // Assuming this returns the correct object structure
             let built_cancels = json!(cancel_object);
             requests_array.push(built_cancels);
@@ -441,8 +440,8 @@ impl Trader {
     pub fn build_orders<'a>(action: Action<'a>) -> BTreeMap<String, Value> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match action {
-            Action::Order(req, batch_order) => {
-                if batch_order == false {
+            Action::Order(req, batch) => {
+                if batch == false {
                     parameters.insert("category".into(), req.category.as_str().into());
                 }
                 parameters.insert("symbol".into(), req.symbol.into());
@@ -535,8 +534,10 @@ impl Trader {
                     parameters.insert("slOrderType".into(), v.into());
                 }
             }
-            Action::Amend(req) => {
-                parameters.insert("category".into(), req.category.as_str().into());
+            Action::Amend(req, batch) => {
+                if batch == false {
+                    parameters.insert("category".into(), req.category.as_str().into());
+                }
                 parameters.insert("symbol".into(), req.symbol.into());
                 if let Some(v) = req.order_id {
                     parameters.insert("orderId".into(), v.into());
@@ -579,8 +580,10 @@ impl Trader {
                     parameters.insert("slLimitPrice".into(), v.to_string().into());
                 }
             }
-            Action::Cancel(req) => {
-                parameters.insert("category".into(), req.category.as_str().into());
+            Action::Cancel(req, batch) => {
+                if batch == false {
+                    parameters.insert("category".into(), req.category.as_str().into());
+                }
                 parameters.insert("symbol".into(), req.symbol.into());
                 if let Some(v) = req.order_id {
                     parameters.insert("orderId".into(), v.into());
@@ -595,4 +598,39 @@ impl Trader {
         }
         parameters
     }
+
 }
+
+ pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
+        let mut order_array = Vec::new();
+        match orders {
+            RequestType::Create(req) => {
+                for v in req.requests {
+                    let action = Action::Order(v, false);
+                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                    let built_order = json!(order_object);
+                    order_array.push(built_order);
+                }
+                Value::Array(order_array)
+            }
+            RequestType::Amend(req) => {
+                for v in req.requests {
+                    let action = Action::Amend(v, false);
+                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                    let built_order = json!(order_object);
+                    order_array.push(built_order);
+                }
+                Value::Array(order_array)
+            }
+            RequestType::Cancel(req) => {
+                for v in req.requests {
+                    let action = Action::Cancel(v, false);
+                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                    let built_order = json!(order_object);
+                    order_array.push(built_order);
+                }
+                Value::Array(order_array)
+            }
+        }
+    }
+

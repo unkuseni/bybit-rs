@@ -2101,6 +2101,14 @@ pub struct CanceledOrder {
     pub order_link_id: String,
 }
 
+
+#[derive(Clone)]
+pub enum RequestType<'a> {
+    Create(BatchPlaceRequest<'a>),
+    Amend(BatchAmendRequest<'a>),
+    Cancel(BatchCancelRequest<'a>),
+}
+
 // ----------------------------------------------------------
 // POSITION STRUCTS SECTION
 // ------------------------------------------------------
@@ -3218,17 +3226,6 @@ pub struct Header {
     pub timenow: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub  struct HeaderRequest {
-    #[serde(rename = "X-BAPI-TIMESTAMP")]
-    pub x_bapi_timestamp: String,
-    #[serde(rename = "X-BAPI-RECV-WINDOW")]
-    pub x_bapi_recv_window: String,
-    #[serde(rename = "Referer", skip_serializing_if = "Option::is_none")]
-    pub referer: Option<String>,
-}
-
-
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 //
 // WEBSOCKET STRUCTS AND RESPONSES
@@ -3309,18 +3306,6 @@ pub struct TradeStreamEvent {
 
 unsafe impl Send for TradeStreamEvent {}
 unsafe impl Sync for TradeStreamEvent {}
-
-
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct TradeStreamRequest<'a> {
-   pub req_id: Option<Cow<'a, str>>,
-   pub header: HeaderRequest,
-   pub op: Cow<'a, str>,
-   pub args: Vec<Value>,
-}
-
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
