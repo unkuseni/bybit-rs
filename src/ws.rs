@@ -3,11 +3,13 @@ use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
     Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
-    PositionData, Subscription, Tickers, WalletData, WebsocketEvents, WsKline, WsTrade,
+    PositionData, RequestType, Subscription, Tickers, WalletData, WebsocketEvents, WsKline,
+    WsTrade,
 };
-use crate::util::{build_json_request, generate_random_uid};
+use crate::trade::build_ws_orders;
+use crate::util::{build_json_request, generate_random_uid, get_timestamp};
 use futures::{SinkExt, StreamExt};
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::time::Instant;
 use tokio::net::TcpStream;
@@ -67,9 +69,9 @@ impl Stream {
         let request = Self::build_subscription(req);
         let response = self
             .client
-            .wss_connect(WebsocketAPI::Private, Some(request), true, Some(9))
+            .wss_connect(WebsocketAPI::Private, Some(request), true, Some(10))
             .await?;
-        match Self::event_loop(response, handler).await {
+        match Self::event_loop(response, handler, None).await {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -98,7 +100,7 @@ impl Stream {
             .client
             .wss_connect(endpoint, Some(request), false, None)
             .await?;
-        Self::event_loop(response, handler).await?;
+        Self::event_loop(response, handler, None).await?;
         Ok(())
     }
 
@@ -114,6 +116,34 @@ impl Stream {
             .into();
         parameters.insert("args".into(), args_value);
 
+        build_json_request(&parameters)
+    }
+
+    pub fn build_trade_subscription(orders: RequestType, recv_window: Option<u64>) -> String {
+        let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        parameters.insert("reqId".into(), generate_random_uid(16).into());
+        let mut header_map: BTreeMap<String, String> = BTreeMap::new();
+        header_map.insert("X-BAPI-TIMESTAMP".into(), get_timestamp().to_string());
+        header_map.insert(
+            "X-BAPI-RECV-WINDOW".into(),
+            recv_window.unwrap_or(5000).to_string(),
+        );
+        parameters.insert("header".into(), json!(header_map).into());
+        match orders {
+            RequestType::Create(order) => {
+                parameters.insert("op".into(), "order.create".into());
+                parameters.insert("args".into(), build_ws_orders(RequestType::Create(order)).into());
+            }
+            RequestType::Cancel(order) => {
+                parameters.insert("op".into(), "order.cancel".into());
+                parameters.insert("args".into(), build_ws_orders(RequestType::Cancel(order)).into());
+            }
+
+            RequestType::Amend(order) => {
+                parameters.insert("op".into(), "order.amend".into());
+                parameters.insert("args".into(), build_ws_orders(RequestType::Amend(order)).into());
+            }
+        }
         build_json_request(&parameters)
     }
 
@@ -370,9 +400,32 @@ impl Stream {
         .await
     }
 
-    pub async fn event_loop<H>(
+    pub async fn ws_trade_stream<'a, F>(
+        &self,
+        req: mpsc::UnboundedReceiver<RequestType<'a>>,
+        handler: F,
+    ) -> Result<(), BybitError>
+    where
+        F: FnMut(WebsocketEvents) -> Result<(), BybitError> + 'static + Send,
+        'a: 'static,
+    {
+        let response = self
+            .client
+            .wss_connect(WebsocketAPI::TradeStream, None, true, Some(10))
+            .await?;
+        match Self::event_loop(response, handler, Some(req)).await {
+            Ok(_) => {}
+            Err(_) => {}
+        }
+        
+        Ok(())
+    }
+
+    pub async fn event_loop<'a, H>(
         mut stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
         mut handler: H,
+        mut order_sender: Option<mpsc::UnboundedReceiver<RequestType<'a>>>,
+        
     ) -> Result<(), BybitError>
     where
         H: WebSocketHandler,
@@ -394,10 +447,18 @@ impl Stream {
                 }
                 _ => {}
             }
-
+            if let Some(sender) = order_sender.as_mut() {
+                if let Some(v) = sender.recv().await  {
+                    let order_req = Self::build_trade_subscription(v, Some(3000));
+                    stream.send(WsMessage::Text(order_req)).await?;
+                }
+            }
+            
             if interval.elapsed() > Duration::from_secs(300) {
                 let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-                parameters.insert("req_id".into(), generate_random_uid(8).into());
+                if order_sender.is_none() {
+                    parameters.insert("req_id".into(), generate_random_uid(8).into());
+                }
                 parameters.insert("op".into(), "ping".into());
                 let request = build_json_request(&parameters);
                 let _ = stream
