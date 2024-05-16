@@ -3278,13 +3278,18 @@ pub enum PongResponse {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PongData {
-    pub success: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ret_code: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub success: Option<bool>,
     pub ret_msg: String,
     pub conn_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub req_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<String>>,
     pub op: String,
 }
 
