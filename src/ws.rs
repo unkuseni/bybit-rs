@@ -44,10 +44,10 @@ impl Stream {
                 let response: PongResponse = serde_json::from_str(&data)?;
                 match response {
                     PongResponse::PublicPong(pong) => {
-                        println!("Pong received successfully: {}", pong);
+                        println!("Pong received successfully: {:#?}", pong);
                     }
                     PongResponse::PrivatePong(pong) => {
-                        println!("Pong received successfully: {}", pong);
+                        println!("Pong received successfully: {:#?}", pong);
                     }
                 }
             }
