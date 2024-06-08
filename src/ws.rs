@@ -44,12 +44,10 @@ impl Stream {
                 let response: PongResponse = serde_json::from_str(&data)?;
                 match response {
                     PongResponse::PublicPong(pong) => {
-                        println!("Pong received successfully");
-                        println!("Connection ID: {}", pong.conn_id);
+                        println!("Pong received successfully: {}", pong);
                     }
                     PongResponse::PrivatePong(pong) => {
-                        println!("Pong received successfully");
-                        println!("Connection ID: {}", pong.conn_id);
+                        println!("Pong received successfully: {}", pong);
                     }
                 }
             }
@@ -413,10 +411,7 @@ impl Stream {
             .client
             .wss_connect(WebsocketAPI::TradeStream, None, true, Some(10))
             .await?;
-        match Self::event_loop(response, handler, Some(req)).await {
-            Ok(_) => {}
-            Err(_) => {}
-        }
+        Self::event_loop(response, handler, Some(req)).await?;
         
         Ok(())
     }

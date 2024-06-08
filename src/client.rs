@@ -238,7 +238,6 @@ impl Client {
 
         match connect_async(url).await {
             Ok((mut ws_stream, _)) => {
-                println!("Connected successfully");
                 let auth_msg = json!({
                     "req_id": uuid,
                     "op": "auth",
