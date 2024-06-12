@@ -4,7 +4,7 @@ use crate::errors::BybitError;
 use crate::model::{
     Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
     PositionData, RequestType, Subscription, Tickers, WalletData, WebsocketEvents, WsKline,
-    WsTrade, FastExecution,
+    WsTrade, FastExecData,
 };
 use crate::trade::build_ws_orders;
 use crate::util::{build_json_request, generate_random_uid, get_timestamp};
