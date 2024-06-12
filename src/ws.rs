@@ -4,7 +4,7 @@ use crate::errors::BybitError;
 use crate::model::{
     Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
     PositionData, RequestType, Subscription, Tickers, WalletData, WebsocketEvents, WsKline,
-    WsTrade,
+    WsTrade, FastExecution,
 };
 use crate::trade::build_ws_orders;
 use crate::util::{build_json_request, generate_random_uid, get_timestamp};
@@ -347,6 +347,23 @@ impl Stream {
                 for v in execute.data {
                     sender.send(v).unwrap();
                 }
+            }
+            Ok(())
+        })
+        .await
+    }
+
+    pub async fn  ws_fast_exec(
+        &self,
+        sender: mpsc::UnboundedSender<FastExecution>,
+    ) -> Result<(), BybitError>
+    {
+        let sub_str = "execution.fast";
+let request = Subscription::new("subscribe", vec![sub_str]);
+
+        self.ws_priv_subscribe(request, move |event| {
+            if let WebsocketEvents::FastExecEvent(execution) = event {
+                sender.send(execution.data).unwrap();
             }
             Ok(())
         })

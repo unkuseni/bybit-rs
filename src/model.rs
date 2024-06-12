@@ -3260,6 +3260,7 @@ pub enum WebsocketEvents {
     OrderEvent(OrderEvent),
     Wallet(WalletEvent),
     TradeStream(TradeStreamEvent),
+    FastExecEvent(FastExecution)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -3683,6 +3684,42 @@ pub struct ExecutionData {
 
 unsafe impl Send for ExecutionData {}
 unsafe impl Sync for ExecutionData {}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FastExecution {
+    pub topic: String,
+    #[serde(rename = "creationTime")]
+    pub creation_time: u64,
+    pub data:  Vec<FastExecData>
+}
+
+unsafe impl Send for FastExecution {}
+unsafe impl Sync for FastExecution {}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FastExecData {
+    pub category: String,
+    pub symbol: String,
+    #[serde(rename = "execId")]
+    pub exec_id: String,
+    #[serde(rename = "execPrice")]
+    pub exec_price: String,
+    #[serde(rename = "execQty")]
+    pub exec_qty: String,
+    #[serde(rename = "orderId")]
+    pub order_id: String,
+    #[serde(rename = "orderLinkId")]
+    pub order_link_id: String,
+    pub side: String,
+    #[serde(rename = "execTime")]
+    pub exec_time: String,
+    pub seq: u64,
+}
+
+unsafe impl Send for FastExecData {}
+unsafe impl Sync for  FastExecData {}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderData {
