@@ -355,7 +355,7 @@ impl Stream {
 
     pub async fn  ws_fast_exec(
         &self,
-        sender: mpsc::UnboundedSender<FastExecution>,
+        sender: mpsc::UnboundedSender<FastExecData>,
     ) -> Result<(), BybitError>
     {
         let sub_str = "execution.fast";
@@ -363,7 +363,9 @@ let request = Subscription::new("subscribe", vec![sub_str]);
 
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::FastExecEvent(execution) = event {
-                sender.send(execution.data).unwrap();
+                for v in execution.data {
+                    sender.send(v).unwrap();
+                }
             }
             Ok(())
         })
