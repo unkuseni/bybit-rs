@@ -450,15 +450,20 @@ let request = Subscription::new("subscribe", vec![sub_str]);
                 .next()
                 .await;
             match msg {
-                Ok(WsMessage::Text(msg)) => {
+                Some(Ok(WsMessage::Text(msg))) => {
                     if let Err(_) = handler.handle_msg(&msg) {
                         return Err(BybitError::Base(
                             "Error handling stream message".to_string(),
                         ));
                     }
                 }
-                Err(e) => {
+                Some(Err(e)) => {
                     return Err(BybitError::from(e.to_string()));
+                }
+                None => {
+                    return Err(BybitError::Base(
+                        "Stream was closed".to_string(),
+                    ));
                 }
             }
             if let Some(sender) = order_sender.as_mut() {
