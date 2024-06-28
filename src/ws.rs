@@ -465,6 +465,7 @@ let request = Subscription::new("subscribe", vec![sub_str]);
                         "Stream was closed".to_string(),
                     ));
                 }
+                _ => {}
             }
             if let Some(sender) = order_sender.as_mut() {
                 if let Some(v) = sender.recv().await  {
