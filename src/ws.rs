@@ -448,9 +448,7 @@ let request = Subscription::new("subscribe", vec![sub_str]);
         loop {
             let msg = stream
                 .next()
-                .await
-                .unwrap()
-                .map_err(|e| BybitError::Tungstenite(e));
+                .await;
             match msg {
                 Ok(WsMessage::Text(msg)) => {
                     if let Err(_) = handler.handle_msg(&msg) {
@@ -459,7 +457,9 @@ let request = Subscription::new("subscribe", vec![sub_str]);
                         ));
                     }
                 }
-                _ => {}
+                Err(e) => {
+                    return Err(BybitError::from(e.to_string()));
+                }
             }
             if let Some(sender) = order_sender.as_mut() {
                 if let Some(v) = sender.recv().await  {
