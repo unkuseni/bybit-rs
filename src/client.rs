@@ -226,7 +226,7 @@ impl Client {
         private: bool,
         alive_dur: Option<u64>,
     ) -> Result<WebSocketStream<MaybeTlsStream<TcpStream>>, BybitError> {
-        let unparsed_url = format!("{}{}", self.host, String::from(endpoint)).to_string();
+        let unparsed_url = format!("{}{}", self.host, endpoint.as_ref()).to_string();
         let url = WsUrl::parse(unparsed_url.as_str())?;
         let expiry_time = alive_dur.unwrap_or(0) * 1000 * 60;
         let expires = get_timestamp() + expiry_time;

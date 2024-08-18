@@ -1,4 +1,4 @@
-use crate::api::{Public, WebsocketAPI};
+use crate::api::WebsocketAPI;
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
@@ -24,6 +24,13 @@ pub struct Stream {
 }
 
 impl Stream {
+    /// Tests for connectivity by sending a ping request to the Bybit server.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing a `String` with the response message if successful,
+    /// * `private` is set to `true` if the request is for a private endpoint
+    /// or a `BybitError` if an error occurs.
     pub async fn ws_ping(&self, private: bool) -> Result<(), BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("req_id".into(), generate_random_uid(8).into());
@@ -32,7 +39,7 @@ impl Stream {
         let endpoint = if private {
             WebsocketAPI::Private
         } else {
-            WebsocketAPI::Public(Public::Linear)
+            WebsocketAPI::PublicLinear
         };
         let mut response = self
             .client
@@ -87,9 +94,9 @@ impl Stream {
     {
         let endpoint = {
             match category {
-                Category::Linear => WebsocketAPI::Public(Public::Linear),
-                Category::Inverse => WebsocketAPI::Public(Public::Inverse),
-                Category::Spot => WebsocketAPI::Public(Public::Spot),
+                Category::Linear => WebsocketAPI::PublicLinear,
+                Category::Inverse => WebsocketAPI::PublicInverse,
+                Category::Spot => WebsocketAPI::PublicSpot,
                 _ => unimplemented!("Option has not been implemented"),
             }
         };

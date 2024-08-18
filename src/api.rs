@@ -18,9 +18,11 @@ pub enum API {
     SpotMargin(SpotMargin),
 }
 /// Bybit Endpoints
-#[derive(Clone)]
+#[derive(Debug)]
 pub enum WebsocketAPI {
-    Public(Public),
+    PublicSpot,
+    PublicLinear,
+    PublicInverse,
     Private,
     TradeStream,
 }
@@ -257,17 +259,15 @@ impl From<API> for String {
     }
 }
 
-impl From<WebsocketAPI> for String {
-    fn from(item: WebsocketAPI) -> Self {
-        String::from(match item {
-            WebsocketAPI::Public(route) => match route {
-                Public::Spot => "/public/spot",
-                Public::Linear => "/public/linear",
-                Public::Inverse => "/public/inverse",
-            },
+impl AsRef<str> for WebsocketAPI {
+    fn as_ref(&self) -> &str {
+        match self {
+            WebsocketAPI::PublicSpot => "/public/spot",
+            WebsocketAPI::PublicLinear => "/public/linear",
+            WebsocketAPI::PublicInverse => "/public/inverse",
             WebsocketAPI::Private => "/private",
             WebsocketAPI::TradeStream => "/trade",
-        })
+        }
     }
 }
 
