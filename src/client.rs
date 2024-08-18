@@ -27,14 +27,20 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(api_key: Option<String>, secret_key: Option<String>, host: String) -> Self {
+    pub fn new(api_key: Option<impl AsRef<str>>, secret_key: Option<impl AsRef<str>>, host: String) -> Self {
         let inner_client = ReqwestClient::builder()
             .build()
             .expect("Failed to build reqwest client");
 
         Client {
-            api_key: api_key.unwrap_or_default(),
-            secret_key: secret_key.unwrap_or_default(),
+            api_key: match api_key {
+                Some(api_key) => api_key.as_ref().to_string(),
+                None => "".to_string(),
+            },
+            secret_key: match secret_key {
+                Some(secret_key) => secret_key.as_ref().to_string(),
+                None => "".to_string(),
+            },
             host,
             inner_client,
         }
@@ -45,7 +51,7 @@ impl Client {
         request: Option<String>,
     ) -> Result<T, BybitError> {
         let url = {
-            let mut url = format!("{}/{}", self.host, String::from(endpoint));
+            let mut url = format!("{}/{}", self.host, endpoint.as_ref());
             if let Some(request) = request {
                 if !request.is_empty() {
                     url.push_str("?");
@@ -66,7 +72,7 @@ impl Client {
         request: Option<String>,
     ) -> Result<T, BybitError> {
         // Construct the full URL
-        let mut url: String = format!("{}/{}", self.host, String::from(endpoint));
+        let mut url: String = format!("{}/{}", self.host, endpoint.as_ref());
         let query_string = request.unwrap_or_default();
         if !query_string.is_empty() {
             url.push_str(format!("?{}", query_string).as_str());
@@ -88,7 +94,7 @@ impl Client {
         endpoint: API,
         request: Option<String>,
     ) -> Result<T, BybitError> {
-        let mut url: String = format!("{}/{}", self.host, String::from(endpoint));
+        let mut url: String = format!("{}/{}", self.host, endpoint.as_ref());
         if let Some(request) = request {
             if !request.is_empty() {
                 url.push_str(format!("?{}", request).as_str());
@@ -107,7 +113,7 @@ impl Client {
         raw_request_body: Option<String>,
     ) -> Result<T, BybitError> {
         // Construct the full URL
-        let url: String = format!("{}{}", self.host, String::from(endpoint));
+        let url = format!("{}{}", self.host, endpoint.as_ref());
 
         // Sign the request, passing the raw request body for signature
         let headers =
@@ -116,7 +122,7 @@ impl Client {
         // Make the signed HTTP POST request
         let client = &self.inner_client;
         let response = client
-            .post(url.as_str())
+            .post(url)
             .headers(headers)
             .body(raw_request_body.unwrap_or_default())
             .send()

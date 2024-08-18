@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::account::AccountManager;
 use crate::asset::AssetManager;
 use crate::client::Client;
@@ -146,9 +148,9 @@ pub enum SpotMargin {
     ClassicMarginTogggle,
 }
 
-impl From<API> for String {
-    fn from(item: API) -> Self {
-        String::from(match item {
+impl AsRef<str> for API {
+    fn as_ref(&self) -> &str {
+        match self {
             API::Market(route) => match route {
                 Market::Time => "/v5/market/time",
                 Market::Insurance => "/v5/market/insurance",
@@ -255,7 +257,7 @@ impl From<API> for String {
                 SpotMargin::RepayOrderDetail => "/v5/spot-cross-margin-trade/repay-history",
                 SpotMargin::ClassicMarginTogggle => "/v5/spot-cross-margin-trade/switch",
             },
-        })
+        }
     }
 }
 
@@ -271,25 +273,25 @@ impl AsRef<str> for WebsocketAPI {
     }
 }
 
-pub trait Bybit {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> Self;
+pub trait Bybit<'a> {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> Self;
 
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> Self;
 }
 
-impl Bybit for General {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> General {
+impl<'a> Bybit<'a> for General {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> General {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
 
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> General {
         General {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -297,14 +299,14 @@ impl Bybit for General {
     }
 }
 
-impl Bybit for MarketData {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> MarketData {
+impl<'a> Bybit<'a> for MarketData {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> MarketData {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> MarketData {
         MarketData {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -312,14 +314,14 @@ impl Bybit for MarketData {
         }
     }
 }
-impl Bybit for Trader {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> Trader {
+impl<'a> Bybit<'a> for Trader {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> Trader {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> Trader {
         Trader {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -327,14 +329,14 @@ impl Bybit for Trader {
         }
     }
 }
-impl Bybit for PositionManager {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> PositionManager {
+impl<'a> Bybit<'a> for PositionManager {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> PositionManager {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> PositionManager {
         PositionManager {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -343,14 +345,14 @@ impl Bybit for PositionManager {
     }
 }
 
-impl Bybit for AccountManager {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> AccountManager {
+impl<'a> Bybit<'a> for AccountManager {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> AccountManager {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> AccountManager {
         AccountManager {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -359,14 +361,14 @@ impl Bybit for AccountManager {
     }
 }
 
-impl Bybit for AssetManager {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> AssetManager {
+impl<'a> Bybit<'a> for AssetManager {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> AssetManager {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> AssetManager {
         AssetManager {
             client: Client::new(api_key, secret_key, config.rest_api_endpoint.to_string()),
@@ -375,15 +377,15 @@ impl Bybit for AssetManager {
     }
 }
 
-impl Bybit for Stream {
-    fn new(api_key: Option<String>, secret_key: Option<String>) -> Stream {
+impl<'a> Bybit<'a> for Stream {
+    fn new(api_key: Option<Cow<'_, str>>, secret_key: Option<Cow<'_, str>>) -> Stream {
         Self::new_with_config(&Config::default(), api_key, secret_key)
     }
 
     fn new_with_config(
         config: &Config,
-        api_key: Option<String>,
-        secret_key: Option<String>,
+        api_key: Option<Cow<'_, str>>,
+        secret_key: Option<Cow<'_, str>>,
     ) -> Stream {
         Stream {
             client: Client::new(api_key, secret_key, config.ws_endpoint.to_string()),
