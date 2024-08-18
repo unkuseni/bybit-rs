@@ -12,9 +12,9 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
-pub struct Trader {
-    pub client: Client,
-    pub recv_window: u64,
+pub struct Trader<'a> {
+    pub client: Client<'a>,
+    pub recv_window: u16,
 }
 
 /// Creates an order with various options for different account types and contract types.
@@ -67,10 +67,10 @@ pub enum Action<'a> {
 }
 
 
-impl Trader {
-    pub async fn place_custom_order<'a>(
+impl<'a> Trader<'_> {
+    pub async fn place_custom_order<'b>(
         &self,
-        req: OrderRequest<'a>,
+        req: OrderRequest<'_>,
     ) -> Result<OrderResponse, BybitError> {
         let action = Action::Order(req, false);
         let parameters = Self::build_orders(action);
@@ -140,9 +140,9 @@ impl Trader {
         Ok(response)
     }
 
-    pub async fn amend_order<'a>(
+    pub async fn amend_order<'b>(
         &self,
-        req: AmendOrderRequest<'a>,
+        req: AmendOrderRequest<'_>,
     ) -> Result<AmendOrderResponse, BybitError> {
         let action = Action::Amend(req, false);
         let parameters = Self::build_orders(action);
@@ -157,9 +157,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn cancel_order<'a>(
+    pub async fn cancel_order<'b>(
         &self,
-        req: CancelOrderRequest<'a>,
+        req: CancelOrderRequest<'_>,
     ) -> Result<CancelOrderResponse, BybitError> {
         let action = Action::Cancel(req, false);
         let parameters = Self::build_orders(action);
@@ -174,9 +174,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn get_open_orders<'a>(
+    pub async fn get_open_orders<'b>(
         &self,
-        req: OpenOrdersRequest<'a>,
+        req: OpenOrdersRequest<'_>,
     ) -> Result<OpenOrdersResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
 
@@ -215,9 +215,9 @@ impl Trader {
 
         Ok(response)
     }
-    pub async fn cancel_all_orders<'a>(
+    pub async fn cancel_all_orders<'b>(
         &self,
-        req: CancelallRequest<'a>,
+        req: CancelallRequest<'_>,
     ) -> Result<CancelallResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -255,9 +255,9 @@ impl Trader {
     /// A `Result` wrapping `OrderHistory` which contains the historical orders' data.
     /// If the operation fails, it returns an error.
     ///
-    pub async fn get_order_history<'a>(
+    pub async fn get_order_history<'b>(
         &self,
-        req: OrderHistoryRequest<'a>,
+        req: OrderHistoryRequest<'_>,
     ) -> Result<OrderHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -295,9 +295,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn get_trade_history<'a>(
+    pub async fn get_trade_history<'b>(
         &self,
-        req: TradeHistoryRequest<'a>,
+        req: TradeHistoryRequest<'_>,
     ) -> Result<TradeHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -330,9 +330,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn batch_place_order<'a>(
+    pub async fn batch_place_order<'b>(
         &self,
-        req: BatchPlaceRequest<'a>,
+        req: BatchPlaceRequest<'_>,
     ) -> Result<BatchPlaceResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
@@ -363,9 +363,9 @@ impl Trader {
 
         Ok(response)
     }
-    pub async fn batch_amend_order<'a>(
+    pub async fn batch_amend_order<'b>(
         &self,
-        req: BatchAmendRequest<'a>,
+        req: BatchAmendRequest<'_>,
     ) -> Result<BatchAmendResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
@@ -396,9 +396,9 @@ impl Trader {
         Ok(response)
     }
 
-    pub async fn batch_cancel_order<'a>(
+    pub async fn batch_cancel_order<'b>(
         &self,
-        req: BatchCancelRequest<'a>,
+        req: BatchCancelRequest<'_>,
     ) -> Result<BatchCancelResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
@@ -437,7 +437,7 @@ impl Trader {
         todo!("This function has not yet been implemented");
     }
 
-    pub fn build_orders<'a>(action: Action<'a>) -> BTreeMap<String, Value> {
+    pub fn build_orders<'b>(action: Action<'_>) -> BTreeMap<String, Value> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match action {
             Action::Order(req, batch) => {

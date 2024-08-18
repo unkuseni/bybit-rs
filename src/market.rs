@@ -15,14 +15,14 @@ use crate::util::{build_request, date_to_milliseconds};
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
-pub struct MarketData {
-    pub client: Client,
-    pub recv_window: u64,
+pub struct MarketData<'a> {
+    pub client: Client<'a>,
+    pub recv_window: u16,
 }
 
 /// Market Data endpoints
 
-impl MarketData {
+impl<'a> MarketData<'_> {
     /// Retrieves historical price klines.
     ///
     /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
@@ -42,7 +42,7 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<Vec<KlineData>, Error>` containing the requested kline data if successful, or an error otherwise.
-    pub async fn get_klines<'a>(&self, req: KlineRequest<'a>) -> Result<KlineResponse, BybitError> {
+    pub async fn get_klines<'b>(&self, req: KlineRequest<'_>) -> Result<KlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(cat) = req.category {
             parameters
@@ -100,9 +100,9 @@ impl MarketData {
     /// A `Result<Vec<MarkPriceKline>, Error>` containing the historical mark price kline data if successful,
     /// or an error otherwise.
 
-    pub async fn get_mark_price_klines<'a>(
+    pub async fn get_mark_price_klines<'b>(
         &self,
-        req: KlineRequest<'a>,
+        req: KlineRequest<'_>,
     ) -> Result<MarkPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(category) = req.category {
@@ -165,9 +165,9 @@ impl MarketData {
     ///
     /// Returns a `Result<Vec<Kline>, Error>` with the kline data if the query is successful, or an error detailing
     /// the problem if the query fails.
-    pub async fn get_index_price_klines<'a>(
+    pub async fn get_index_price_klines<'b>(
         &self,
-        req: KlineRequest<'a>,
+        req: KlineRequest<'_>,
     ) -> Result<IndexPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         if let Some(category) = req.category {
@@ -234,9 +234,9 @@ impl MarketData {
     ///
     /// Returns an error if the HTTP request fails, if there is an issue parsing the response, or if an error
     /// is returned from the server.
-    pub async fn get_premium_index_price_klines<'a>(
+    pub async fn get_premium_index_price_klines<'b>(
         &self,
-        req: KlineRequest<'a>,
+        req: KlineRequest<'_>,
     ) -> Result<PremiumIndexPriceKlineResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".to_owned(), Category::Linear.as_str().to_string());
@@ -283,9 +283,9 @@ impl MarketData {
     /// A `Result<Vec<FuturesInstrument>, Error>` where the `Ok` variant contains the filtered list of
     /// futures instruments, and the `Err` variant contains an error if the request fails or if the response
     /// parsing encounters an issue.
-    pub async fn get_futures_instrument_info<'a>(
+    pub async fn get_futures_instrument_info<'b>(
         &self,
-        req: InstrumentRequest<'a>,
+        req: InstrumentRequest<'b>,
     ) -> Result<FuturesInstrumentsInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
@@ -331,9 +331,9 @@ impl MarketData {
     ///
     /// A `Result` containing a list of `SpotInstrument` instances matching the filters, or an error on failure.
     ///
-    pub async fn get_spot_instrument_info<'a>(
+    pub async fn get_spot_instrument_info<'b>(
         &self,
-        req: InstrumentRequest<'a>,
+        req: InstrumentRequest<'_>,
     ) -> Result<SpotInstrumentsInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), "Spot".into());
@@ -359,9 +359,9 @@ impl MarketData {
         Ok(response)
     }
 
-    pub async fn get_options_instrument_info<'a>(
+    pub async fn get_options_instrument_info<'b>(
         &self,
-        _req: InstrumentRequest<'a>,
+        _req: InstrumentRequest<'_>,
     ) -> Result<Vec<OptionsInstrument>, BybitError> {
         todo!()
     }
@@ -380,9 +380,9 @@ impl MarketData {
     ///
     /// A `Result<OrderBook, Error>` which is Ok if the order book is successfully retrieved,
     /// or an Err with a detailed error message otherwise.
-    pub async fn get_depth<'a>(
+    pub async fn get_depth<'b>(
         &self,
-        req: OrderbookRequest<'a>,
+        req: OrderbookRequest<'_>,
     ) -> Result<OrderBookResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -472,9 +472,9 @@ impl MarketData {
     /// # Errors
     ///
     /// Returns an error if the specified category is invalid or if there is a failure during the API request.
-    pub async fn get_funding_history<'a>(
+    pub async fn get_funding_history<'b>(
         &self,
-        req: FundingHistoryRequest<'a>,
+        req: FundingHistoryRequest<'_>,
     ) -> Result<FundingRateResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
@@ -527,9 +527,9 @@ impl MarketData {
     ///
     /// Returns `Ok(Vec<Trade>)` containing the recent trades if the operation is successful,
     /// or an `Err` with an error message if it fails.
-    pub async fn get_recent_trades<'a>(
+    pub async fn get_recent_trades<'b>(
         &self,
-        req: RecentTradesRequest<'a>,
+        req: RecentTradesRequest<'_>,
     ) -> Result<RecentTradesResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -570,9 +570,9 @@ impl MarketData {
     /// A `Result<OpenInterestSummary, Error>` representing either:
     /// - An `OpenInterestSummary` on success, encapsulating the open interest data.
     /// - An `Error`, if the retrieval fails.
-    pub async fn get_open_interest<'a>(
+    pub async fn get_open_interest<'b>(
         &self,
-        req: OpenInterestRequest<'a>,
+        req: OpenInterestRequest<'_>,
     ) -> Result<OpeninterestResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
@@ -628,9 +628,9 @@ impl MarketData {
     /// A `Result<Vec<HistoricalVolatility>, Error>` which is either:
     /// - A vector of `HistoricalVolatility` instances within the specified time range on success.
     /// - An `Error` if the request fails or if invalid arguments are provided.
-    pub async fn get_historical_volatility<'a>(
+    pub async fn get_historical_volatility<'b>(
         &self,
-        req: HistoricalVolatilityRequest<'a>,
+        req: HistoricalVolatilityRequest<'_>,
     ) -> Result<HistoricalVolatilityResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), Category::Option.as_str().into());
@@ -689,9 +689,9 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<RiskLimitSummary>` which is either the risk limit details on success or an error on failure.
-    pub async fn get_risk_limit<'a>(
+    pub async fn get_risk_limit<'b>(
         &self,
-        req: RiskLimitRequest<'a>,
+        req: RiskLimitRequest<'_>,
     ) -> Result<RiskLimitResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {

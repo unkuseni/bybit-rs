@@ -2,7 +2,7 @@
 pub struct Config<'a> {
     pub rest_api_endpoint: &'a str,
     pub ws_endpoint: &'a str,
-    pub recv_window: u64,
+    pub recv_window: u16,
 }
 
 impl <'a> Config<'_> {
@@ -25,7 +25,7 @@ impl <'a> Config<'_> {
         }
     }
 
-    pub const fn set_recv_window(self, recv_window: u64) -> Self {
+    pub const fn set_recv_window(self, recv_window: u16) -> Self {
         Self {
             recv_window,
             ..self
