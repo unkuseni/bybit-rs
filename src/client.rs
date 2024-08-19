@@ -436,7 +436,7 @@ impl<'a> Client<'_> {
         let url = WsUrl::parse(unparsed_url.as_str())?;
 
         // Calculate the expiration time for the authentication message
-        let expiry_time = alive_dur.unwrap_or(0) * 1000 * 60;
+        let expiry_time = alive_dur.unwrap_or(9) as u64 * 1000 * 60;
         let expires = get_timestamp() + expiry_time as u64;
 
         // Calculate the signature for the authentication message
