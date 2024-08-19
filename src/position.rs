@@ -262,22 +262,42 @@ impl<'a> PositionManager<'_> {
         Ok(response)
     }
 
+    /// Set the auto-add margin mode for a given position.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The AddMarginRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the AddMarginResponse.
     pub async fn set_add_margin<'b>(
         &self,
         req: AddMarginRequest<'_>,
     ) -> Result<AddMarginResponse, BybitError> {
+        // Create a new BTreeMap to store the parameters
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+
+        // Add the category and symbol parameters
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
+
+        // Add the autoAddMargin parameter based on the value of `auto_add`
         if req.auto_add {
             parameters.insert("autoAddMargin".into(), 1.into());
         } else {
             parameters.insert("autoAddMargin".into(), 0.into());
         }
+
+        // Add the positionIdx parameter if it is not None
         if let Some(v) = req.position_idx {
             parameters.insert("positionIdx".into(), v.into());
         }
+
+        // Build the JSON request
         let request = build_json_request(&parameters);
+
+        // Send the POST request to the server
         let response: AddMarginResponse = self
             .client
             .post_signed(
@@ -286,21 +306,43 @@ impl<'a> PositionManager<'_> {
                 Some(request),
             )
             .await?;
+
+        // Return the response
         Ok(response)
     }
 
+    /// Set the auto add margin.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The AddReduceMarginRequest containing the necessary information.
+    ///
+    /// # Returns
+    ///
+    /// * Result<AddReduceMarginResponse> - The result of setting the auto add margin.
     pub async fn add_or_reduce_margin<'b>(
         &self,
         req: AddReduceMarginRequest<'_>,
     ) -> Result<AddReduceMarginResponse, BybitError> {
+        // Create a new BTreeMap to store the parameters
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+
+        // Add the category and symbol parameters
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
+
+        // Add the margin parameter
         parameters.insert("margin".into(), req.margin.into());
+
+        // Add the positionIdx parameter if it is not None
         if let Some(v) = req.position_idx {
             parameters.insert("positionIdx".into(), v.into());
         }
+
+        // Build the JSON request
         let request = build_json_request(&parameters);
+
+        // Send the POST request to the server
         let response: AddReduceMarginResponse = self
             .client
             .post_signed(
@@ -309,6 +351,8 @@ impl<'a> PositionManager<'_> {
                 Some(request),
             )
             .await?;
+
+        // Return the response
         Ok(response)
     }
 
@@ -349,13 +393,25 @@ impl<'a> PositionManager<'_> {
         Ok(response)
     }
 
+    /// Moves positions from one user to another.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The request containing the fromUid, toUid, and list of positions to move.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the response.
     pub async fn move_position<'b>(
         &self,
         req: MovePositionRequest<'_>,
     ) -> Result<MovePositionResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+        // The user id of the account to move the position from.
         parameters.insert("fromUid".into(), req.from_uid.into());
+        // The user id of the account to move the position to.
         parameters.insert("toUid".into(), req.to_uid.into());
+        // The list of positions to move.
         parameters.insert("list".into(), json!(req.list));
         let request = build_json_request(&parameters);
         let response: MovePositionResponse = self
@@ -369,39 +425,67 @@ impl<'a> PositionManager<'_> {
         Ok(response)
     }
 
+    /// Retrieves the history of position movements.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The request containing the parameters for the history of position movements.
+    ///
+    /// # Returns
+    ///
+    /// A result containing the response.
     pub async fn move_position_history<'b>(
         &self,
         req: MoveHistoryRequest<'_>,
     ) -> Result<MoveHistoryResponse, BybitError> {
+        // Create a new BTreeMap to hold the parameters.
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
-        if let Some(v) = req.category {
-            parameters.insert("category".into(), v.as_str().into());
+
+        // If the category is specified, add it to the parameters.
+        if let Some(category) = req.category {
+            parameters.insert("category".into(), category.as_str().into());
         }
-        if let Some(v) = req.symbol {
-            parameters.insert("symbol".into(), v.into());
+
+        // If the symbol is specified, add it to the parameters.
+        if let Some(symbol) = req.symbol {
+            parameters.insert("symbol".into(), symbol.into());
         }
+
+        // If the start time is specified, convert it to milliseconds and insert it into the parameters.
         if let Some(start_str) = req.start_time.as_ref().map(|s| s.as_ref()) {
             let start_millis = date_to_milliseconds(start_str);
             parameters
                 .entry("end".to_owned())
                 .or_insert_with(|| start_millis.to_string().into());
         }
+
+        // If the end time is specified, convert it to milliseconds and insert it into the parameters.
         if let Some(end_str) = req.end_time.as_ref().map(|s| s.as_ref()) {
             let end_millis = date_to_milliseconds(end_str);
             parameters
                 .entry("end".to_owned())
                 .or_insert_with(|| end_millis.to_string().into());
         }
-        if let Some(v) = req.status {
-            parameters.insert("status".into(), v.into());
+
+        // If the status is specified, add it to the parameters.
+        if let Some(status) = req.status {
+            parameters.insert("status".into(), status.into());
         }
-        if let Some(v) = req.block_trade_id {
-            parameters.insert("blockTradeId".into(), v.into());
+
+        // If the block trade id is specified, add it to the parameters.
+        if let Some(block_trade_id) = req.block_trade_id {
+            parameters.insert("blockTradeId".into(), block_trade_id.into());
         }
-        if let Some(v) = req.limit {
-            parameters.insert("limit".into(), v.into());
+
+        // If the limit is specified, add it to the parameters.
+        if let Some(limit) = req.limit {
+            parameters.insert("limit".into(), limit.into());
         }
+
+        // Build the request using the parameters.
         let request = build_request(&parameters);
+
+        // Send a GET request to the Bybit API to retrieve the history of position movements.
         let response: MoveHistoryResponse = self
             .client
             .get_signed(
@@ -410,6 +494,8 @@ impl<'a> PositionManager<'_> {
                 Some(request),
             )
             .await?;
+
+        // Return the response.
         Ok(response)
     }
 }

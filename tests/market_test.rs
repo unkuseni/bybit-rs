@@ -49,7 +49,7 @@ mod tests {
     async fn test_market() {
         let market: MarketData = Bybit::new(None, None);
         let five_minutes = Duration::from_secs(5 * 60);
-        let request = OrderbookRequest::new("GALAUSDT", Category::Linear, Some(1));
+        let request = OrderbookRequest::new("1000BEERUSDT", Category::Linear, Some(1));
         let start = Instant::now();
         while Instant::now() - start < five_minutes {
             let order_book = market.get_depth(request.clone()).await;
