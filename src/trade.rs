@@ -12,9 +12,9 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
-pub struct Trader {
-    pub client: Client,
-    pub recv_window: u64,
+pub struct Trader<'a> {
+    pub client: Client<'a>,
+    pub recv_window: u16,
 }
 
 /// Creates an order with various options for different account types and contract types.
@@ -67,10 +67,10 @@ pub enum Action<'a> {
 }
 
 
-impl Trader {
-    pub async fn place_custom_order<'a>(
+impl<'a> Trader<'_> {
+    pub async fn place_custom_order<'b>(
         &self,
-        req: OrderRequest<'a>,
+        req: OrderRequest<'_>,
     ) -> Result<OrderResponse, BybitError> {
         let action = Action::Order(req, false);
         let parameters = Self::build_orders(action);
@@ -140,9 +140,9 @@ impl Trader {
         Ok(response)
     }
 
-    pub async fn amend_order<'a>(
+    pub async fn amend_order<'b>(
         &self,
-        req: AmendOrderRequest<'a>,
+        req: AmendOrderRequest<'_>,
     ) -> Result<AmendOrderResponse, BybitError> {
         let action = Action::Amend(req, false);
         let parameters = Self::build_orders(action);
@@ -157,9 +157,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn cancel_order<'a>(
+    pub async fn cancel_order<'b>(
         &self,
-        req: CancelOrderRequest<'a>,
+        req: CancelOrderRequest<'_>,
     ) -> Result<CancelOrderResponse, BybitError> {
         let action = Action::Cancel(req, false);
         let parameters = Self::build_orders(action);
@@ -174,9 +174,9 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn get_open_orders<'a>(
+    pub async fn get_open_orders<'b>(
         &self,
-        req: OpenOrdersRequest<'a>,
+        req: OpenOrdersRequest<'_>,
     ) -> Result<OpenOrdersResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
 
@@ -215,9 +215,9 @@ impl Trader {
 
         Ok(response)
     }
-    pub async fn cancel_all_orders<'a>(
+    pub async fn cancel_all_orders<'b>(
         &self,
-        req: CancelallRequest<'a>,
+        req: CancelallRequest<'_>,
     ) -> Result<CancelallResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -255,9 +255,9 @@ impl Trader {
     /// A `Result` wrapping `OrderHistory` which contains the historical orders' data.
     /// If the operation fails, it returns an error.
     ///
-    pub async fn get_order_history<'a>(
+    pub async fn get_order_history<'b>(
         &self,
-        req: OrderHistoryRequest<'a>,
+        req: OrderHistoryRequest<'_>,
     ) -> Result<OrderHistoryResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
@@ -295,31 +295,68 @@ impl Trader {
             .await?;
         Ok(response)
     }
-    pub async fn get_trade_history<'a>(
+
+    /// Retrieves the trade history for a specific trading pair, order, or time range.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - A `TradeHistoryRequest` containing the parameters for the trade history query.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result<TradeHistoryResponse, BybitError>` containing the trade history data if the query is successful, or an error detailing the problem if the query fails.
+    pub async fn get_trade_history<'b>(
         &self,
-        req: TradeHistoryRequest<'a>,
+        req: TradeHistoryRequest<'_>,
     ) -> Result<TradeHistoryResponse, BybitError> {
+        // Create a new BTreeMap to store the parameters for the request
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
+
+        // Add the category to the request parameters
         parameters.insert("category".into(), req.category.as_str().into());
+
+        // Add the symbol to the request parameters if it is specified
         req.symbol
             .map(|symbol| parameters.insert("symbol".into(), symbol.into()));
+
+        // Add the order ID to the request parameters if it is specified
         req.order_id
             .map(|order_id| parameters.insert("orderId".into(), order_id.into()));
+
+        // Add the order link ID to the request parameters if it is specified
         req.order_link_id
             .map(|order_link_id| parameters.insert("orderLinkId".into(), order_link_id.into()));
+
+        // Add the base coin to the request parameters if it is specified
         req.base_coin
             .map(|base_coin| parameters.insert("baseCoin".into(), base_coin.into()));
+
+        // Add the start time to the request parameters if it is specified
         req.start_time
             .and_then(|start_time| Some(date_to_milliseconds(start_time.as_ref())))
-            .map(|start_millis| parameters.insert("startTime".into(), start_millis.to_string()));
+            .map(|start_millis| {
+                parameters.insert("startTime".into(), start_millis.to_string())
+            });
+
+        // Add the end time to the request parameters if it is specified
         req.end_time
             .and_then(|end_time| Some(date_to_milliseconds(end_time.as_ref())))
-            .map(|end_millis| parameters.insert("endTime".into(), end_millis.to_string()));
+            .map(|end_millis| {
+                parameters.insert("endTime".into(), end_millis.to_string())
+            });
+
+        // Add the limit to the request parameters if it is specified
         req.limit
             .map(|limit| parameters.insert("limit".into(), limit.to_string()));
+
+        // Add the execution type to the request parameters if it is specified
         req.exec_type
             .map(|exec_type| parameters.insert("execType".into(), exec_type.into()));
+
+        // Build the request from the parameters
         let request = build_request(&parameters);
+
+        // Send the signed GET request to the Bybit API to retrieve the trade history
         let response: TradeHistoryResponse = self
             .client
             .get_signed(
@@ -328,30 +365,64 @@ impl Trader {
                 Some(request),
             )
             .await?;
+
+        // Return the response
         Ok(response)
     }
-    pub async fn batch_place_order<'a>(
+
+
+    /// Asynchronously places a batch of orders using the Bybit API.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The `BatchPlaceRequest` containing the orders to be placed.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing a `BatchPlaceResponse` on success or a `BybitError` on failure.
+    pub async fn batch_place_order<'b>(
         &self,
-        req: BatchPlaceRequest<'a>,
+        req: BatchPlaceRequest<'_>,
     ) -> Result<BatchPlaceResponse, BybitError> {
+        // Create a new BTreeMap to store the parameters for the request
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+
+        // Check if the category is valid and insert it into the parameters
         match req.category {
             Category::Linear | Category::Inverse | Category::Option => {
                 parameters.insert("category".into(), req.category.as_str().into());
             }
+            // If the category is invalid, print an error message
             _ => {
                 println!("Invalid category");
             }
         }
+
+        // Create an empty array to store the orders
         let mut requests_array: Vec<Value> = Vec::new();
+
+        // Iterate over each order in the requests and build the orders
         for value in req.requests {
+            // Create an Action to represent the order
             let action = Action::Order(value, true);
-            let order_object = Self::build_orders(action); // Assuming this returns the correct object structure
+
+            // Build the orders using the build_orders method
+            let order_object = Self::build_orders(action);
+
+            // Convert the order object to a JSON Value
             let built_orders = json!(order_object);
+
+            // Add the built orders to the requests array
             requests_array.push(built_orders);
         }
+
+        // Insert the requests array into the parameters
         parameters.insert("request".into(), Value::Array(requests_array));
+
+        // Build the request from the parameters
         let request = build_json_request(&parameters);
+
+        // Send the signed POST request to the Bybit API to place the batch of orders
         let response: BatchPlaceResponse = self
             .client
             .post_signed(
@@ -361,30 +432,62 @@ impl Trader {
             )
             .await?;
 
+        // Return the response
         Ok(response)
     }
-    pub async fn batch_amend_order<'a>(
+
+    /// Sends a batch request to amend multiple orders at once.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - The `BatchAmendRequest` containing the orders to amend.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a `BatchAmendResponse` on success or a `BybitError` on failure.
+    pub async fn batch_amend_order<'b>(
         &self,
-        req: BatchAmendRequest<'a>,
+        req: BatchAmendRequest<'_>,
     ) -> Result<BatchAmendResponse, BybitError> {
+        // Create an empty map to store the parameters
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
+
+        // Insert the category into the parameters
         match req.category {
             Category::Linear | Category::Inverse | Category::Option => {
                 parameters.insert("category".into(), req.category.as_str().into());
             }
             _ => {
+                // Print an error message if the category is invalid
                 println!("Invalid category");
             }
         }
+
+        // Create an empty array to store the requests
         let mut requests_array: Vec<Value> = Vec::new();
+
+        // Iterate over each request in the BatchAmendRequest
         for value in req.requests {
+            // Create an Action to represent the request
             let action = Action::Amend(value, true);
+
+            // Build the orders using the build_orders method
             let amend_object = Self::build_orders(action); // Assuming this returns the correct object structure
+
+            // Convert the amend object to a JSON Value
             let built_amends = json!(amend_object);
+
+            // Add the built amends to the requests array
             requests_array.push(built_amends);
         }
+
+        // Insert the requests array into the parameters
         parameters.insert("request".into(), Value::Array(requests_array));
+
+        // Build the request from the parameters
         let request = build_json_request(&parameters);
+
+        // Send the signed POST request to the Bybit API to amend the batch of orders
         let response: BatchAmendResponse = self
             .client
             .post_signed(
@@ -393,12 +496,33 @@ impl Trader {
                 Some(request),
             )
             .await?;
+
+        // Return the response
         Ok(response)
     }
 
-    pub async fn batch_cancel_order<'a>(
+    /// Cancel a batch of orders from the Bybit API
+    ///
+    /// This function will send a signed POST request to the Bybit API to cancel
+    /// a batch of orders. The request should contain the category, symbol, order_id,
+    /// and order_link_id for each order to be cancelled.
+    ///
+    /// # Arguments
+    ///
+    /// * `req` - A `BatchCancelRequest` containing the details of the orders to
+    /// be cancelled.
+    ///
+    /// # Returns
+    ///
+    /// A `BatchCancelResponse` containing the result of the request.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the request fails or if the Bybit API returns an
+    /// error response.
+    pub async fn batch_cancel_order<'b>(
         &self,
-        req: BatchCancelRequest<'a>,
+        req: BatchCancelRequest<'_>,
     ) -> Result<BatchCancelResponse, BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match req.category {
@@ -428,16 +552,18 @@ impl Trader {
             .await?;
         Ok(response)
     }
+
     pub async fn get_borrow_quota_spot(&self) {
         // TODO: Implement this function
         todo!("This function has not yet been implemented");
     }
+    
     pub async fn set_dcp_options(&self) {
         // TODO: Implement this function
         todo!("This function has not yet been implemented");
     }
 
-    pub fn build_orders<'a>(action: Action<'a>) -> BTreeMap<String, Value> {
+    pub fn build_orders<'b>(action: Action<'_>) -> BTreeMap<String, Value> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match action {
             Action::Order(req, batch) => {

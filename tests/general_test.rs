@@ -27,7 +27,11 @@ mod tests {
             // If the call fails, print the error.
             Err(err) => println!("{:#?}", err),
         }
+    }
 
+    #[test]
+    async fn test_ping() {
+        let general: General = Bybit::new(None, None);
         // Call `ping` asynchronously and match the result.
         match general.ping().await {
             // If the call is successful, print the data.
@@ -37,5 +41,3 @@ mod tests {
         }
     }
 }
-
-

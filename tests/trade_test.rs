@@ -13,7 +13,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_trade() {
-        let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let order = trade
             .place_futures_limit_order(Category::Linear, "MATICUSDT", Side::Buy, 100.0, 0.7500, 0)
             .await;
@@ -22,7 +22,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_order_history() {
-        let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let data: OrderHistoryRequest = OrderHistoryRequest::new(
             Category::Linear,
             None,
@@ -42,7 +42,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_trade_history() {
-        let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let data: TradeHistoryRequest = TradeHistoryRequest::new(
             Category::Linear,
             None,
@@ -62,7 +62,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_batch() {
-        let trade: Trader = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let request = vec![
             OrderRequest {
                 symbol: "MATICUSDT".into(),

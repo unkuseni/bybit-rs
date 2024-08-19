@@ -17,7 +17,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_auth() {
-        let ws: Stream = Bybit::new(Some(API_KEY.to_string()), Some(SECRET.to_string()));
+        let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let (tx, mut rx) = mpsc::unbounded_channel();
         tokio::spawn(async move {
             ws.ws_wallet(tx).await.unwrap();
@@ -29,7 +29,7 @@ mod tests {
 
     #[tokio::test]
     async fn ping() {
-        let ws: Stream = Bybit::new(None, None);
+   let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let response = ws.ws_ping(true).await;
         println!("{:#?}", response);
     }

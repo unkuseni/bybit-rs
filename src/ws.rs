@@ -1,10 +1,10 @@
-use crate::api::{Public, WebsocketAPI};
+use crate::api::WebsocketAPI;
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    Category, ExecutionData, LiquidationData, OrderBookUpdate, OrderData, PongResponse,
-    PositionData, RequestType, Subscription, Tickers, WalletData, WebsocketEvents, WsKline,
-    WsTrade, FastExecData,
+    Category, ExecutionData, FastExecData, LiquidationData, OrderBookUpdate, OrderData,
+    PongResponse, PositionData, RequestType, Subscription, Tickers, WalletData, WebsocketEvents,
+    WsKline, WsTrade,
 };
 use crate::trade::build_ws_orders;
 use crate::util::{build_json_request, generate_random_uid, get_timestamp};
@@ -19,11 +19,18 @@ use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{tungstenite::Message as WsMessage, MaybeTlsStream};
 
 #[derive(Clone)]
-pub struct Stream {
-    pub client: Client,
+pub struct Stream<'a> {
+    pub client: Client<'a>,
 }
 
-impl Stream {
+impl<'a> Stream<'_> {
+    /// Tests for connectivity by sending a ping request to the Bybit server.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing a `String` with the response message if successful,
+    /// * `private` is set to `true` if the request is for a private endpoint
+    /// or a `BybitError` if an error occurs.
     pub async fn ws_ping(&self, private: bool) -> Result<(), BybitError> {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         parameters.insert("req_id".into(), generate_random_uid(8).into());
@@ -32,7 +39,7 @@ impl Stream {
         let endpoint = if private {
             WebsocketAPI::Private
         } else {
-            WebsocketAPI::Public(Public::Linear)
+            WebsocketAPI::PublicLinear
         };
         let mut response = self
             .client
@@ -56,9 +63,9 @@ impl Stream {
         Ok(())
     }
 
-    pub async fn ws_priv_subscribe<'a, F>(
+    pub async fn ws_priv_subscribe<'b, F>(
         &self,
-        req: Subscription<'a>,
+        req: Subscription<'_>,
         handler: F,
     ) -> Result<(), BybitError>
     where
@@ -76,9 +83,9 @@ impl Stream {
         Ok(())
     }
 
-    pub async fn ws_subscribe<'a, F>(
+    pub async fn ws_subscribe<'b, F>(
         &self,
-        req: Subscription<'a>,
+        req: Subscription<'_>,
         category: Category,
         handler: F,
     ) -> Result<(), BybitError>
@@ -87,9 +94,9 @@ impl Stream {
     {
         let endpoint = {
             match category {
-                Category::Linear => WebsocketAPI::Public(Public::Linear),
-                Category::Inverse => WebsocketAPI::Public(Public::Inverse),
-                Category::Spot => WebsocketAPI::Public(Public::Spot),
+                Category::Linear => WebsocketAPI::PublicLinear,
+                Category::Inverse => WebsocketAPI::PublicInverse,
+                Category::Spot => WebsocketAPI::PublicSpot,
                 _ => unimplemented!("Option has not been implemented"),
             }
         };
@@ -130,16 +137,25 @@ impl Stream {
         match orders {
             RequestType::Create(order) => {
                 parameters.insert("op".into(), "order.create".into());
-                parameters.insert("args".into(), build_ws_orders(RequestType::Create(order)).into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::Create(order)).into(),
+                );
             }
             RequestType::Cancel(order) => {
                 parameters.insert("op".into(), "order.cancel".into());
-                parameters.insert("args".into(), build_ws_orders(RequestType::Cancel(order)).into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::Cancel(order)).into(),
+                );
             }
 
             RequestType::Amend(order) => {
                 parameters.insert("op".into(), "order.amend".into());
-                parameters.insert("args".into(), build_ws_orders(RequestType::Amend(order)).into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::Amend(order)).into(),
+                );
             }
         }
         build_json_request(&parameters)
@@ -353,13 +369,12 @@ impl Stream {
         .await
     }
 
-    pub async fn  ws_fast_exec(
+    pub async fn ws_fast_exec(
         &self,
         sender: mpsc::UnboundedSender<FastExecData>,
-    ) -> Result<(), BybitError>
-    {
+    ) -> Result<(), BybitError> {
         let sub_str = "execution.fast";
-let request = Subscription::new("subscribe", vec![sub_str]);
+        let request = Subscription::new("subscribe", vec![sub_str]);
 
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::FastExecEvent(execution) = event {
@@ -417,9 +432,9 @@ let request = Subscription::new("subscribe", vec![sub_str]);
         .await
     }
 
-    pub async fn ws_trade_stream<'a, F>(
+    pub async fn ws_trade_stream<'b, F>(
         &self,
-        req: mpsc::UnboundedReceiver<RequestType<'a>>,
+        req: mpsc::UnboundedReceiver<RequestType<'_>>,
         handler: F,
     ) -> Result<(), BybitError>
     where
@@ -431,24 +446,21 @@ let request = Subscription::new("subscribe", vec![sub_str]);
             .wss_connect(WebsocketAPI::TradeStream, None, true, Some(10))
             .await?;
         Self::event_loop(response, handler, Some(req)).await?;
-        
+
         Ok(())
     }
 
-    pub async fn event_loop<'a, H>(
+    pub async fn event_loop<'b, H>(
         mut stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
         mut handler: H,
-        mut order_sender: Option<mpsc::UnboundedReceiver<RequestType<'a>>>,
-        
+        mut order_sender: Option<mpsc::UnboundedReceiver<RequestType<'_>>>,
     ) -> Result<(), BybitError>
     where
         H: WebSocketHandler,
     {
         let mut interval = Instant::now();
         loop {
-            let msg = stream
-                .next()
-                .await;
+            let msg = stream.next().await;
             match msg {
                 Some(Ok(WsMessage::Text(msg))) => {
                     if let Err(_) = handler.handle_msg(&msg) {
@@ -461,19 +473,17 @@ let request = Subscription::new("subscribe", vec![sub_str]);
                     return Err(BybitError::from(e.to_string()));
                 }
                 None => {
-                    return Err(BybitError::Base(
-                        "Stream was closed".to_string(),
-                    ));
+                    return Err(BybitError::Base("Stream was closed".to_string()));
                 }
                 _ => {}
             }
             if let Some(sender) = order_sender.as_mut() {
-                if let Some(v) = sender.recv().await  {
+                if let Some(v) = sender.recv().await {
                     let order_req = Self::build_trade_subscription(v, Some(3000));
                     stream.send(WsMessage::Text(order_req)).await?;
                 }
             }
-            
+
             if interval.elapsed() > Duration::from_secs(300) {
                 let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
                 if order_sender.is_none() {

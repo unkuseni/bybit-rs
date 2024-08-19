@@ -1,13 +1,13 @@
 #[derive(Clone, Debug)]
-pub struct Config {
-    pub rest_api_endpoint: &'static str,
-    pub ws_endpoint: &'static str,
-    pub recv_window: u64,
+pub struct Config<'a> {
+    pub rest_api_endpoint: &'a str,
+    pub ws_endpoint: &'a str,
+    pub recv_window: u16,
 }
 
-impl Config {
-    pub const DEFAULT_REST_API_ENDPOINT: &'static str = "https://api.bybit.com";
-    pub const DEFAULT_WS_ENDPOINT: &'static str = "wss://stream.bybit.com/v5";
+impl <'a> Config<'_> {
+    pub const DEFAULT_REST_API_ENDPOINT: &'a str = "https://api.bybit.com";
+    pub const DEFAULT_WS_ENDPOINT: &'a str = "wss://stream.bybit.com/v5";
 
     pub const fn default() -> Self {
         Self {
@@ -25,7 +25,7 @@ impl Config {
         }
     }
 
-    pub const fn set_recv_window(self, recv_window: u64) -> Self {
+    pub const fn set_recv_window(self, recv_window: u16) -> Self {
         Self {
             recv_window,
             ..self
