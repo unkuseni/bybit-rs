@@ -280,6 +280,14 @@ pub struct FuturesInstrument {
     pub settle_coin: String,
     #[serde(rename = "copyTrading")]
     pub copy_trading: String,
+    #[serde(rename = "upperFundingRate")]
+    pub upper_funding_rate: String,
+    #[serde(rename = "lowerFundingRate")]
+    pub lower_funding_rate: String,
+    // #[serde(rename = "isPreListing" )]
+    // pub is_pre_listing: bool,
+    // #[serde(rename = "preListingInfo")]
+    // pub pre_listing_info: PreListingInfo,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -348,6 +356,32 @@ pub struct OptionsInstrument {
     pub lot_size_filter: LotSizeFilter,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PreListingInfo {
+    pub cur_auction_phase: String,
+    pub phases: Vec<PreListingPhase>,
+    pub auction_fee_info: AuctionFeeInfo,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct PreListingPhase {
+    pub phase: String,
+    #[serde(rename = "startTime", with = "string_to_u64")]
+    pub start_time: u64,
+    #[serde(rename = "endTime", with = "string_to_u64")]
+    pub end_time: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct AuctionFeeInfo {
+    pub auction_fee_rate: String,
+    pub taker_fee_rate: String,
+    pub maker_fee_rate: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RiskParameters {
@@ -382,10 +416,12 @@ pub struct PriceFilter {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LotSizeFilter {
-    #[serde(rename = "basePrecision", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "basePrecision", skip_serializing_if = "Option::is_none", default)]
     pub base_precision: Option<String>,
     #[serde(rename = "quotePrecision", skip_serializing_if = "Option::is_none")]
     pub quote_precision: Option<String>,
+    #[serde(rename = "maxMktOrderQty", skip_serializing_if = "Option::is_none")]
+    pub max_mkt_order_qty: Option<String>,
     #[serde(rename = "minOrderQty", with = "string_to_float")]
     pub min_order_qty: f64,
     #[serde(rename = "maxOrderQty", with = "string_to_float")]
@@ -401,6 +437,8 @@ pub struct LotSizeFilter {
         skip_serializing_if = "Option::is_none"
     )]
     pub post_only_max_order_qty: Option<String>,
+    #[serde(rename = "minNotionalValue", skip_serializing_if = "Option::is_none")]
+    pub min_notional_value: Option<String>,
 }
 
 #[derive(Clone, Default)]

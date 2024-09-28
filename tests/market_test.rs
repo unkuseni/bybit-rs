@@ -34,7 +34,7 @@ mod tests {
     #[tokio::test]
     async fn test_instrument() {
         let market: MarketData = Bybit::new(None, None);
-        let request = InstrumentRequest::new(Category::Linear, Some("MATICUSDT"), None, None, None);
+        let request = InstrumentRequest::new(Category::Linear, Some("APTUSDT"), None, None, None);
         let instrument = market.get_futures_instrument_info(request.clone()).await;
         if let Ok(data) = instrument {
             println!("{:#?}", data.result.list[0]);
