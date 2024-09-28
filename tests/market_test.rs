@@ -83,7 +83,7 @@ mod tests {
     #[tokio::test]
     async fn test_ticker() {
         let market: MarketData = Bybit::new(None, None);
-        let symbol = "MATICUSDT";
+        let symbol = "APTUSDT";
         let ticker = market.get_futures_tickers(Some(symbol)).await;
         if let Ok(data) = ticker {
             println!("{:#?}", data.result.list);
@@ -97,7 +97,7 @@ mod tests {
     #[tokio::test]
     async fn test_recent_trades() {
         let market: MarketData = Bybit::new(None, None);
-        let request = RecentTradesRequest::new(Category::Linear, Some("MATICUSDT"), None, None);
+        let request = RecentTradesRequest::new(Category::Linear, Some("POLUSDT"), None, None);
         let trades = market.get_recent_trades(request).await;
         if let Ok(data) = trades {
             println!("{:#?}", data.result.list);

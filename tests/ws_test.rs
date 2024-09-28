@@ -95,7 +95,7 @@ mod tests {
     async fn test_default_orderbook() {
         let ws: Stream = Bybit::new(None, None);
         let (tx, mut rx) = mpsc::unbounded_channel();
-        let request = vec![(1, "MATICUSDT")];
+        let request = vec![(1, "POLUSDT")];
         tokio::spawn(async move {
             ws.ws_orderbook(request, Category::Linear, tx)
                 .await

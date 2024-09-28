@@ -448,7 +448,7 @@ impl<'a> Client<'_> {
         let uuid = generate_random_uid(5);
 
         // Connect to the WebSocket endpoint
-        match connect_async(url).await {
+        match connect_async(url.as_ref()).await {
             // If the connection is successful, send the authentication message
             Ok((mut ws_stream, _)) => {
                 let auth_msg = json!({
