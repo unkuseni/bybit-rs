@@ -4,7 +4,11 @@ use crate::api::{Trade, API};
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse, BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse, CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category, OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest, OrderHistoryResponse, OrderRequest, OrderResponse, OrderType, RequestType, Side, TradeHistoryRequest, TradeHistoryResponse
+    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse,
+    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse,
+    CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category,
+    OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest, OrderHistoryResponse, OrderRequest,
+    OrderResponse, OrderType, RequestType, Side, TradeHistoryRequest, TradeHistoryResponse,
 };
 use crate::util::{build_json_request, build_request, date_to_milliseconds, generate_random_uid};
 
@@ -12,8 +16,8 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
-pub struct Trader<'a> {
-    pub client: Client<'a>,
+pub struct Trader {
+    pub client: Client,
     pub recv_window: u16,
 }
 
@@ -66,8 +70,7 @@ pub enum Action<'a> {
     Cancel(CancelOrderRequest<'a>, bool),
 }
 
-
-impl<'a> Trader<'_> {
+impl Trader {
     pub async fn place_custom_order<'b>(
         &self,
         req: OrderRequest<'_>,
@@ -334,16 +337,12 @@ impl<'a> Trader<'_> {
         // Add the start time to the request parameters if it is specified
         req.start_time
             .and_then(|start_time| Some(date_to_milliseconds(start_time.as_ref())))
-            .map(|start_millis| {
-                parameters.insert("startTime".into(), start_millis.to_string())
-            });
+            .map(|start_millis| parameters.insert("startTime".into(), start_millis.to_string()));
 
         // Add the end time to the request parameters if it is specified
         req.end_time
             .and_then(|end_time| Some(date_to_milliseconds(end_time.as_ref())))
-            .map(|end_millis| {
-                parameters.insert("endTime".into(), end_millis.to_string())
-            });
+            .map(|end_millis| parameters.insert("endTime".into(), end_millis.to_string()));
 
         // Add the limit to the request parameters if it is specified
         req.limit
@@ -369,7 +368,6 @@ impl<'a> Trader<'_> {
         // Return the response
         Ok(response)
     }
-
 
     /// Asynchronously places a batch of orders using the Bybit API.
     ///
@@ -557,7 +555,7 @@ impl<'a> Trader<'_> {
         // TODO: Implement this function
         todo!("This function has not yet been implemented");
     }
-    
+
     pub async fn set_dcp_options(&self) {
         // TODO: Implement this function
         todo!("This function has not yet been implemented");
@@ -724,39 +722,37 @@ impl<'a> Trader<'_> {
         }
         parameters
     }
-
 }
 
- pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
-        let mut order_array = Vec::new();
-        match orders {
-            RequestType::Create(req) => {
-                for v in req.requests {
-                    let action = Action::Order(v, false);
-                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
-                    let built_order = json!(order_object);
-                    order_array.push(built_order);
-                }
-                Value::Array(order_array)
+pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
+    let mut order_array = Vec::new();
+    match orders {
+        RequestType::Create(req) => {
+            for v in req.requests {
+                let action = Action::Order(v, false);
+                let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                let built_order = json!(order_object);
+                order_array.push(built_order);
             }
-            RequestType::Amend(req) => {
-                for v in req.requests {
-                    let action = Action::Amend(v, false);
-                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
-                    let built_order = json!(order_object);
-                    order_array.push(built_order);
-                }
-                Value::Array(order_array)
+            Value::Array(order_array)
+        }
+        RequestType::Amend(req) => {
+            for v in req.requests {
+                let action = Action::Amend(v, false);
+                let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                let built_order = json!(order_object);
+                order_array.push(built_order);
             }
-            RequestType::Cancel(req) => {
-                for v in req.requests {
-                    let action = Action::Cancel(v, false);
-                    let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
-                    let built_order = json!(order_object);
-                    order_array.push(built_order);
-                }
-                Value::Array(order_array)
+            Value::Array(order_array)
+        }
+        RequestType::Cancel(req) => {
+            for v in req.requests {
+                let action = Action::Cancel(v, false);
+                let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+                let built_order = json!(order_object);
+                order_array.push(built_order);
             }
+            Value::Array(order_array)
         }
     }
-
+}

@@ -7,11 +7,11 @@ use crate::util::{build_json_request, build_request};
 
 
 #[derive(Clone)]
-pub struct AssetManager<'a> {
-  pub client: Client<'a>,
+pub struct AssetManager {
+  pub client: Client,
   pub recv_window: u16,
 }
 
-impl<'a> AssetManager<'_> {
+impl AssetManager {
   
   }

@@ -16,12 +16,12 @@ use crate::model::{
 use crate::util::{build_json_request, build_request, date_to_milliseconds};
 
 #[derive(Clone)]
-pub struct PositionManager<'a> {
-    pub client: Client<'a>,
+pub struct PositionManager {
+    pub client: Client,
     pub recv_window: u16,
 }
 
-impl<'a> PositionManager<'_> {
+impl PositionManager {
     /// Asynchronously retrieves information about a position based on the provided request.
     ///
     /// # Arguments

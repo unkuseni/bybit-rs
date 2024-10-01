@@ -4,12 +4,12 @@ use crate::errors::BybitError;
 use crate::model::ServerTimeResponse;
 
 #[derive(Clone)]
-pub struct General<'a> {
-    pub client: Client<'a>,
+pub struct General {
+    pub client: Client,
 }
 
 /// The `General` struct represents general functionality for the Bybit API.
-impl<'a> General<'_> {
+impl General {
     /// Tests for connectivity by sending a ping request to the Bybit server.
     ///
     /// # Returns

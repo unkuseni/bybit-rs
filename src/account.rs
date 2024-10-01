@@ -16,12 +16,12 @@ use serde_json::{json, Value};
 use crate::util::{build_json_request, build_request, date_to_milliseconds};
 
 #[derive(Clone)]
-pub struct AccountManager<'a> {
-    pub client: Client<'a>,
+pub struct AccountManager {
+    pub client: Client,
     pub recv_window: u16,
 }
 
-impl<'a> AccountManager<'_> {
+impl AccountManager {
     
     /// Fetches the wallet balance for a specific account and optional coin.
     ///

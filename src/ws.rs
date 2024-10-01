@@ -19,11 +19,11 @@ use tokio_tungstenite::WebSocketStream;
 use tokio_tungstenite::{tungstenite::Message as WsMessage, MaybeTlsStream};
 
 #[derive(Clone)]
-pub struct Stream<'a> {
-    pub client: Client<'a>,
+pub struct Stream {
+    pub client: Client,
 }
 
-impl<'a> Stream<'_> {
+impl Stream {
     /// Tests for connectivity by sending a ping request to the Bybit server.
     ///
     /// # Returns
@@ -432,9 +432,9 @@ impl<'a> Stream<'_> {
         .await
     }
 
-    pub async fn ws_trade_stream<'b, F>(
+    pub async fn ws_trade_stream<'a, F>(
         &self,
-        req: mpsc::UnboundedReceiver<RequestType<'_>>,
+        req: mpsc::UnboundedReceiver<RequestType<'a>>,
         handler: F,
     ) -> Result<(), BybitError>
     where
@@ -450,7 +450,7 @@ impl<'a> Stream<'_> {
         Ok(())
     }
 
-    pub async fn event_loop<'b, H>(
+    pub async fn event_loop<'a, H>(
         mut stream: WebSocketStream<MaybeTlsStream<TcpStream>>,
         mut handler: H,
         mut order_sender: Option<mpsc::UnboundedReceiver<RequestType<'_>>>,

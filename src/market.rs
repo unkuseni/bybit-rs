@@ -2,27 +2,27 @@ use crate::api::{Market, API};
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse, FuturesInstrumentsInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
-    HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse,
-    LongShortRatioResponse, MarkPriceKlineResponse,
-    OpenInterestRequest, OpeninterestResponse,
-    OptionsInstrument, OrderBookResponse, OrderbookRequest,
-    PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse,
-    SpotInstrumentsInfoResponse, SpotTickersResponse,
+    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse,
+    FuturesInstrumentsInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
+    HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentRequest, InsuranceResponse,
+    KlineRequest, KlineResponse, LongShortRatioResponse, MarkPriceKlineResponse,
+    OpenInterestRequest, OpeninterestResponse, OptionsInstrument, OrderBookResponse,
+    OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse,
+    RiskLimitRequest, RiskLimitResponse, SpotInstrumentsInfoResponse, SpotTickersResponse,
 };
 use crate::util::{build_request, date_to_milliseconds};
 
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
-pub struct MarketData<'a> {
-    pub client: Client<'a>,
+pub struct MarketData {
+    pub client: Client,
     pub recv_window: u16,
 }
 
 /// Market Data endpoints
 
-impl<'a> MarketData<'_> {
+impl MarketData {
     /// Retrieves historical price klines.
     ///
     /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
