@@ -1,6 +1,6 @@
 use chrono::{NaiveDate, TimeZone, Utc};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::distr::Alphanumeric;
+use rand::{rng, Rng};
 use serde::Serialize;
 
 use serde_json::Value;
@@ -47,7 +47,7 @@ pub fn date_to_milliseconds(date_str: &str) -> u64 {
 pub fn generate_random_uid(length: usize) -> String {
     let mut uid = String::with_capacity(length);
     for _ in 0..length {
-        uid.push(thread_rng().sample(Alphanumeric) as char);
+        uid.push(rng().sample(Alphanumeric) as char);
     }
     uid
 }
