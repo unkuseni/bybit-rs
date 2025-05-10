@@ -6,7 +6,7 @@ use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
 
 #[derive(Serialize, Default, Deserialize, Clone, Debug)]
-pub struct Empty;
+pub struct Empty {}
 
 /// ----------------------------------------
 ///  RESPONSE STRUCTS FOR MARKET REQUESTS
