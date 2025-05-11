@@ -49,7 +49,7 @@ mod tests {
     async fn test_market() {
         let market: MarketData = Bybit::new(None, None);
         let five_minutes = Duration::from_secs(5 * 60);
-        let request = OrderbookRequest::new("1000BEERUSDT", Category::Linear, Some(1));
+        let request = OrderbookRequest::new("ETHUSDT", Category::Linear, Some(1));
         let start = Instant::now();
         while Instant::now() - start < five_minutes {
             let order_book = market.get_depth(request.clone()).await;
@@ -119,7 +119,7 @@ mod tests {
     async fn test_open_interest() {
         let market: MarketData = Bybit::new(None, None);
         let request =
-            OpenInterestRequest::new(Category::Linear, "MATICUSDT", "4h", None, None, None);
+            OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
         let open_interest = market.get_open_interest(request).await;
         if let Ok(data) = open_interest {
             println!("{:#?}", data.result.list.last().unwrap());
