@@ -5,7 +5,7 @@ use serde_json::{from_value, Value};
 use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Default, Deserialize, Clone, Debug)]
 pub struct Empty {}
 
 /// ----------------------------------------
@@ -3101,8 +3101,10 @@ pub struct AccountInfoResponse {
     pub ret_code: i32,
     pub ret_msg: String,
     pub result: AccountInfo,
+    #[serde(default)]
     pub ret_ext_info: Empty,
-    pub time: u64,
+    #[serde(default)]
+    pub time: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

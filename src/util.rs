@@ -12,7 +12,12 @@ pub fn build_request<T: ToString>(parameters: &BTreeMap<String, T>) -> String {
     for (key, value) in parameters {
         request.push_str(key);
         request.push('=');
-        request.push_str(&value.to_string());
+        let mut value = value.to_string();
+        if value.starts_with("\"") && value.ends_with("\"") {
+            // trim leading and trailing `"`
+            value = value[1..value.len() - 1].to_string();
+        }
+        request.push_str(&value);
         request.push('&');
     }
     request.truncate(request.len() - 1);
