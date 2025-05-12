@@ -12,8 +12,14 @@
 This is simply a bybit V5 api connector using binance-rs implementation, Some parts of the api have not been completed yet...Anyone is welcome to branch/fork the repository and add their own upgrades. If you think you've made substantial improvements to the module, submit a pull request and we'll gladly take a look.
 
 ### FEATURES
-- REST
-- Websocket API
+
+- **REST API:**
+  - **Market Data:** Access to K-line, tickers, order book, and more. (see [`tests/market_test.rs`](https://github.com/unkuseni/bybit-rs/tests/market_test.rs))
+  - **Trade:** Functionality for placing, amending, and canceling orders. (see [`tests/trade_test.rs`](https://github.com/unkuseni/bybit-rs/tests/trade_test.rs))
+  - **Position:** Manage your trading positions. (see [`tests/position_test.rs`](https://github.com/unkuseni/bybit-rs/tests/position_test.rs))
+  - **Account & Asset:** These sections are currently under active development. See the [Under Development](#under-development) section for more details. (see [`tests/account_test.rs`](https://github.com/unkuseni/bybit-rs/tests/account_test.rs) for progress)
+- **Websocket API:**
+  - Support for subscribing to real-time public and private data streams. (see [`tests/ws_test.rs`](https://github.com/unkuseni/bybit-rs/tests/ws_test.rs))
 
 ### INSTALLATION
 
@@ -50,3 +56,6 @@ Some part of the project is still under development. Please check back later for
 
 I like the project design of binance-rs and decided to use it. You might stumble upon some changes where both projects differ.
 
+## SPECIAL THANKS
+
+A special thank you to [Sajjon](https://github.com/Sajjon) and [enseed](https://github.com/enseed-dev) for their valuable contributions to this project!
