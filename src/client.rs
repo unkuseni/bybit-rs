@@ -1,5 +1,3 @@
-
-
 use tokio::net::TcpStream;
 
 use crate::api::{WebsocketAPI, API};
@@ -243,7 +241,7 @@ impl Client {
         // Get the receive window
         let window = recv_window.to_string();
         // Sign the request
-        let signature = self.sign_message(&timestamp, &window, request);
+        let signature = self.sign_message(&timestamp, &window, request)?;
 
         // Set the headers
         let signature_header = HeaderName::from_static("x-bapi-sign");
@@ -300,9 +298,20 @@ impl Client {
     /// If a request body is provided, it appends it to the sign message.
     /// The function then uses the HMAC-SHA256 algorithm to sign the message.
     /// The result is hex-encoded and returned as a string.
-    fn sign_message(&self, timestamp: &str, recv_window: &str, request: Option<String>) -> String {
+
+    fn mac_from_secret_key(&self) -> Result<Hmac<Sha256>, BybitError> {
+        Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes())
+            .map_err(|e| BybitError::Base(format!("Failed to create Hmac, error: {:?}", e)))
+    }
+
+    fn sign_message(
+        &self,
+        timestamp: &str,
+        recv_window: &str,
+        request: Option<String>,
+    ) -> Result<String, BybitError> {
         // Create a new HMAC SHA256 instance with the secret key
-        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
+        let mut mac = self.mac_from_secret_key()?;
 
         // Create the sign message by concatenating the timestamp, API key, and receive window
         let mut sign_message = format!("{}{}{}", timestamp, self.api_key, recv_window);
@@ -318,7 +327,7 @@ impl Client {
         // Finalize the MAC and encode the result as a hex string
         let hex_signature = hex_encode(mac.finalize().into_bytes());
 
-        hex_signature
+        Ok(hex_signature)
     }
 
     /// Internal function to sign a POST request message.
@@ -337,10 +346,9 @@ impl Client {
         timestamp: &str,
         recv_window: &str,
         request: Option<String>,
-    ) -> String {
+    ) -> Result<String, BybitError> {
         // Create a new HMAC SHA256 instance with the secret key
-        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
-
+        let mut mac = self.mac_from_secret_key()?;
         // Update the MAC with the timestamp
         mac.update(timestamp.as_bytes());
         // Update the MAC with the API key
@@ -355,7 +363,7 @@ impl Client {
         // Finalize the MAC and encode the result as a hex string
         let hex_signature = hex_encode(mac.finalize().into_bytes());
 
-        hex_signature
+        Ok(hex_signature)
     }
 
     /// Internal function to handle the response from a HTTP request.
@@ -434,7 +442,7 @@ impl Client {
         let expires = get_timestamp() + expiry_time as u64;
 
         // Calculate the signature for the authentication message
-        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
+        let mut mac = self.mac_from_secret_key()?;
         mac.update(format!("GET/realtime{expires}").as_bytes());
         let signature = hex_encode(mac.finalize().into_bytes());
 

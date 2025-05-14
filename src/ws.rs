@@ -45,7 +45,14 @@ impl Stream {
             .client
             .wss_connect(endpoint, Some(request), private, None)
             .await?;
-        let data = response.next().await.unwrap()?;
+        let Some(data) = response.next().await else {
+            return Err(BybitError::Base(
+                "Failed to receive ping response".to_string(),
+            ));
+        };
+
+        let data = data
+            .map_err(|e| BybitError::Base(format!("Failed to get ping response, error {}", e)))?;
         match data {
             WsMessage::Text(data) => {
                 let response: PongResponse = serde_json::from_str(&data)?;
@@ -187,7 +194,11 @@ impl Stream {
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
         self.ws_subscribe(request, category, move |event| {
             if let WebsocketEvents::OrderBookEvent(order_book) = event {
-                sender.send(order_book).unwrap();
+                sender
+                    .send(order_book)
+                    .map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
             }
             Ok(())
         })
@@ -222,7 +233,11 @@ impl Stream {
         let handler = move |event| {
             if let WebsocketEvents::TradeEvent(trades) = event {
                 for trade in trades.data {
-                    sender.send(trade).unwrap();
+                    sender
+                        .send(trade)
+                        .map_err(|e| BybitError::ChannelSendError {
+                            underlying: e.to_string(),
+                        })?;
                 }
             }
             Ok(())
@@ -259,17 +274,26 @@ impl Stream {
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(String::as_str).collect());
 
-        let handler = move |event| {
-            if let WebsocketEvents::TickerEvent(tickers) = event {
-                match tickers.data {
-                    Tickers::Linear(linear_ticker) => {
-                        sender.send(Tickers::Linear(linear_ticker)).unwrap()
+        let handler =
+            move |event| {
+                if let WebsocketEvents::TickerEvent(tickers) = event {
+                    match tickers.data {
+                        Tickers::Linear(linear_ticker) => {
+                            sender.send(Tickers::Linear(linear_ticker)).map_err(|e| {
+                                BybitError::ChannelSendError {
+                                    underlying: e.to_string(),
+                                }
+                            })?;
+                        }
+                        Tickers::Spot(spot_ticker) => sender
+                            .send(Tickers::Spot(spot_ticker))
+                            .map_err(|e| BybitError::ChannelSendError {
+                                underlying: e.to_string(),
+                            })?,
                     }
-                    Tickers::Spot(spot_ticker) => sender.send(Tickers::Spot(spot_ticker)).unwrap(),
                 }
-            }
-            Ok(())
-        };
+                Ok(())
+            };
 
         self.ws_subscribe(request, category, handler).await
     }
@@ -287,7 +311,11 @@ impl Stream {
 
         let handler = move |event| {
             if let WebsocketEvents::LiquidationEvent(liquidation) = event {
-                sender.send(liquidation.data).unwrap();
+                sender
+                    .send(liquidation.data)
+                    .map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
             }
             Ok(())
         };
@@ -307,7 +335,11 @@ impl Stream {
         let request = Subscription::new("subscribe", arr.iter().map(AsRef::as_ref).collect());
         self.ws_subscribe(request, category, move |event| {
             if let WebsocketEvents::KlineEvent(kline) = event {
-                sender.send(kline).unwrap();
+                sender
+                    .send(kline)
+                    .map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
             }
             Ok(())
         })
@@ -333,7 +365,9 @@ impl Stream {
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::PositionEvent(position) = event {
                 for v in position.data {
-                    sender.send(v).unwrap();
+                    sender.send(v).map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
                 }
             }
             Ok(())
@@ -361,7 +395,9 @@ impl Stream {
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::ExecutionEvent(execute) = event {
                 for v in execute.data {
-                    sender.send(v).unwrap();
+                    sender.send(v).map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
                 }
             }
             Ok(())
@@ -379,7 +415,9 @@ impl Stream {
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::FastExecEvent(execution) = event {
                 for v in execution.data {
-                    sender.send(v).unwrap();
+                    sender.send(v).map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
                 }
             }
             Ok(())
@@ -407,7 +445,9 @@ impl Stream {
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::OrderEvent(order) = event {
                 for v in order.data {
-                    sender.send(v).unwrap();
+                    sender.send(v).map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
                 }
             }
             Ok(())
@@ -424,7 +464,9 @@ impl Stream {
         self.ws_priv_subscribe(request, move |event| {
             if let WebsocketEvents::Wallet(wallet) = event {
                 for v in wallet.data {
-                    sender.send(v).unwrap();
+                    sender.send(v).map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
                 }
             }
             Ok(())

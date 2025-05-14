@@ -8,7 +8,12 @@ use std::collections::BTreeMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn build_request<T: ToString>(parameters: &BTreeMap<String, T>) -> String {
-    let mut request = String::with_capacity(parameters.iter().map(|(k, v)| k.len() + v.to_string().len() + 1).sum());
+    let mut request = String::with_capacity(
+        parameters
+            .iter()
+            .map(|(k, v)| k.len() + v.to_string().len() + 1)
+            .sum(),
+    );
     for (key, value) in parameters {
         request.push_str(key);
         request.push('=');
@@ -43,8 +48,10 @@ pub fn get_timestamp() -> u64 {
 }
 
 pub fn date_to_milliseconds(date_str: &str) -> u64 {
-    let naive_date = NaiveDate::parse_from_str(date_str, "%d%m%y").unwrap();
-    let naive_date_time = naive_date.and_hms_opt(0, 0, 0).unwrap();
+    let naive_date = NaiveDate::parse_from_str(date_str, "%d%m%y").expect("Failed to parse date");
+    let naive_date_time = naive_date
+        .and_hms_opt(0, 0, 0)
+        .expect("Failed to create NaiveDateTime");
     let datetime_utc = Utc.from_utc_datetime(&naive_date_time);
     datetime_utc.timestamp_millis() as u64
 }
