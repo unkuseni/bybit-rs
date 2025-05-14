@@ -1,3 +1,4 @@
+use log::error;
 use serde_json::{json, Value};
 
 use crate::api::{Trade, API};
@@ -392,7 +393,7 @@ impl Trader {
             }
             // If the category is invalid, print an error message
             _ => {
-                println!("Invalid category");
+                error!("Invalid category");
             }
         }
 
@@ -457,7 +458,7 @@ impl Trader {
             }
             _ => {
                 // Print an error message if the category is invalid
-                println!("Invalid category");
+                error!("Invalid category");
             }
         }
 
@@ -528,7 +529,7 @@ impl Trader {
                 parameters.insert("category".into(), req.category.as_str().into());
             }
             _ => {
-                println!("Invalid category");
+                error!("Invalid category");
             }
         }
         let mut requests_array: Vec<Value> = Vec::new();
@@ -612,7 +613,7 @@ impl Trader {
                         0 | 1 | 2 => {
                             parameters.insert("positionIdx".into(), v.to_string().into());
                         }
-                        _ => println!("Invalid position idx"),
+                        _ => error!("Invalid position idx"),
                     }
                 }
                 if let Some(order_link_id) = req.order_link_id {

@@ -9,6 +9,7 @@ use crate::model::{
 use crate::trade::build_ws_orders;
 use crate::util::{build_json_request, generate_random_uid, get_timestamp};
 use futures::{SinkExt, StreamExt};
+use log::debug;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::time::Instant;
@@ -51,10 +52,10 @@ impl Stream {
                 let response: PongResponse = serde_json::from_str(&data)?;
                 match response {
                     PongResponse::PublicPong(pong) => {
-                        println!("Pong received successfully: {:#?}", pong);
+                        debug!("Pong received successfully: {:#?}", pong);
                     }
                     PongResponse::PrivatePong(pong) => {
-                        println!("Pong received successfully: {:#?}", pong);
+                        debug!("Pong received successfully: {:#?}", pong);
                     }
                 }
             }
