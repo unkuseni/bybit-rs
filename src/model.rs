@@ -2329,7 +2329,7 @@ pub struct PositionInfo {
     pub is_reduce_only: bool,
 
     #[serde(with = "string_to_u64_optional")]
-    pub mmr_sys_update_time: Option<u64>,
+    pub mmr_sys_updated_time: Option<u64>,
 
     #[serde(with = "string_to_u64_optional")]
     pub leverage_sys_updated_time: Option<u64>,
@@ -2376,7 +2376,7 @@ mod test_decode_position_info {
                 "cumRealisedPnl": "-0.00096902",
                 "seq": 5723621632,
                 "isReduceOnly": false,
-                "mmrSysUpdateTime": "1676538056444",
+                "mmrSysUpdatedTime": "1676538056444",
                 "leverageSysUpdatedTime": "1676538056333",
                 "sessionAvgPrice": "",
                 "createdTime": "1676538056258",
@@ -2386,7 +2386,7 @@ mod test_decode_position_info {
         let result = serde_json::from_str::<PositionInfo>(json);
         let result = result.unwrap();
         assert_eq!(result.cum_realised_pnl, Some(-0.00096902));
-        assert_eq!(result.mmr_sys_update_time, Some(1676538056444));
+        assert_eq!(result.mmr_sys_updated_time, Some(1676538056444));
         assert_eq!(result.leverage_sys_updated_time, Some(1676538056333));
         assert_eq!(result.created_time, 1676538056258);
         assert_eq!(result.updated_time, 1697673600012);
