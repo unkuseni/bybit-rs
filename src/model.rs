@@ -2276,8 +2276,9 @@ pub struct PositionInfo {
     pub size: f64,
 
     #[serde(with = "string_to_float_optional")]
-    pub session_avg_price: Option<f64>,
+    pub avg_price: Option<f64>,
 
+    #[serde(with = "string_to_float")]
     pub position_value: f64,
 
     pub trade_mode: i32,
@@ -2332,6 +2333,53 @@ pub struct PositionInfo {
 
     pub created_time: String,
     pub updated_time: String,
+}
+#[cfg(test)]
+mod test_decode_position_info {
+    use super::*;
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"
+            {
+                "positionIdx": 0,
+                "riskId": 1,
+                "riskLimitValue": "150",
+                "symbol": "BTCUSD",
+                "side": "Sell",
+                "size": "300",
+                "avgPrice": "27464.50441675",
+                "positionValue": "0.01092319",
+                "tradeMode": 0,
+                "positionStatus": "Normal",
+                "autoAddMargin": 1,
+                "adlRankIndicator": 2,
+                "leverage": "10",
+                "positionBalance": "0.00139186",
+                "markPrice": "28224.50",
+                "liqPrice": "",
+                "bustPrice": "999999.00",
+                "positionMM": "0.0000015",
+                "positionIM": "0.00010923",
+                "tpslMode": "Full",
+                "takeProfit": "0.00",
+                "stopLoss": "0.00",
+                "trailingStop": "0.00",
+                "unrealisedPnl": "-0.00029413",
+                "curRealisedPnl": "0.00013123",
+                "cumRealisedPnl": "-0.00096902",
+                "seq": 5723621632,
+                "isReduceOnly": false,
+                "mmrSysUpdateTime": "",
+                "leverageSysUpdatedTime": "",
+                "sessionAvgPrice": "",
+                "createdTime": "1676538056258",
+                "updatedTime": "1697673600012"
+            }
+        "#;
+        let result = serde_json::from_str::<PositionInfo>(json);
+        assert_eq!(result.unwrap().avg_price, Some(27464.50441675));
+    }
 }
 
 #[derive(Clone, Default)]
