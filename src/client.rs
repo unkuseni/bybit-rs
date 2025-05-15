@@ -1,4 +1,4 @@
-
+use std::any::type_name;
 
 use tokio::net::TcpStream;
 
@@ -383,10 +383,6 @@ impl Client {
         // Match the status code of the response
         match response.status() {
             // If the status code is OK, deserialize the response body into T and return it
-            StatusCode::OK => {
-                let response = response.json::<T>().await?;
-                Ok(response)
-            }
             StatusCode::OK => match response.json::<T>().await {
                 Ok(data) => Ok(data),
                 Err(e) => Err(BybitError::Base(format!(
