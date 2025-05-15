@@ -416,7 +416,11 @@ pub struct PriceFilter {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LotSizeFilter {
-    #[serde(rename = "basePrecision", skip_serializing_if = "Option::is_none", default)]
+    #[serde(
+        rename = "basePrecision",
+        skip_serializing_if = "Option::is_none",
+        default
+    )]
     pub base_precision: Option<String>,
     #[serde(rename = "quotePrecision", skip_serializing_if = "Option::is_none")]
     pub quote_precision: Option<String>,
@@ -2139,7 +2143,6 @@ pub struct CanceledOrder {
     pub order_link_id: String,
 }
 
-
 #[derive(Clone)]
 pub enum RequestType<'a> {
     Create(BatchPlaceRequest<'a>),
@@ -2198,63 +2201,136 @@ pub struct InfoResult {
     pub category: String,
 }
 
+mod string_to_float_default_zero {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert f64 to string
+    pub fn serialize<S>(value: &f64, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&value.to_string())
+    }
+
+    // Deserialization: Parse string to f64, return 0.0 for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<f64, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(0.0) // Return 0.0 for empty string
+        } else {
+            f64::from_str(&s).map_err(serde::de::Error::custom)
+        }
+    }
+}
+
+mod string_to_float_optional {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert Option<f64> to string
+    pub fn serialize<S>(value: &Option<f64>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            Some(v) => serializer.serialize_str(&v.to_string()),
+            None => serializer.serialize_str(""),
+        }
+    }
+
+    // Deserialization: Parse string to Option<f64>, return None for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(None) // Return None for empty string
+        } else {
+            f64::from_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PositionInfo {
-    #[serde(rename = "positionIdx")]
     pub position_idx: i32,
+
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
+
     pub symbol: String,
+
     pub side: String,
+
     #[serde(with = "string_to_float")]
     pub size: f64,
-    #[serde(with = "string_to_float")]
-    pub avg_price: f64,
-    #[serde(rename = "positionValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub session_avg_price: Option<f64>,
+
     pub position_value: f64,
-    #[serde(rename = "tradeMode")]
+
     pub trade_mode: i32,
-    #[serde(rename = "positionStatus")]
+
     pub position_status: String,
-    #[serde(rename = "autoAddMargin")]
+
     pub auto_add_margin: i32,
-    #[serde(rename = "adlRankIndicator")]
+
     pub adl_rank_indicator: i32,
+
+    #[serde(with = "string_to_float_optional")]
+    pub leverage: Option<f64>,
+
     #[serde(with = "string_to_float")]
-    pub leverage: f64,
-    #[serde(rename = "positionBalance", with = "string_to_float")]
     pub position_balance: f64,
-    #[serde(rename = "markPrice")]
-    pub mark_price: String,
-    #[serde(rename = "liqPrice")]
-    pub liq_price: String,
-    #[serde(rename = "bustPrice")]
+
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub liq_price: Option<f64>,
+
     pub bust_price: String,
-    #[serde(rename = "positionMM", with = "string_to_float")]
-    pub position_mm: f64,
-    #[serde(rename = "positionIM", with = "string_to_float")]
-    pub position_im: f64,
-    #[serde(rename = "tpslMode")]
+
+    #[serde(rename = "positionMM", with = "string_to_float_optional")]
+    pub position_mm: Option<f64>,
+
+    #[serde(rename = "positionIM", with = "string_to_float_optional")]
+    pub position_im: Option<f64>,
+
     pub tpsl_mode: String,
+
     pub take_profit: String,
+
     pub stop_loss: String,
+
     pub trailing_stop: String,
-    #[serde(rename = "unrealisedPnl", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub unrealised_pnl: f64,
-    #[serde(rename = "cumRealisedPnl", with = "string_to_float")]
-    pub cum_realised_pnl: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub cum_realised_pnl: Option<f64>,
+
     pub seq: u64,
-    #[serde(rename = "isReduceOnly")]
+
     pub is_reduce_only: bool,
-    #[serde(rename = "mmrSysUpdateTime")]
+
     pub mmr_sys_update_time: String,
-    #[serde(rename = "leverageSysUpdatedTime")]
+
     pub leverage_sys_updated_time: String,
-    #[serde(rename = "createdTime")]
+
     pub created_time: String,
-    #[serde(rename = "updatedTime")]
     pub updated_time: String,
 }
 
@@ -3300,7 +3376,7 @@ pub enum WebsocketEvents {
     OrderEvent(OrderEvent),
     Wallet(WalletEvent),
     TradeStream(TradeStreamEvent),
-    FastExecEvent(FastExecution)
+    FastExecEvent(FastExecution),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -3725,13 +3801,12 @@ pub struct ExecutionData {
 unsafe impl Send for ExecutionData {}
 unsafe impl Sync for ExecutionData {}
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FastExecution {
     pub topic: String,
     #[serde(rename = "creationTime")]
     pub creation_time: u64,
-    pub data:  Vec<FastExecData>
+    pub data: Vec<FastExecData>,
 }
 
 unsafe impl Send for FastExecution {}
@@ -3758,8 +3833,7 @@ pub struct FastExecData {
 }
 
 unsafe impl Send for FastExecData {}
-unsafe impl Sync for  FastExecData {}
-
+unsafe impl Sync for FastExecData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderData {
