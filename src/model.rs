@@ -2185,6 +2185,7 @@ impl<'a> PositionRequest<'a> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct InfoResponse {
     pub ret_code: i32,
     pub ret_msg: String,
