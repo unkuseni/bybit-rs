@@ -387,6 +387,14 @@ impl Client {
                 let response = response.json::<T>().await?;
                 Ok(response)
             }
+            StatusCode::OK => match response.json::<T>().await {
+                Ok(data) => Ok(data),
+                Err(e) => Err(BybitError::Base(format!(
+                    "Json decode error parsing response as {} {:?}",
+                    type_name::<T>(),
+                    e
+                ))),
+            },
             // If the status code is BAD_REQUEST, deserialize the response body into BybitContentError and
             // wrap it in BybitError and return it
             StatusCode::BAD_REQUEST => {
