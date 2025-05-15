@@ -2328,12 +2328,17 @@ pub struct PositionInfo {
 
     pub is_reduce_only: bool,
 
-    pub mmr_sys_updated_time: String,
+    #[serde(with = "string_to_u64_optional")]
+    pub mmr_sys_update_time: Option<u64>,
 
-    pub leverage_sys_updated_time: String,
+    #[serde(with = "string_to_u64_optional")]
+    pub leverage_sys_updated_time: Option<u64>,
 
-    pub created_time: String,
-    pub updated_time: String,
+    #[serde(with = "string_to_u64")]
+    pub created_time: u64,
+
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
 }
 #[cfg(test)]
 mod test_decode_position_info {
@@ -2342,44 +2347,49 @@ mod test_decode_position_info {
     #[test]
     fn test_deserialize() {
         let json = r#"
-            {
-                "symbol": "BTCUSDT",
-                "leverage": "10",
-                "autoAddMargin": 0,
-                "avgPrice": "0",
-                "liqPrice": "",
-                "riskLimitValue": "2000000",
-                "takeProfit": "",
-                "positionValue": "",
-                "isReduceOnly": false,
-                "tpslMode": "Full",
-                "riskId": 1,
-                "trailingStop": "0",
-                "unrealisedPnl": "",
-                "markPrice": "102933.4",
-                "adlRankIndicator": 0,
-                "cumRealisedPnl": "-831.1052256",
-                "positionMM": "0",
-                "createdTime": "1747213635707",
+             {
                 "positionIdx": 0,
-                "positionIM": "0",
-                "seq": 9462192883,
-                "updatedTime": "1747231686827",
-                "side": "",
-                "bustPrice": "",
-                "positionBalance": "0",
-                "leverageSysUpdatedTime": "",
-                "curRealisedPnl": "0",
-                "size": "0",
-                "positionStatus": "Normal",
-                "mmrSysUpdatedTime": "",
-                "stopLoss": "",
+                "riskId": 1,
+                "riskLimitValue": "150",
+                "symbol": "BTCUSD",
+                "side": "Sell",
+                "size": "300",
+                "avgPrice": "27464.50441675",
+                "positionValue": "0.01092319",
                 "tradeMode": 0,
-                "sessionAvgPrice": ""
+                "positionStatus": "Normal",
+                "autoAddMargin": 1,
+                "adlRankIndicator": 2,
+                "leverage": "10",
+                "positionBalance": "0.00139186",
+                "markPrice": "28224.50",
+                "liqPrice": "",
+                "bustPrice": "999999.00",
+                "positionMM": "0.0000015",
+                "positionIM": "0.00010923",
+                "tpslMode": "Full",
+                "takeProfit": "0.00",
+                "stopLoss": "0.00",
+                "trailingStop": "0.00",
+                "unrealisedPnl": "-0.00029413",
+                "curRealisedPnl": "0.00013123",
+                "cumRealisedPnl": "-0.00096902",
+                "seq": 5723621632,
+                "isReduceOnly": false,
+                "mmrSysUpdateTime": "1676538056444",
+                "leverageSysUpdatedTime": "1676538056333",
+                "sessionAvgPrice": "",
+                "createdTime": "1676538056258",
+                "updatedTime": "1697673600012"
             }
         "#;
         let result = serde_json::from_str::<PositionInfo>(json);
-        assert_eq!(result.unwrap().cum_realised_pnl, Some(-831.1052256));
+        let result = result.unwrap();
+        assert_eq!(result.cum_realised_pnl, Some(-0.00096902));
+        assert_eq!(result.mmr_sys_update_time, Some(1676538056444));
+        assert_eq!(result.leverage_sys_updated_time, Some(1676538056333));
+        assert_eq!(result.created_time, 1676538056258);
+        assert_eq!(result.updated_time, 1697673600012);
     }
 }
 
@@ -4088,7 +4098,7 @@ mod string_to_u64 {
     }
 }
 
-mod string_to_float {
+pub mod string_to_float {
     use serde::{self, Deserialize, Deserializer, Serializer};
 
     // Serialize a u64 as a string.
@@ -4107,5 +4117,36 @@ mod string_to_float {
     {
         let s = String::deserialize(deserializer)?;
         s.parse::<f64>().map_err(serde::de::Error::custom)
+    }
+}
+
+mod string_to_u64_optional {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert Option<u64> to string
+    pub fn serialize<S>(value: &Option<u64>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            Some(v) => serializer.serialize_str(&v.to_string()),
+            None => serializer.serialize_str(""),
+        }
+    }
+
+    // Deserialization: Parse string to Option<u64>, return None for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(None) // Return None for empty string
+        } else {
+            u64::from_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
     }
 }
