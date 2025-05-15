@@ -1710,86 +1710,150 @@ pub struct OrderHistory {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Orders {
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
     pub symbol: String,
+
     #[serde(with = "string_to_float")]
     pub price: f64,
+
     #[serde(with = "string_to_float")]
     pub qty: f64,
+
     pub side: Side,
-    #[serde(rename = "isLeverage", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub is_leverage: String,
-    #[serde(rename = "positionIdx")]
+
     pub position_idx: i32,
-    #[serde(rename = "orderStatus")]
     pub order_status: String,
-    #[serde(rename = "cancelType")]
     pub cancel_type: String,
-    #[serde(rename = "rejectReason")]
     pub reject_reason: String,
-    #[serde(rename = "avgPrice", with = "string_to_float")]
-    pub avg_price: f64,
-    #[serde(rename = "leavesQty", with = "string_to_float")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub avg_price: Option<f64>,
+
+    #[serde(with = "string_to_float")]
     pub leaves_qty: f64,
-    #[serde(rename = "leavesValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub leaves_value: f64,
-    #[serde(rename = "cumExecQty", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_qty: f64,
-    #[serde(rename = "cumExecValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_value: f64,
-    #[serde(rename = "cumExecFee", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_fee: f64,
-    #[serde(rename = "timeInForce")]
+
     pub time_in_force: String,
-    #[serde(rename = "orderType")]
     pub order_type: OrderType,
-    #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
-    #[serde(rename = "orderIv", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub order_iv: String,
-    #[serde(rename = "triggerPrice", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub trigger_price: f64,
-    #[serde(rename = "takeProfit", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub take_profit: f64,
-    #[serde(rename = "stopLoss", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub stop_loss: f64,
-    #[serde(rename = "tpTriggerBy")]
+
     pub tp_trigger_by: String,
-    #[serde(rename = "slTriggerBy")]
     pub sl_trigger_by: String,
-    #[serde(rename = "triggerDirection")]
     pub trigger_direction: i32,
-    #[serde(rename = "triggerBy")]
     pub trigger_by: String,
-    #[serde(rename = "lastPriceOnCreated", with = "string_to_float")]
-    pub last_price_on_created: f64,
-    #[serde(rename = "reduceOnly")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub last_price_on_created: Option<f64>,
+
     pub reduce_only: bool,
-    #[serde(rename = "closeOnTrigger")]
     pub close_on_trigger: bool,
-    #[serde(rename = "smpType")]
     pub smp_type: String,
-    #[serde(rename = "smpGroup")]
     pub smp_group: i32,
-    #[serde(rename = "smpOrderId", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub smp_order_id: String,
-    #[serde(rename = "tpslMode", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub tpsl_mode: String,
-    #[serde(rename = "tpLimitPrice", with = "string_to_float")]
-    pub tp_limit_price: f64,
-    #[serde(rename = "slLimitPrice", with = "string_to_float")]
-    pub sl_limit_price: f64,
-    #[serde(rename = "placeType", skip_serializing_if = "String::is_empty")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub tp_limit_price: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub sl_limit_price: Option<f64>,
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub place_type: String,
+
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
+
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_orders() {
+        let json = r#"
+        {
+                "orderId": "fd4300ae-7847-404e-b947-b46980a4d140",
+                "orderLinkId": "test-000005",
+                "blockTradeId": "",
+                "symbol": "ETHUSDT",
+                "price": "1600.00",
+                "qty": "0.10",
+                "side": "Buy",
+                "isLeverage": "",
+                "positionIdx": 1,
+                "orderStatus": "New",
+                "cancelType": "UNKNOWN",
+                "rejectReason": "EC_NoError",
+                "avgPrice": "0",
+                "leavesQty": "0.10",
+                "leavesValue": "160",
+                "cumExecQty": "0.00",
+                "cumExecValue": "0",
+                "cumExecFee": "0",
+                "timeInForce": "GTC",
+                "orderType": "Limit",
+                "stopOrderType": "UNKNOWN",
+                "orderIv": "",
+                "triggerPrice": "0.00",
+                "takeProfit": "2500.00",
+                "stopLoss": "1500.00",
+                "tpTriggerBy": "LastPrice",
+                "slTriggerBy": "LastPrice",
+                "triggerDirection": 0,
+                "triggerBy": "UNKNOWN",
+                "lastPriceOnCreated": "",
+                "reduceOnly": false,
+                "closeOnTrigger": false,
+                "smpType": "None",
+                "smpGroup": 0,
+                "smpOrderId": "",
+                "tpslMode": "Full",
+                "tpLimitPrice": "",
+                "slLimitPrice": "",
+                "placeType": "",
+                "createdTime": "1684738540559",
+                "updatedTime": "1684738540561"
+            }
+        "#;
+        let order: Orders = serde_json::from_str(json).unwrap();
+        assert_eq!(order.order_id, "fd4300ae-7847-404e-b947-b46980a4d140");
+    }
 }
 
 #[derive(Clone, Default)]
