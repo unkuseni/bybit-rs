@@ -2278,8 +2278,8 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float_optional")]
     pub avg_price: Option<f64>,
 
-    #[serde(with = "string_to_float")]
-    pub position_value: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub position_value: Option<f64>,
 
     pub trade_mode: i32,
 
@@ -2317,8 +2317,8 @@ pub struct PositionInfo {
 
     pub trailing_stop: String,
 
-    #[serde(with = "string_to_float")]
-    pub unrealised_pnl: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub unrealised_pnl: Option<f64>,
 
     #[serde(with = "string_to_float_optional")]
     pub cum_realised_pnl: Option<f64>,
@@ -2327,7 +2327,7 @@ pub struct PositionInfo {
 
     pub is_reduce_only: bool,
 
-    pub mmr_sys_update_time: String,
+    pub mmr_sys_updated_time: String,
 
     pub leverage_sys_updated_time: String,
 
@@ -2342,43 +2342,43 @@ mod test_decode_position_info {
     fn test_deserialize() {
         let json = r#"
             {
-                "positionIdx": 0,
-                "riskId": 1,
-                "riskLimitValue": "150",
-                "symbol": "BTCUSD",
-                "side": "Sell",
-                "size": "300",
-                "avgPrice": "27464.50441675",
-                "positionValue": "0.01092319",
-                "tradeMode": 0,
-                "positionStatus": "Normal",
-                "autoAddMargin": 1,
-                "adlRankIndicator": 2,
+                "symbol": "BTCUSDT",
                 "leverage": "10",
-                "positionBalance": "0.00139186",
-                "markPrice": "28224.50",
+                "autoAddMargin": 0,
+                "avgPrice": "0",
                 "liqPrice": "",
-                "bustPrice": "999999.00",
-                "positionMM": "0.0000015",
-                "positionIM": "0.00010923",
-                "tpslMode": "Full",
-                "takeProfit": "0.00",
-                "stopLoss": "0.00",
-                "trailingStop": "0.00",
-                "unrealisedPnl": "-0.00029413",
-                "curRealisedPnl": "0.00013123",
-                "cumRealisedPnl": "-0.00096902",
-                "seq": 5723621632,
+                "riskLimitValue": "2000000",
+                "takeProfit": "",
+                "positionValue": "",
                 "isReduceOnly": false,
-                "mmrSysUpdateTime": "",
+                "tpslMode": "Full",
+                "riskId": 1,
+                "trailingStop": "0",
+                "unrealisedPnl": "",
+                "markPrice": "102933.4",
+                "adlRankIndicator": 0,
+                "cumRealisedPnl": "-831.1052256",
+                "positionMM": "0",
+                "createdTime": "1747213635707",
+                "positionIdx": 0,
+                "positionIM": "0",
+                "seq": 9462192883,
+                "updatedTime": "1747231686827",
+                "side": "",
+                "bustPrice": "",
+                "positionBalance": "0",
                 "leverageSysUpdatedTime": "",
-                "sessionAvgPrice": "",
-                "createdTime": "1676538056258",
-                "updatedTime": "1697673600012"
+                "curRealisedPnl": "0",
+                "size": "0",
+                "positionStatus": "Normal",
+                "mmrSysUpdatedTime": "",
+                "stopLoss": "",
+                "tradeMode": 0,
+                "sessionAvgPrice": ""
             }
         "#;
         let result = serde_json::from_str::<PositionInfo>(json);
-        assert_eq!(result.unwrap().avg_price, Some(27464.50441675));
+        assert_eq!(result.unwrap().cum_realised_pnl, Some(-831.1052256));
     }
 }
 
