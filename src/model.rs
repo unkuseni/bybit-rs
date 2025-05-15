@@ -1759,11 +1759,11 @@ pub struct Orders {
     #[serde(with = "string_to_float")]
     pub trigger_price: f64,
 
-    #[serde(with = "string_to_float")]
-    pub take_profit: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub take_profit: Option<f64>,
 
-    #[serde(with = "string_to_float")]
-    pub stop_loss: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub stop_loss: Option<f64>,
 
     pub tp_trigger_by: String,
     pub sl_trigger_by: String,
