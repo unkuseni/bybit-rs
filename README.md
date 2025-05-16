@@ -14,12 +14,12 @@ This is simply a bybit V5 api connector using binance-rs implementation, Some pa
 ### FEATURES
 
 - **REST API:**
-  - **Market Data:** Access to K-line, tickers, order book, and more. (see [`tests/market_test.rs`](https://github.com/unkuseni/bybit-rs/tests/market_test.rs))
-  - **Trade:** Functionality for placing, amending, and canceling orders. (see [`tests/trade_test.rs`](https://github.com/unkuseni/bybit-rs/tests/trade_test.rs))
-  - **Position:** Manage your trading positions. (see [`tests/position_test.rs`](https://github.com/unkuseni/bybit-rs/tests/position_test.rs))
-  - **Account & Asset:** These sections are currently under active development. See the [Under Development](#under-development) section for more details. (see [`tests/account_test.rs`](https://github.com/unkuseni/bybit-rs/tests/account_test.rs) for progress)
+  - **Market Data:** Access to K-line, tickers, order book, and more. (see [`tests/market_test.rs`](https://github.com/unkuseni/rs_bybit/tests/market_test.rs))
+  - **Trade:** Functionality for placing, amending, and canceling orders. (see [`tests/trade_test.rs`](https://github.com/unkuseni/rs_bybit/tests/trade_test.rs))
+  - **Position:** Manage your trading positions. (see [`tests/position_test.rs`](https://github.com/unkuseni/rs_bybit/tests/position_test.rs))
+  - **Account & Asset:** These sections are currently under active development. See the [Under Development](#under-development) section for more details. (see [`tests/account_test.rs`](https://github.com/unkuseni/rs_bybit/tests/account_test.rs) for progress)
 - **Websocket API:**
-  - Support for subscribing to real-time public and private data streams. (see [`tests/ws_test.rs`](https://github.com/unkuseni/bybit-rs/tests/ws_test.rs))
+  - Support for subscribing to real-time public and private data streams. (see [`tests/ws_test.rs`](https://github.com/unkuseni/rs_bybit/tests/ws_test.rs))
 
 ### INSTALLATION
 
