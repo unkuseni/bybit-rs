@@ -1,12 +1,12 @@
 [package]
 name = "rs_bybit"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 readme = "README.md"
 license = "MIT"
 categories = ["api-bindings"]
 description = "Bybit V5 API bindings in Rust"
-repository = "https://github.com/unkuseni/bybit-rs"
+repository = "https://github.com/unkuseni/rs_bybit"
 authors = ["unkuseni <twitter.com/unkuseni>"]
 
 [lib]
