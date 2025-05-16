@@ -1,3 +1,5 @@
+use std::any::type_name;
+
 use tokio::net::TcpStream;
 
 use crate::api::{WebsocketAPI, API};
@@ -241,7 +243,7 @@ impl Client {
         // Get the receive window
         let window = recv_window.to_string();
         // Sign the request
-        let signature = self.sign_message(&timestamp, &window, request)?;
+        let signature = self.sign_message(&timestamp, &window, request);
 
         // Set the headers
         let signature_header = HeaderName::from_static("x-bapi-sign");
@@ -298,20 +300,9 @@ impl Client {
     /// If a request body is provided, it appends it to the sign message.
     /// The function then uses the HMAC-SHA256 algorithm to sign the message.
     /// The result is hex-encoded and returned as a string.
-
-    fn mac_from_secret_key(&self) -> Result<Hmac<Sha256>, BybitError> {
-        Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes())
-            .map_err(|e| BybitError::Base(format!("Failed to create Hmac, error: {:?}", e)))
-    }
-
-    fn sign_message(
-        &self,
-        timestamp: &str,
-        recv_window: &str,
-        request: Option<String>,
-    ) -> Result<String, BybitError> {
+    fn sign_message(&self, timestamp: &str, recv_window: &str, request: Option<String>) -> String {
         // Create a new HMAC SHA256 instance with the secret key
-        let mut mac = self.mac_from_secret_key()?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
 
         // Create the sign message by concatenating the timestamp, API key, and receive window
         let mut sign_message = format!("{}{}{}", timestamp, self.api_key, recv_window);
@@ -327,7 +318,7 @@ impl Client {
         // Finalize the MAC and encode the result as a hex string
         let hex_signature = hex_encode(mac.finalize().into_bytes());
 
-        Ok(hex_signature)
+        hex_signature
     }
 
     /// Internal function to sign a POST request message.
@@ -346,9 +337,10 @@ impl Client {
         timestamp: &str,
         recv_window: &str,
         request: Option<String>,
-    ) -> Result<String, BybitError> {
+    ) -> String {
         // Create a new HMAC SHA256 instance with the secret key
-        let mut mac = self.mac_from_secret_key()?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
+
         // Update the MAC with the timestamp
         mac.update(timestamp.as_bytes());
         // Update the MAC with the API key
@@ -363,7 +355,7 @@ impl Client {
         // Finalize the MAC and encode the result as a hex string
         let hex_signature = hex_encode(mac.finalize().into_bytes());
 
-        Ok(hex_signature)
+        hex_signature
     }
 
     /// Internal function to handle the response from a HTTP request.
@@ -391,10 +383,14 @@ impl Client {
         // Match the status code of the response
         match response.status() {
             // If the status code is OK, deserialize the response body into T and return it
-            StatusCode::OK => {
-                let response = response.json::<T>().await?;
-                Ok(response)
-            }
+            StatusCode::OK => match response.json::<T>().await {
+                Ok(data) => Ok(data),
+                Err(e) => Err(BybitError::Base(format!(
+                    "Json decode error parsing response as {} {:?}",
+                    type_name::<T>(),
+                    e
+                ))),
+            },
             // If the status code is BAD_REQUEST, deserialize the response body into BybitContentError and
             // wrap it in BybitError and return it
             StatusCode::BAD_REQUEST => {
@@ -442,7 +438,7 @@ impl Client {
         let expires = get_timestamp() + expiry_time as u64;
 
         // Calculate the signature for the authentication message
-        let mut mac = self.mac_from_secret_key()?;
+        let mut mac = Hmac::<Sha256>::new_from_slice(self.secret_key.as_bytes()).unwrap();
         mac.update(format!("GET/realtime{expires}").as_bytes());
         let signature = hex_encode(mac.finalize().into_bytes());
 

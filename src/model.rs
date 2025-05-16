@@ -416,7 +416,11 @@ pub struct PriceFilter {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LotSizeFilter {
-    #[serde(rename = "basePrecision", skip_serializing_if = "Option::is_none", default)]
+    #[serde(
+        rename = "basePrecision",
+        skip_serializing_if = "Option::is_none",
+        default
+    )]
     pub base_precision: Option<String>,
     #[serde(rename = "quotePrecision", skip_serializing_if = "Option::is_none")]
     pub quote_precision: Option<String>,
@@ -1706,86 +1710,150 @@ pub struct OrderHistory {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Orders {
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
     pub symbol: String,
+
     #[serde(with = "string_to_float")]
     pub price: f64,
+
     #[serde(with = "string_to_float")]
     pub qty: f64,
+
     pub side: Side,
-    #[serde(rename = "isLeverage", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub is_leverage: String,
-    #[serde(rename = "positionIdx")]
+
     pub position_idx: i32,
-    #[serde(rename = "orderStatus")]
     pub order_status: String,
-    #[serde(rename = "cancelType")]
     pub cancel_type: String,
-    #[serde(rename = "rejectReason")]
     pub reject_reason: String,
-    #[serde(rename = "avgPrice", with = "string_to_float")]
-    pub avg_price: f64,
-    #[serde(rename = "leavesQty", with = "string_to_float")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub avg_price: Option<f64>,
+
+    #[serde(with = "string_to_float")]
     pub leaves_qty: f64,
-    #[serde(rename = "leavesValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub leaves_value: f64,
-    #[serde(rename = "cumExecQty", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_qty: f64,
-    #[serde(rename = "cumExecValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_value: f64,
-    #[serde(rename = "cumExecFee", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub cum_exec_fee: f64,
-    #[serde(rename = "timeInForce")]
+
     pub time_in_force: String,
-    #[serde(rename = "orderType")]
     pub order_type: OrderType,
-    #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
-    #[serde(rename = "orderIv", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub order_iv: String,
-    #[serde(rename = "triggerPrice", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub trigger_price: f64,
-    #[serde(rename = "takeProfit", with = "string_to_float")]
-    pub take_profit: f64,
-    #[serde(rename = "stopLoss", with = "string_to_float")]
-    pub stop_loss: f64,
-    #[serde(rename = "tpTriggerBy")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub take_profit: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub stop_loss: Option<f64>,
+
     pub tp_trigger_by: String,
-    #[serde(rename = "slTriggerBy")]
     pub sl_trigger_by: String,
-    #[serde(rename = "triggerDirection")]
     pub trigger_direction: i32,
-    #[serde(rename = "triggerBy")]
     pub trigger_by: String,
-    #[serde(rename = "lastPriceOnCreated", with = "string_to_float")]
-    pub last_price_on_created: f64,
-    #[serde(rename = "reduceOnly")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub last_price_on_created: Option<f64>,
+
     pub reduce_only: bool,
-    #[serde(rename = "closeOnTrigger")]
     pub close_on_trigger: bool,
-    #[serde(rename = "smpType")]
     pub smp_type: String,
-    #[serde(rename = "smpGroup")]
     pub smp_group: i32,
-    #[serde(rename = "smpOrderId", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub smp_order_id: String,
-    #[serde(rename = "tpslMode", skip_serializing_if = "String::is_empty")]
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub tpsl_mode: String,
-    #[serde(rename = "tpLimitPrice", with = "string_to_float")]
-    pub tp_limit_price: f64,
-    #[serde(rename = "slLimitPrice", with = "string_to_float")]
-    pub sl_limit_price: f64,
-    #[serde(rename = "placeType", skip_serializing_if = "String::is_empty")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub tp_limit_price: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub sl_limit_price: Option<f64>,
+
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub place_type: String,
+
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
+
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_orders() {
+        let json = r#"
+        {
+                "orderId": "fd4300ae-7847-404e-b947-b46980a4d140",
+                "orderLinkId": "test-000005",
+                "blockTradeId": "",
+                "symbol": "ETHUSDT",
+                "price": "1600.00",
+                "qty": "0.10",
+                "side": "Buy",
+                "isLeverage": "",
+                "positionIdx": 1,
+                "orderStatus": "New",
+                "cancelType": "UNKNOWN",
+                "rejectReason": "EC_NoError",
+                "avgPrice": "0",
+                "leavesQty": "0.10",
+                "leavesValue": "160",
+                "cumExecQty": "0.00",
+                "cumExecValue": "0",
+                "cumExecFee": "0",
+                "timeInForce": "GTC",
+                "orderType": "Limit",
+                "stopOrderType": "UNKNOWN",
+                "orderIv": "",
+                "triggerPrice": "0.00",
+                "takeProfit": "2500.00",
+                "stopLoss": "1500.00",
+                "tpTriggerBy": "LastPrice",
+                "slTriggerBy": "LastPrice",
+                "triggerDirection": 0,
+                "triggerBy": "UNKNOWN",
+                "lastPriceOnCreated": "",
+                "reduceOnly": false,
+                "closeOnTrigger": false,
+                "smpType": "None",
+                "smpGroup": 0,
+                "smpOrderId": "",
+                "tpslMode": "Full",
+                "tpLimitPrice": "",
+                "slLimitPrice": "",
+                "placeType": "",
+                "createdTime": "1684738540559",
+                "updatedTime": "1684738540561"
+            }
+        "#;
+        let order: Orders = serde_json::from_str(json).unwrap();
+        assert_eq!(order.order_id, "fd4300ae-7847-404e-b947-b46980a4d140");
+    }
 }
 
 #[derive(Clone, Default)]
@@ -2139,7 +2207,6 @@ pub struct CanceledOrder {
     pub order_link_id: String,
 }
 
-
 #[derive(Clone)]
 pub enum RequestType<'a> {
     Create(BatchPlaceRequest<'a>),
@@ -2182,6 +2249,7 @@ impl<'a> PositionRequest<'a> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct InfoResponse {
     pub ret_code: i32,
     pub ret_msg: String,
@@ -2198,64 +2266,195 @@ pub struct InfoResult {
     pub category: String,
 }
 
+mod string_to_float_default_zero {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert f64 to string
+    pub fn serialize<S>(value: &f64, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&value.to_string())
+    }
+
+    // Deserialization: Parse string to f64, return 0.0 for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<f64, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(0.0) // Return 0.0 for empty string
+        } else {
+            f64::from_str(&s).map_err(serde::de::Error::custom)
+        }
+    }
+}
+
+mod string_to_float_optional {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert Option<f64> to string
+    pub fn serialize<S>(value: &Option<f64>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            Some(v) => serializer.serialize_str(&v.to_string()),
+            None => serializer.serialize_str(""),
+        }
+    }
+
+    // Deserialization: Parse string to Option<f64>, return None for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(None) // Return None for empty string
+        } else {
+            f64::from_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PositionInfo {
-    #[serde(rename = "positionIdx")]
     pub position_idx: i32,
+
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue", with = "string_to_float")]
+
+    #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
+
     pub symbol: String,
+
     pub side: String,
+
     #[serde(with = "string_to_float")]
     pub size: f64,
-    #[serde(with = "string_to_float")]
-    pub avg_price: f64,
-    #[serde(rename = "positionValue", with = "string_to_float")]
-    pub position_value: f64,
-    #[serde(rename = "tradeMode")]
+
+    #[serde(with = "string_to_float_optional")]
+    pub avg_price: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub position_value: Option<f64>,
+
     pub trade_mode: i32,
-    #[serde(rename = "positionStatus")]
+
     pub position_status: String,
-    #[serde(rename = "autoAddMargin")]
+
     pub auto_add_margin: i32,
-    #[serde(rename = "adlRankIndicator")]
+
     pub adl_rank_indicator: i32,
+
+    #[serde(with = "string_to_float_optional")]
+    pub leverage: Option<f64>,
+
     #[serde(with = "string_to_float")]
-    pub leverage: f64,
-    #[serde(rename = "positionBalance", with = "string_to_float")]
     pub position_balance: f64,
-    #[serde(rename = "markPrice")]
-    pub mark_price: String,
-    #[serde(rename = "liqPrice")]
-    pub liq_price: String,
-    #[serde(rename = "bustPrice")]
+
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub liq_price: Option<f64>,
+
     pub bust_price: String,
-    #[serde(rename = "positionMM", with = "string_to_float")]
-    pub position_mm: f64,
-    #[serde(rename = "positionIM", with = "string_to_float")]
-    pub position_im: f64,
-    #[serde(rename = "tpslMode")]
+
+    #[serde(rename = "positionMM", with = "string_to_float_optional")]
+    pub position_mm: Option<f64>,
+
+    #[serde(rename = "positionIM", with = "string_to_float_optional")]
+    pub position_im: Option<f64>,
+
     pub tpsl_mode: String,
+
     pub take_profit: String,
+
     pub stop_loss: String,
+
     pub trailing_stop: String,
-    #[serde(rename = "unrealisedPnl", with = "string_to_float")]
-    pub unrealised_pnl: f64,
-    #[serde(rename = "cumRealisedPnl", with = "string_to_float")]
-    pub cum_realised_pnl: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub unrealised_pnl: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub cum_realised_pnl: Option<f64>,
+
     pub seq: u64,
-    #[serde(rename = "isReduceOnly")]
+
     pub is_reduce_only: bool,
-    #[serde(rename = "mmrSysUpdateTime")]
-    pub mmr_sys_update_time: String,
-    #[serde(rename = "leverageSysUpdatedTime")]
-    pub leverage_sys_updated_time: String,
-    #[serde(rename = "createdTime")]
-    pub created_time: String,
-    #[serde(rename = "updatedTime")]
-    pub updated_time: String,
+
+    #[serde(with = "string_to_u64_optional")]
+    pub mmr_sys_updated_time: Option<u64>,
+
+    #[serde(with = "string_to_u64_optional")]
+    pub leverage_sys_updated_time: Option<u64>,
+
+    #[serde(with = "string_to_u64")]
+    pub created_time: u64,
+
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
+}
+#[cfg(test)]
+mod test_decode_position_info {
+    use super::*;
+
+    #[test]
+    fn test_deserialize() {
+        let json = r#"
+             {
+                "positionIdx": 0,
+                "riskId": 1,
+                "riskLimitValue": "150",
+                "symbol": "BTCUSD",
+                "side": "Sell",
+                "size": "300",
+                "avgPrice": "27464.50441675",
+                "positionValue": "0.01092319",
+                "tradeMode": 0,
+                "positionStatus": "Normal",
+                "autoAddMargin": 1,
+                "adlRankIndicator": 2,
+                "leverage": "10",
+                "positionBalance": "0.00139186",
+                "markPrice": "28224.50",
+                "liqPrice": "",
+                "bustPrice": "999999.00",
+                "positionMM": "0.0000015",
+                "positionIM": "0.00010923",
+                "tpslMode": "Full",
+                "takeProfit": "0.00",
+                "stopLoss": "0.00",
+                "trailingStop": "0.00",
+                "unrealisedPnl": "-0.00029413",
+                "curRealisedPnl": "0.00013123",
+                "cumRealisedPnl": "-0.00096902",
+                "seq": 5723621632,
+                "isReduceOnly": false,
+                "mmrSysUpdatedTime": "1676538056444",
+                "leverageSysUpdatedTime": "1676538056333",
+                "sessionAvgPrice": "",
+                "createdTime": "1676538056258",
+                "updatedTime": "1697673600012"
+            }
+        "#;
+        let result = serde_json::from_str::<PositionInfo>(json);
+        let result = result.unwrap();
+        assert_eq!(result.cum_realised_pnl, Some(-0.00096902));
+        assert_eq!(result.mmr_sys_updated_time, Some(1676538056444));
+        assert_eq!(result.leverage_sys_updated_time, Some(1676538056333));
+        assert_eq!(result.created_time, 1676538056258);
+        assert_eq!(result.updated_time, 1697673600012);
+    }
 }
 
 #[derive(Clone, Default)]
@@ -3300,7 +3499,7 @@ pub enum WebsocketEvents {
     OrderEvent(OrderEvent),
     Wallet(WalletEvent),
     TradeStream(TradeStreamEvent),
-    FastExecEvent(FastExecution)
+    FastExecEvent(FastExecution),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -3725,13 +3924,12 @@ pub struct ExecutionData {
 unsafe impl Send for ExecutionData {}
 unsafe impl Sync for ExecutionData {}
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FastExecution {
     pub topic: String,
     #[serde(rename = "creationTime")]
     pub creation_time: u64,
-    pub data:  Vec<FastExecData>
+    pub data: Vec<FastExecData>,
 }
 
 unsafe impl Send for FastExecution {}
@@ -3758,8 +3956,7 @@ pub struct FastExecData {
 }
 
 unsafe impl Send for FastExecData {}
-unsafe impl Sync for  FastExecData {}
-
+unsafe impl Sync for FastExecData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderData {
@@ -3965,7 +4162,7 @@ mod string_to_u64 {
     }
 }
 
-mod string_to_float {
+pub mod string_to_float {
     use serde::{self, Deserialize, Deserializer, Serializer};
 
     // Serialize a u64 as a string.
@@ -3984,5 +4181,36 @@ mod string_to_float {
     {
         let s = String::deserialize(deserializer)?;
         s.parse::<f64>().map_err(serde::de::Error::custom)
+    }
+}
+
+mod string_to_u64_optional {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    // Serialization: Convert Option<u64> to string
+    pub fn serialize<S>(value: &Option<u64>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            Some(v) => serializer.serialize_str(&v.to_string()),
+            None => serializer.serialize_str(""),
+        }
+    }
+
+    // Deserialization: Parse string to Option<u64>, return None for empty string
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(None) // Return None for empty string
+        } else {
+            u64::from_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
     }
 }
