@@ -260,22 +260,23 @@ impl MarketData {
             .await?;
         Ok(response)
     }
-    /// Retrieves a list of futures instruments based on the specified filters.
+    /// Retrieves a list of instruments (Futures or Spot) based on the specified filters.
     ///
-    /// This function queries the exchange for futures instruments, optionally filtered by the provided
-    /// symbol, status, base coin, and result count limit.
+    /// This function queries the exchange for instruments, optionally filtered by the provided
+    /// symbol, status, base coin, and result count limit. It supports both Futures and Spot instruments,
+    /// returning results encapsulated in the `InstrumentInfo` enum.
     ///
     /// # Arguments
     ///
-    /// * `symbol` - An optional filter to specify the symbol of the futures instruments.
+    /// * `symbol` - An optional filter to specify the symbol of the instruments.
     /// * `status` - An optional boolean to indicate if only instruments with trading status should be retrieved.
-    /// * `base_coin` - An optional filter for the base coin of the futures instruments.
-    /// * `limit` - An optional limit on the number of futures instruments to be retrieved.
+    /// * `base_coin` - An optional filter for the base coin of the instruments.
+    /// * `limit` - An optional limit on the number of instruments to be retrieved.
     ///
     /// # Returns
     ///
-    /// A `Result<Vec<FuturesInstrument>, Error>` where the `Ok` variant contains the filtered list of
-    /// futures instruments, and the `Err` variant contains an error if the request fails or if the response
+    /// A `Result<InstrumentInfoResponse, Error>` where the `Ok` variant contains the filtered list of
+    /// instruments (Futures or Spot), and the `Err` variant contains an error if the request fails or if the response
     /// parsing encounters an issue.
     pub async fn get_instrument_info<'b>(
         &self,
@@ -345,16 +346,16 @@ impl MarketData {
 
         Ok(response)
     }
-
-    /// Asynchronously retrieves spot tickers based on the provided symbol.
+    /// Asynchronously retrieves tickers based on the provided symbol and category.
     ///
     /// # Arguments
     ///
     /// * `symbol` - An optional reference to a string representing the symbol.
+    /// * `category` - The market category (e.g., Linear, Inverse, Spot) for which tickers are to be retrieved.
     ///
     /// # Returns
     ///
-    /// A Result containing a vector of SpotTicker objects, or an error if the retrieval fails.
+    /// A Result containing a vector of Ticker objects, or an error if the retrieval fails.
     pub async fn get_tickers(
         &self,
         symbol: Option<&str>,
