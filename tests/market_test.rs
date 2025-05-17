@@ -19,14 +19,65 @@ mod tests {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
             Some(Category::Linear),
-            "MATICUSDT",
+            "ETHUSDT",
             "60",
             Some("010124"),
             Some("050224"),
             None,
         );
-        let premium = market.get_klines(request).await;
-        if let Ok(data) = premium {
+        let klines = market.get_klines(request).await;
+        if let Ok(data) = klines {
+            println!("{:#?}", data.result.list);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_mark_klines() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let mark_klines = market.get_mark_price_klines(request).await;
+        if let Ok(data) = mark_klines {
+            println!("{:#?}", data.result.list);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_index_klines() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let index_klines = market.get_index_price_klines(request).await;
+        if let Ok(data) = index_klines {
+            println!("{:#?}", data.result.list);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_premium_klines() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let premium_klines = market.get_premium_index_price_klines(request).await;
+        if let Ok(data) = premium_klines {
             println!("{:#?}", data.result.list);
         }
     }
@@ -118,8 +169,7 @@ mod tests {
     #[tokio::test]
     async fn test_open_interest() {
         let market: MarketData = Bybit::new(None, None);
-        let request =
-            OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
+        let request = OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
         let open_interest = market.get_open_interest(request).await;
         if let Ok(data) = open_interest {
             println!("{:#?}", data.result.list.last().unwrap());

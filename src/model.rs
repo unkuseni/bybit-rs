@@ -66,12 +66,9 @@ impl<'a> KlineRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct KlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: KlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -100,12 +97,9 @@ pub struct Kline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: MarkPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -132,12 +126,9 @@ pub struct MarkPriceKline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: IndexPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -164,12 +155,9 @@ pub struct IndexPriceKline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct PremiumIndexPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: PremiumIndexPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
