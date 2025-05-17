@@ -3,12 +3,12 @@ use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
     Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse,
-    FuturesInstrumentsInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
+    InstrumentInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
     HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentRequest, InsuranceResponse,
     KlineRequest, KlineResponse, LongShortRatioResponse, MarkPriceKlineResponse,
     OpenInterestRequest, OpeninterestResponse, OptionsInstrument, OrderBookResponse,
     OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse,
-    RiskLimitRequest, RiskLimitResponse, SpotInstrumentsInfoResponse, SpotTickersResponse,
+    RiskLimitRequest, RiskLimitResponse, SpotTickersResponse,
 };
 use crate::util::{build_request, date_to_milliseconds};
 
@@ -283,10 +283,10 @@ impl MarketData {
     /// A `Result<Vec<FuturesInstrument>, Error>` where the `Ok` variant contains the filtered list of
     /// futures instruments, and the `Err` variant contains an error if the request fails or if the response
     /// parsing encounters an issue.
-    pub async fn get_futures_instrument_info<'b>(
+    pub async fn get_instrument_info<'b>(
         &self,
         req: InstrumentRequest<'b>,
-    ) -> Result<FuturesInstrumentsInfoResponse, BybitError> {
+    ) -> Result<InstrumentInfoResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
@@ -311,53 +311,14 @@ impl MarketData {
             parameters.insert("limit".into(), l.to_string());
         }
         let request = build_request(&parameters);
-        let response: FuturesInstrumentsInfoResponse = self
+        let response: InstrumentInfoResponse = self
             .client
             .get(API::Market(Market::InstrumentsInfo), Some(request))
             .await?;
         Ok(response)
     }
 
-    /// Fetches details for spot instruments based on provided filters.
-    ///
-    /// # Arguments
-    ///
-    /// * `symbol` - An optional string to filter instruments by their symbol.
-    /// * `status` - A boolean to include only instruments that are currently trading when set to `true`.
-    /// * `base_coin` - An optional string to filter instruments by their base coin.
-    /// * `limit` - An optional usize to limit the number of instruments returned.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` containing a list of `SpotInstrument` instances matching the filters, or an error on failure.
-    ///
-    pub async fn get_spot_instrument_info<'b>(
-        &self,
-        req: InstrumentRequest<'_>,
-    ) -> Result<SpotInstrumentsInfoResponse, BybitError> {
-        let mut parameters: BTreeMap<String, String> = BTreeMap::new();
-        parameters.insert("category".into(), "Spot".into());
-        if let Some(symbol) = req.symbol {
-            parameters.insert("symbol".into(), symbol.into());
-        }
-        if let Some(status) = req.status {
-            if status {
-                parameters.insert("status".into(), "Trading".into());
-            }
-        }
-        if let Some(base_coin) = req.base_coin {
-            parameters.insert("baseCoin".into(), base_coin.into());
-        }
-        if let Some(l) = req.limit {
-            parameters.insert("limit".into(), l.to_string());
-        }
-        let request = build_request(&parameters);
-        let response: SpotInstrumentsInfoResponse = self
-            .client
-            .get(API::Market(Market::InstrumentsInfo), Some(request))
-            .await?;
-        Ok(response)
-    }
+    
 
     pub async fn get_options_instrument_info<'b>(
         &self,

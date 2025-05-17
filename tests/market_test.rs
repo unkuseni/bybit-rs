@@ -1,7 +1,7 @@
 use bybit::api::*;
 use bybit::config::*;
 use bybit::market::*;
-use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest};
+use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest, InstrumentInfo};
 use tokio;
 use tokio::time::{Duration, Instant};
 
@@ -83,16 +83,28 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_instrument() {
+    async fn test_futures_instrument() {
         let market: MarketData = Bybit::new(None, None);
-        let request = InstrumentRequest::new(Category::Linear, Some("APTUSDT"), None, None, None);
-        let instrument = market.get_futures_instrument_info(request.clone()).await;
+        let request = InstrumentRequest::new(Category::Linear, Some("ETHUSDT"), None, None, None);
+        let instrument = market.get_instrument_info(request).await;
         if let Ok(data) = instrument {
-            println!("{:#?}", data.result.list[0]);
+            match data.result {
+             InstrumentInfo::Futures(futures) => println!("{:#?}", futures.list[0]),
+             _ => println!("not futures"),
+            }
         }
-        let spot_instrument = market.get_spot_instrument_info(request).await;
-        if let Ok(data) = spot_instrument {
-            println!("{:#?}", data.result.list[0]);
+    }
+
+    #[tokio::test]
+    async fn test_spot_instrument() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = InstrumentRequest::new(Category::Spot, Some("ETHUSDT"), None, None, None);
+        let instrument = market.get_instrument_info(request).await;
+        if let Ok(data) = instrument {
+            match data.result {
+            InstrumentInfo::Spot(spot) => println!("{:#?}", spot.list[0]),
+            _ => println!("not spot"),
+            }
         }
     }
 

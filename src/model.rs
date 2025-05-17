@@ -212,15 +212,20 @@ impl<'a> InstrumentRequest<'a> {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct FuturesInstrumentsInfoResponse {
-    #[serde(rename = "retCode")]
+pub struct InstrumentInfoResponse {
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
-    pub result: FuturesInstrumentsInfo,
-    #[serde(rename = "retExtInfo")]
+    pub result: InstrumentInfo,
     pub ret_ext_info: Empty,
     pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum InstrumentInfo {
+    Futures(FuturesInstrumentsInfo),
+    Spot(SpotInstrumentsInfo),
+    Options(OptionsInstrument),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -228,7 +233,7 @@ pub struct FuturesInstrumentsInfoResponse {
 pub struct FuturesInstrumentsInfo {
     pub category: String,
     pub list: Vec<FuturesInstrument>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 
@@ -236,38 +241,24 @@ pub struct FuturesInstrumentsInfo {
 #[serde(rename_all = "camelCase")]
 pub struct FuturesInstrument {
     pub symbol: String,
-    #[serde(rename = "contractType")]
     pub contract_type: String,
     pub status: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    #[serde(rename = "launchTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub launch_time: u64,
-    #[serde(rename = "deliveryTime", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub delivery_time: String,
-    #[serde(rename = "deliveryFeeRate")]
     pub delivery_fee_rate: String,
-    #[serde(rename = "priceScale")]
     pub price_scale: String,
-    #[serde(rename = "leverageFilter")]
     pub leverage_filter: LeverageFilter,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "lotSizeFilter")]
     pub lot_size_filter: LotSizeFilter,
-    #[serde(rename = "unifiedMarginTrade")]
     pub unified_margin_trade: bool,
-    #[serde(rename = "fundingInterval")]
     pub funding_interval: u64,
-    #[serde(rename = "settleCoin")]
     pub settle_coin: String,
-    #[serde(rename = "copyTrading")]
     pub copy_trading: String,
-    #[serde(rename = "upperFundingRate")]
     pub upper_funding_rate: String,
-    #[serde(rename = "lowerFundingRate")]
     pub lower_funding_rate: String,
     // #[serde(rename = "isPreListing" )]
     // pub is_pre_listing: bool,
@@ -278,12 +269,9 @@ pub struct FuturesInstrument {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotInstrumentsInfoResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: SpotInstrumentsInfo,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -293,26 +281,23 @@ pub struct SpotInstrumentsInfoResponse {
 pub struct SpotInstrumentsInfo {
     pub category: String,
     pub list: Vec<SpotInstrument>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotInstrument {
     pub symbol: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    pub innovation: String,
+    #[serde(with = "string_to_u64")]
+    pub innovation: u64,
     pub status: String,
-    #[serde(rename = "marginTrading")]
     pub margin_trading: String,
-    #[serde(rename = "lotSizeFilter")]
+    #[serde(with = "string_to_u64")]
+    pub st_tag: u64,
     pub lot_size_filter: LotSizeFilter,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "riskParameters")]
     pub risk_parameters: RiskParameters,
 }
 
@@ -321,23 +306,16 @@ pub struct SpotInstrument {
 pub struct OptionsInstrument {
     pub symbol: String,
     pub status: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    #[serde(rename = "settleCoin")]
     pub settle_coin: String,
-    #[serde(rename = "optionType")]
     pub option_type: String,
-    #[serde(rename = "launchTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub launch_time: u64,
-    #[serde(rename = "deliveryTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub delivery_time: u64,
-    #[serde(rename = "deliveryFeeRate")]
     pub delivery_fee_rate: String,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "lotSizeFilter")]
     pub lot_size_filter: LotSizeFilter,
 }
 
