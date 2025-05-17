@@ -1,7 +1,7 @@
 use bybit::api::*;
 use bybit::config::*;
 use bybit::market::*;
-use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest};
+use bybit::model::{Category, InstrumentInfo, InstrumentRequest, KlineRequest, OrderbookRequest};
 use tokio;
 use tokio::time::{Duration, Instant};
 
@@ -11,7 +11,7 @@ mod tests {
     use super::*;
     use bybit::model::{
         FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
-        RecentTradesRequest, RiskLimitRequest,
+        RecentTradesRequest, RiskLimitRequest, TickerData,
     };
 
     #[tokio::test]
@@ -19,29 +19,92 @@ mod tests {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
             Some(Category::Linear),
-            "MATICUSDT",
+            "ETHUSDT",
             "60",
             Some("010124"),
             Some("050224"),
             None,
         );
-        let premium = market.get_klines(request).await;
-        if let Ok(data) = premium {
+        let klines = market.get_klines(request).await;
+        if let Ok(data) = klines {
             println!("{:#?}", data.result.list);
         }
     }
 
     #[tokio::test]
-    async fn test_instrument() {
+    async fn test_mark_klines() {
         let market: MarketData = Bybit::new(None, None);
-        let request = InstrumentRequest::new(Category::Linear, Some("APTUSDT"), None, None, None);
-        let instrument = market.get_futures_instrument_info(request.clone()).await;
-        if let Ok(data) = instrument {
-            println!("{:#?}", data.result.list[0]);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let mark_klines = market.get_mark_price_klines(request).await;
+        if let Ok(data) = mark_klines {
+            println!("{:#?}", data.result.list);
         }
-        let spot_instrument = market.get_spot_instrument_info(request).await;
-        if let Ok(data) = spot_instrument {
-            println!("{:#?}", data.result.list[0]);
+    }
+
+    #[tokio::test]
+    async fn test_index_klines() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let index_klines = market.get_index_price_klines(request).await;
+        if let Ok(data) = index_klines {
+            println!("{:#?}", data.result.list);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_premium_klines() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = KlineRequest::new(
+            Some(Category::Linear),
+            "ETHUSDT",
+            "60",
+            Some("010124"),
+            Some("050224"),
+            None,
+        );
+        let premium_klines = market.get_premium_index_price_klines(request).await;
+        if let Ok(data) = premium_klines {
+            println!("{:#?}", data.result.list);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_futures_instrument() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = InstrumentRequest::new(Category::Linear, Some("ETHUSDT"), None, None, None);
+        let instrument = market.get_instrument_info(request).await;
+        if let Ok(data) = instrument {
+            match data.result {
+                InstrumentInfo::Futures(futures) => println!("{:#?}", futures.list[0]),
+                _ => println!("not futures"),
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_spot_instrument() {
+        let market: MarketData = Bybit::new(None, None);
+        let request = InstrumentRequest::new(Category::Spot, Some("ETHUSDT"), None, None, None);
+        let instrument = market.get_instrument_info(request).await;
+        if let Ok(data) = instrument {
+            match data.result {
+                InstrumentInfo::Spot(spot) => println!("{:#?}", spot.list[0]),
+                _ => println!("not spot"),
+            }
         }
     }
 
@@ -81,16 +144,29 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_ticker() {
+    async fn test_futures_ticker() {
         let market: MarketData = Bybit::new(None, None);
-        let symbol = "APTUSDT";
-        let ticker = market.get_futures_tickers(Some(symbol)).await;
-        if let Ok(data) = ticker {
-            println!("{:#?}", data.result.list);
+        let symbol = "ETHUSDT";
+        let futures_ticker = market.get_tickers(Some(symbol), Category::Linear).await;
+        if let Ok(data) = futures_ticker {
+            match &data.result.list[0] {
+                TickerData::Futures(futures) => println!("{:#?}", futures),
+                _ => println!("not futures"),
+            }
         }
-        let spot_ticker = market.get_spot_tickers(Some(symbol)).await;
+    }
+
+
+    #[tokio::test]
+    async fn test_spot_ticker() {
+        let market: MarketData = Bybit::new(None, None);
+        let symbol = "ETHUSDT";
+        let spot_ticker = market.get_tickers(Some(symbol), Category::Spot).await;
         if let Ok(data) = spot_ticker {
-            println!("{:#?}", data.result.list);
+            match &data.result.list[0].clone() {
+                TickerData::Spot(spot) => println!("{:#?}", spot),
+                _ => println!("not spot"),
+            }
         }
     }
 
@@ -118,8 +194,7 @@ mod tests {
     #[tokio::test]
     async fn test_open_interest() {
         let market: MarketData = Bybit::new(None, None);
-        let request =
-            OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
+        let request = OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
         let open_interest = market.get_open_interest(request).await;
         if let Ok(data) = open_interest {
             println!("{:#?}", data.result.list.last().unwrap());

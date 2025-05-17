@@ -15,12 +15,9 @@ pub struct Empty {}
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ServerTimeResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: ServerTime,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -69,12 +66,9 @@ impl<'a> KlineRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct KlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: KlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -103,12 +97,9 @@ pub struct Kline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: MarkPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -135,12 +126,9 @@ pub struct MarkPriceKline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: IndexPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -167,12 +155,9 @@ pub struct IndexPriceKline {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct PremiumIndexPriceKlineResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: PremiumIndexPriceKlineSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -227,15 +212,20 @@ impl<'a> InstrumentRequest<'a> {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct FuturesInstrumentsInfoResponse {
-    #[serde(rename = "retCode")]
+pub struct InstrumentInfoResponse {
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
-    pub result: FuturesInstrumentsInfo,
-    #[serde(rename = "retExtInfo")]
+    pub result: InstrumentInfo,
     pub ret_ext_info: Empty,
     pub time: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum InstrumentInfo {
+    Futures(FuturesInstrumentsInfo),
+    Spot(SpotInstrumentsInfo),
+    Options(OptionsInstrument),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -243,7 +233,7 @@ pub struct FuturesInstrumentsInfoResponse {
 pub struct FuturesInstrumentsInfo {
     pub category: String,
     pub list: Vec<FuturesInstrument>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 
@@ -251,38 +241,24 @@ pub struct FuturesInstrumentsInfo {
 #[serde(rename_all = "camelCase")]
 pub struct FuturesInstrument {
     pub symbol: String,
-    #[serde(rename = "contractType")]
     pub contract_type: String,
     pub status: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    #[serde(rename = "launchTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub launch_time: u64,
-    #[serde(rename = "deliveryTime", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub delivery_time: String,
-    #[serde(rename = "deliveryFeeRate")]
     pub delivery_fee_rate: String,
-    #[serde(rename = "priceScale")]
     pub price_scale: String,
-    #[serde(rename = "leverageFilter")]
     pub leverage_filter: LeverageFilter,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "lotSizeFilter")]
     pub lot_size_filter: LotSizeFilter,
-    #[serde(rename = "unifiedMarginTrade")]
     pub unified_margin_trade: bool,
-    #[serde(rename = "fundingInterval")]
     pub funding_interval: u64,
-    #[serde(rename = "settleCoin")]
     pub settle_coin: String,
-    #[serde(rename = "copyTrading")]
     pub copy_trading: String,
-    #[serde(rename = "upperFundingRate")]
     pub upper_funding_rate: String,
-    #[serde(rename = "lowerFundingRate")]
     pub lower_funding_rate: String,
     // #[serde(rename = "isPreListing" )]
     // pub is_pre_listing: bool,
@@ -292,42 +268,26 @@ pub struct FuturesInstrument {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct SpotInstrumentsInfoResponse {
-    #[serde(rename = "retCode")]
-    pub ret_code: i32,
-    #[serde(rename = "retMsg")]
-    pub ret_msg: String,
-    pub result: SpotInstrumentsInfo,
-    #[serde(rename = "retExtInfo")]
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct SpotInstrumentsInfo {
     pub category: String,
     pub list: Vec<SpotInstrument>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotInstrument {
     pub symbol: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    pub innovation: String,
+    #[serde(with = "string_to_u64")]
+    pub innovation: u64,
     pub status: String,
-    #[serde(rename = "marginTrading")]
     pub margin_trading: String,
-    #[serde(rename = "lotSizeFilter")]
+    #[serde(with = "string_to_u64")]
+    pub st_tag: u64,
     pub lot_size_filter: LotSizeFilter,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "riskParameters")]
     pub risk_parameters: RiskParameters,
 }
 
@@ -336,23 +296,16 @@ pub struct SpotInstrument {
 pub struct OptionsInstrument {
     pub symbol: String,
     pub status: String,
-    #[serde(rename = "baseCoin")]
     pub base_coin: String,
-    #[serde(rename = "quoteCoin")]
     pub quote_coin: String,
-    #[serde(rename = "settleCoin")]
     pub settle_coin: String,
-    #[serde(rename = "optionType")]
     pub option_type: String,
-    #[serde(rename = "launchTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub launch_time: u64,
-    #[serde(rename = "deliveryTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub delivery_time: u64,
-    #[serde(rename = "deliveryFeeRate")]
     pub delivery_fee_rate: String,
-    #[serde(rename = "priceFilter")]
     pub price_filter: PriceFilter,
-    #[serde(rename = "lotSizeFilter")]
     pub lot_size_filter: LotSizeFilter,
 }
 
@@ -368,9 +321,9 @@ pub struct PreListingInfo {
 #[serde(rename_all = "camelCase")]
 pub struct PreListingPhase {
     pub phase: String,
-    #[serde(rename = "startTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub start_time: u64,
-    #[serde(rename = "endTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub end_time: u64,
 }
 
@@ -385,63 +338,51 @@ pub struct AuctionFeeInfo {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RiskParameters {
-    #[serde(rename = "limitParameter")]
     pub limit_parameter: String,
-    #[serde(rename = "marketParameter")]
     pub market_parameter: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LeverageFilter {
-    #[serde(rename = "minLeverage")]
     pub min_leverage: String,
-    #[serde(rename = "maxLeverage")]
     pub max_leverage: String,
-    #[serde(rename = "leverageStep")]
     pub leverage_step: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PriceFilter {
-    #[serde(rename = "minPrice")]
+    #[serde(skip_serializing_if = "is_empty_or_none")]
     pub min_price: Option<String>,
-    #[serde(rename = "maxPrice")]
+    #[serde(skip_serializing_if = "is_empty_or_none")]
     pub max_price: Option<String>,
-    #[serde(rename = "tickSize", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub tick_size: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LotSizeFilter {
-    #[serde(
-        rename = "basePrecision",
-        skip_serializing_if = "Option::is_none",
-        default
-    )]
+    #[serde(skip_serializing_if = "is_empty_or_none")]
     pub base_precision: Option<String>,
-    #[serde(rename = "quotePrecision", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub quote_precision: Option<String>,
-    #[serde(rename = "maxMktOrderQty", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_mkt_order_qty: Option<String>,
-    #[serde(rename = "minOrderQty", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub min_order_qty: f64,
-    #[serde(rename = "maxOrderQty", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub max_order_qty: f64,
-    #[serde(rename = "minOrderAmt", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_order_amt: Option<String>,
-    #[serde(rename = "maxOrderAmt", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_order_amt: Option<String>,
-    #[serde(rename = "qtyStep", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub qty_step: Option<String>,
-    #[serde(
-        rename = "postOnlyMaxOrderQty",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub post_only_max_order_qty: Option<String>,
-    #[serde(rename = "minNotionalValue", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_notional_value: Option<String>,
 }
 
@@ -468,18 +409,14 @@ impl<'a> OrderbookRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderBookResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: OrderBook,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct OrderBook {
     #[serde(rename = "s")]
     pub symbol: String,
@@ -524,41 +461,26 @@ impl Ask {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct FuturesTickersResponse {
-    #[serde(rename = "retCode")]
+pub struct TickerResponse {
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
-    pub result: FuturesTickers,
-    #[serde(rename = "retExtInfo")]
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct SpotTickersResponse {
-    #[serde(rename = "retCode")]
-    pub ret_code: i32,
-    #[serde(rename = "retMsg")]
-    pub ret_msg: String,
-    pub result: SpotTickers,
-    #[serde(rename = "retExtInfo")]
+    pub result: TickersInfo,
     pub ret_ext_info: Empty,
     pub time: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct FuturesTickers {
+pub struct TickersInfo {
     pub category: String,
-    pub list: Vec<FuturesTicker>,
+    pub list: Vec<TickerData>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct SpotTickers {
-    pub category: String,
-    pub list: Vec<SpotTicker>,
+#[serde(untagged)]
+pub enum TickerData {
+    Spot(SpotTicker),
+    Futures(FuturesTicker),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -571,7 +493,7 @@ pub struct FuturesTicker {
     pub index_price: f64,
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
-    #[serde(rename = "prevPrice24h", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub prev_price_24h: f64,
     #[serde(rename = "price24hPcnt", with = "string_to_float")]
     pub daily_change_percentage: f64,
@@ -579,25 +501,25 @@ pub struct FuturesTicker {
     pub high_24h: f64,
     #[serde(rename = "lowPrice24h", with = "string_to_float")]
     pub low_24h: f64,
-    #[serde(rename = "prevPrice1h", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub prev_price_1h: f64,
     #[serde(with = "string_to_float")]
     pub open_interest: f64,
     #[serde(with = "string_to_float")]
     pub open_interest_value: f64,
-    #[serde(rename = "turnover24h")]
-    pub turnover_24h: String,
-    #[serde(rename = "volume24h")]
-    pub volume_24h: String,
+    #[serde(with = "string_to_float")]
+    pub turnover_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub volume_24h: f64,
     pub funding_rate: String,
-    #[serde(rename = "nextFundingTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub next_funding_time: u64,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub predicted_delivery_price: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub basis_rate: String,
     pub delivery_fee_rate: String,
-    #[serde(rename = "deliveryTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub delivery_time: u64,
     #[serde(rename = "ask1Size", with = "string_to_float")]
     pub ask_size: f64,
@@ -633,12 +555,12 @@ pub struct SpotTicker {
     pub high_24h: f64,
     #[serde(rename = "lowPrice24h", with = "string_to_float")]
     pub low_24h: f64,
-    #[serde(rename = "turnover24h")]
-    pub turnover_24h: String,
-    #[serde(rename = "volume24h")]
-    pub volume_24h: String,
-    #[serde(rename = "usdIndexPrice")]
-    pub usd_index_price: String,
+    #[serde(with = "string_to_float")]
+    pub turnover_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub volume_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub usd_index_price: f64,
 }
 
 #[derive(Clone, Default)]
@@ -673,12 +595,9 @@ impl<'a> FundingHistoryRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct FundingRateResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: FundingRateSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -694,9 +613,9 @@ pub struct FundingRateSummary {
 #[serde(rename_all = "camelCase")]
 pub struct FundingRate {
     pub symbol: String,
-    #[serde(rename = "fundingRate", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub funding_rate: f64,
-    #[serde(rename = "fundingRateTimestamp", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub funding_rate_timestamp: u64,
 }
 
@@ -729,12 +648,9 @@ impl<'a> RecentTradesRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RecentTradesResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: RecentTrades,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -749,7 +665,6 @@ pub struct RecentTrades {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RecentTrade {
-    #[serde(rename = "execId")]
     pub exec_id: String,
     pub symbol: String,
     #[serde(with = "string_to_float")]
@@ -757,9 +672,8 @@ pub struct RecentTrade {
     #[serde(rename = "size", with = "string_to_float")]
     pub qty: f64,
     pub side: String,
-    #[serde(rename = "time")]
-    pub timestamp: String,
-    #[serde(rename = "isBlockTrade")]
+    #[serde(rename = "time", with = "string_to_u64")]
+    pub timestamp: u64,
     pub is_block_trade: bool,
 }
 
@@ -798,12 +712,9 @@ impl<'a> OpenInterestRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OpeninterestResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: OpenInterestSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -814,14 +725,14 @@ pub struct OpenInterestSummary {
     pub symbol: String,
     pub category: String,
     pub list: Vec<OpenInterest>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenInterest {
-    #[serde(rename = "openInterest", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub open_interest: f64,
     #[serde(with = "string_to_u64")]
     pub timestamp: u64,
@@ -857,12 +768,9 @@ impl<'a> HistoricalVolatilityRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct HistoricalVolatilityResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub category: String,
-    #[serde(rename = "result")]
     pub result: Vec<HistoricalVolatility>,
 }
 
@@ -879,12 +787,9 @@ pub struct HistoricalVolatility {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct InsuranceResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: InsuranceSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -892,7 +797,7 @@ pub struct InsuranceResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct InsuranceSummary {
-    #[serde(rename = "updatedTime", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub updated_time: u64,
     pub list: Vec<Insurance>,
 }
@@ -926,12 +831,9 @@ impl<'a> RiskLimitRequest<'a> {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RiskLimitResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: RiskLimitSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -946,15 +848,13 @@ pub struct RiskLimitSummary {
 pub struct RiskLimit {
     pub id: u64,
     pub symbol: String,
-    #[serde(rename = "riskLimitValue", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
-    #[serde(rename = "maintenanceMargin", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub maintainence_margin: f64,
-    #[serde(rename = "initialMargin", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub initial_margin: f64,
-    #[serde(rename = "isLowestRisk")]
     pub is_lowest_risk: u8,
-    #[serde(rename = "maxLeverage")]
     pub max_leverage: String,
 }
 
@@ -972,7 +872,7 @@ pub struct DeliveryPriceResponse {
 #[serde(rename_all = "camelCase")]
 pub struct DeliveryPriceSummary {
     pub category: String,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub next_page_cursor: Option<String>,
     pub list: Vec<DeliveryPrice>,
 }
@@ -989,12 +889,9 @@ pub struct DeliveryPrice {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LongShortRatioResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: LongShortRatioSummary,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -1008,13 +905,12 @@ pub struct LongShortRatioSummary {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LongShortRatio {
-    #[serde(rename = "symbol")]
     pub symbol: String,
-    #[serde(rename = "buyRatio", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub buy_ratio: f64,
-    #[serde(rename = "sellRatio", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub sell_ratio: f64,
-    #[serde(rename = "timestamp", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub timestamp: u64,
 }
 
@@ -1606,21 +1502,16 @@ pub struct OpenOrdersResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderStatus {
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: OrderStatus,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -1688,9 +1579,7 @@ impl<'a> OrderHistoryRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderHistoryResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: OrderHistory,
     #[serde(rename = "retExtInfo")]
@@ -1703,7 +1592,7 @@ pub struct OrderHistoryResponse {
 pub struct OrderHistory {
     pub category: String,
     pub list: Vec<Order>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 
@@ -1940,12 +1829,11 @@ impl<'a> CancelallRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CancelallResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
+
     pub ret_msg: String,
     pub result: CancelledList,
-    #[serde(rename = "retExtInfo")]
+
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -1969,7 +1857,7 @@ pub struct TradeHistoryResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TradeHistorySummary {
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
     pub category: String,
     pub list: Vec<TradeHistory>,
@@ -1978,72 +1866,36 @@ pub struct TradeHistorySummary {
 #[serde(rename_all = "camelCase")]
 pub struct TradeHistory {
     pub symbol: String,
-    #[serde(rename = "orderType")]
     pub order_type: String,
-    #[serde(
-        rename = "underlyingPrice",
-        default,
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub underlying_price: String,
-    #[serde(
-        rename = "orderLinkId",
-        default,
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub order_link_id: String,
     pub side: String,
-    #[serde(
-        rename = "indexPrice",
-        default,
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub index_price: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
-    #[serde(rename = "leavesQty")]
     pub leaves_qty: String,
-    #[serde(rename = "execTime")]
     pub exec_time: String,
-    #[serde(
-        rename = "feeCurrency",
-        default,
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub fee_currency: String,
-    #[serde(rename = "isMaker")]
     pub is_maker: bool,
-    #[serde(rename = "execFee")]
     pub exec_fee: String,
-    #[serde(rename = "feeRate")]
     pub fee_rate: String,
-    #[serde(rename = "execId")]
     pub exec_id: String,
-    #[serde(rename = "tradeIv", default, skip_serializing_if = "String::is_empty")]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub trade_iv: String,
-    #[serde(
-        rename = "blockTradeId",
-        default,
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub block_trade_id: String,
-    #[serde(rename = "markPrice")]
     pub mark_price: String,
-    #[serde(rename = "execPrice")]
     pub exec_price: String,
-    #[serde(rename = "markIv", default, skip_serializing_if = "String::is_empty")]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub mark_iv: String,
-    #[serde(rename = "orderQty")]
     pub order_qty: String,
-    #[serde(rename = "orderPrice")]
     pub order_price: String,
-    #[serde(rename = "execValue")]
     pub exec_value: String,
-    #[serde(rename = "execType")]
     pub exec_type: String,
-    #[serde(rename = "execQty")]
     pub exec_qty: String,
     #[serde(
         rename = "closedSize",
@@ -2119,12 +1971,9 @@ impl<'a> BatchPlaceRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchPlaceResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: BatchedOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2140,11 +1989,8 @@ pub struct BatchedOrderList {
 pub struct BatchedOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "createAt")]
     pub create_at: String,
 }
 
@@ -2176,12 +2022,9 @@ impl<'a> BatchAmendRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchAmendResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: AmendedOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2197,9 +2040,7 @@ pub struct AmendedOrderList {
 pub struct AmendedOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
 }
 
@@ -2221,12 +2062,9 @@ impl<'a> BatchCancelRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchCancelResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: CanceledOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2242,9 +2080,7 @@ pub struct CanceledOrderList {
 pub struct CanceledOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
 }
 
@@ -2302,7 +2138,7 @@ pub struct InfoResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InfoResult {
     pub list: Vec<PositionInfo>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub next_page_cursor: Option<String>,
     pub category: String,
 }
@@ -2368,80 +2204,50 @@ mod string_to_float_optional {
 #[serde(rename_all = "camelCase")]
 pub struct PositionInfo {
     pub position_idx: i32,
-
     pub risk_id: i32,
-
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
-
     pub symbol: String,
-
     pub side: String,
-
     #[serde(with = "string_to_float")]
     pub size: f64,
-
     #[serde(with = "string_to_float_optional")]
     pub avg_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub position_value: Option<f64>,
-
     pub trade_mode: i32,
-
     pub position_status: String,
-
     pub auto_add_margin: i32,
-
     pub adl_rank_indicator: i32,
-
     #[serde(with = "string_to_float_optional")]
     pub leverage: Option<f64>,
-
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
-
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
-
     #[serde(with = "string_to_float_optional")]
     pub liq_price: Option<f64>,
-
     pub bust_price: String,
-
     #[serde(rename = "positionMM", with = "string_to_float_optional")]
     pub position_mm: Option<f64>,
-
     #[serde(rename = "positionIM", with = "string_to_float_optional")]
     pub position_im: Option<f64>,
-
     pub tpsl_mode: String,
-
     pub take_profit: String,
-
     pub stop_loss: String,
-
     pub trailing_stop: String,
-
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub cum_realised_pnl: Option<f64>,
-
     pub seq: u64,
-
     pub is_reduce_only: bool,
-
     #[serde(with = "string_to_u64_optional")]
     pub mmr_sys_updated_time: Option<u64>,
-
     #[serde(with = "string_to_u64_optional")]
     pub leverage_sys_updated_time: Option<u64>,
-
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
-
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
 }
@@ -2521,12 +2327,9 @@ impl<'a> LeverageRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LeverageResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2560,12 +2363,9 @@ impl<'a> ChangeMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ChangeMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2600,12 +2400,9 @@ impl<'a> MarginModeRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MarginModeResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2640,21 +2437,17 @@ impl<'a> SetRiskLimit<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SetRiskLimitResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: SetRiskLimitResult,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is a JSON value as per provided JSON
     pub time: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SetRiskLimitResult {
-    #[serde(rename = "riskId")]
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub risk_limit_value: u64,
     pub category: String,
 }
@@ -2735,12 +2528,9 @@ impl<'a> TradingStopRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TradingStopResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2775,12 +2565,9 @@ impl<'a> AddMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AddMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2815,12 +2602,9 @@ impl<'a> AddReduceMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AddReduceMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: AddReduceMarginResult,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2831,43 +2615,27 @@ pub struct AddReduceMarginResult {
     pub category: String,
     pub symbol: String,
     pub position_idx: i32,
-    #[serde(rename = "riskId")]
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue")]
     pub risk_limit_value: String,
     pub size: String,
-    #[serde(rename = "positionValue")]
     pub position_value: String,
-    #[serde(rename = "avgPrice")]
     pub avg_price: String,
-    #[serde(rename = "liqPrice")]
     pub liq_price: String,
-    #[serde(rename = "bustPrice")]
     pub bust_price: String,
-    #[serde(rename = "markPrice")]
     pub mark_price: String,
     pub leverage: String,
-    #[serde(rename = "autoAddMargin")]
     pub auto_add_margin: i32,
-    #[serde(rename = "positionStatus")]
     pub position_status: String,
     #[serde(rename = "positionIM")]
     pub position_im: String,
     #[serde(rename = "positionMM")]
     pub position_mm: String,
-    #[serde(rename = "unrealisedPnl")]
     pub unrealised_pnl: String,
-    #[serde(rename = "cumRealisedPnl")]
     pub cum_realised_pnl: String,
-    #[serde(rename = "stopLoss")]
     pub stop_loss: String,
-    #[serde(rename = "takeProfit")]
     pub take_profit: String,
-    #[serde(rename = "trailingStop")]
     pub trailing_stop: String,
-    #[serde(rename = "createdTime")]
     pub created_time: String,
-    #[serde(rename = "updatedTime")]
     pub updated_time: String,
 }
 
@@ -2931,7 +2699,7 @@ pub struct ClosedPnlItem {
     pub order_id: String,
     #[serde(with = "string_to_float")]
     pub closed_pnl: f64,
-    #[serde(rename = "avgEntryPrice", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub avg_entry_price: f64,
     pub qty: String,
     #[serde(with = "string_to_float")]
@@ -2940,7 +2708,7 @@ pub struct ClosedPnlItem {
     #[serde(with = "string_to_float")]
     pub order_price: f64,
     pub closed_size: String,
-    #[serde(rename = "avgExitPrice", with = "string_to_float")]
+    #[serde(with = "string_to_float")]
     pub avg_exit_price: f64,
     pub exec_type: String,
     pub fill_count: String,
@@ -3044,12 +2812,9 @@ impl<'a> MoveHistoryRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MoveHistoryResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: MoveHistoryResult,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -3065,10 +2830,8 @@ pub struct MoveHistoryResult {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MoveHistoryEntry {
-    #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
     pub category: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
     #[serde(rename = "userId")]
     pub user_id: u64,
@@ -3076,20 +2839,13 @@ pub struct MoveHistoryEntry {
     pub side: String,
     pub price: String,
     pub qty: String,
-    #[serde(rename = "execFee")]
     pub exec_fee: String,
     pub status: String,
-    #[serde(rename = "execId")]
     pub exec_id: String,
-    #[serde(rename = "resultCode")]
     pub result_code: i16,
-    #[serde(rename = "resultMessage")]
     pub result_message: String,
-    #[serde(rename = "createdAt")]
     pub created_at: u64,
-    #[serde(rename = "updatedAt")]
     pub updated_at: u64,
-    #[serde(rename = "rejectParty")]
     pub reject_party: String,
 }
 
@@ -3102,9 +2858,7 @@ pub struct MoveHistoryEntry {
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: WalletList,
     #[serde(rename = "retExtInfo")]
@@ -3120,12 +2874,9 @@ pub struct WalletList {
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UTAResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: UTAUpdateStatus,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -3133,9 +2884,7 @@ pub struct UTAResponse {
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UTAUpdateStatus {
-    #[serde(rename = "unifiedUpdateStatus")]
     pub unified_update_status: String,
-    #[serde(rename = "unifiedUpdateMsg")]
     pub unified_update_msg: UnifiedUpdateMsg,
 }
 
@@ -3191,22 +2940,14 @@ pub struct BorrowHistory {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BorrowHistoryEntry {
-    #[serde(rename = "borrowAmount")]
     pub borrow_amount: String,
-    #[serde(rename = "costExemption")]
     pub cost_exemption: String,
-    #[serde(rename = "freeBorrowedAmount")]
     pub free_borrowed_amount: String,
-    #[serde(rename = "createdTime")]
     pub created_time: u64,
-    #[serde(rename = "InterestBearingBorrowSize")]
     pub interest_bearing_borrow_size: String,
     pub currency: String,
-    #[serde(rename = "unrealisedLoss")]
     pub unrealised_loss: String,
-    #[serde(rename = "hourlyBorrowRate")]
     pub hourly_borrow_rate: String,
-    #[serde(rename = "borrowCost")]
     pub borrow_cost: String,
 }
 
@@ -3284,30 +3025,18 @@ pub struct CollateralInfoList {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CollateralInfo {
-    #[serde(rename = "availableToBorrow")]
     pub available_to_borrow: String,
-    #[serde(rename = "freeBorrowingAmount")]
     pub free_borrowing_amount: String,
-    #[serde(rename = "freeBorrowAmount")]
     pub free_borrow_amount: String,
-    #[serde(rename = "maxBorrowingAmount")]
     pub max_borrowing_amount: String,
-    #[serde(rename = "hourlyBorrowRate")]
     pub hourly_borrow_rate: String,
-    #[serde(rename = "borrowUsageRate")]
     pub borrow_usage_rate: String,
-    #[serde(rename = "collateralSwitch")]
     pub collateral_switch: bool,
-    #[serde(rename = "borrowAmount")]
     pub borrow_amount: String,
-    #[serde(rename = "borrowable")]
     pub borrowable: bool,
     pub currency: String,
-    #[serde(rename = "marginCollateral")]
     pub margin_collateral: bool,
-    #[serde(rename = "freeBorrowingLimit")]
     pub free_borrowing_limit: String,
-    #[serde(rename = "collateralRatio")]
     pub collateral_ratio: String,
 }
 
@@ -3413,7 +3142,6 @@ pub struct TransactionLogEntry {
     pub cash_flow: String,
     pub transaction_time: String,
     pub type_field: String,
-    #[serde(rename = "feeRate")]
     pub fee_rate: String,
     pub bonus_change: Option<String>,
     pub size: String,
@@ -3627,8 +3355,8 @@ unsafe impl Send for WsOrderBook {}
 unsafe impl Sync for WsOrderBook {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct TradeUpdate {
-    #[serde(rename = "topic")]
     pub topic: String,
     #[serde(rename = "type")]
     pub event_type: String,
@@ -3677,6 +3405,7 @@ unsafe impl Send for WsTicker {}
 unsafe impl Sync for WsTicker {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct LinearTickerData {
     pub symbol: String,
     #[serde(rename = "tickDirection")]
@@ -3705,7 +3434,6 @@ pub struct LinearTickerData {
     pub turnover_24h: String,
     #[serde(rename = "volume24h")]
     pub volume_24h: String,
-    #[serde(rename = "nextFundingTime")]
     pub next_funding_time: String,
     #[serde(rename = "fundingRate")]
     pub funding_rate: String,
@@ -3723,10 +3451,9 @@ unsafe impl Send for LinearTickerData {}
 unsafe impl Sync for LinearTickerData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SpotTickerData {
-    #[serde(rename = "symbol")]
     pub symbol: String,
-    #[serde(rename = "lastPrice")]
     pub last_price: String,
     #[serde(rename = "highPrice24h")]
     pub high_price_24h: String,
@@ -3740,7 +3467,6 @@ pub struct SpotTickerData {
     pub turnover_24h: String,
     #[serde(rename = "price24hPcnt")]
     pub price_24h_pcnt: String,
-    #[serde(rename = "usdIndexPrice")]
     pub usd_index_price: String,
 }
 
@@ -3748,6 +3474,7 @@ unsafe impl Send for SpotTickerData {}
 unsafe impl Sync for SpotTickerData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Liquidation {
     #[serde(rename = "topic")]
     pub topic: String,
@@ -3763,12 +3490,10 @@ unsafe impl Send for Liquidation {}
 unsafe impl Sync for Liquidation {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct LiquidationData {
-    #[serde(rename = "updatedTime")]
     pub updated_time: u64,
-    #[serde(rename = "symbol")]
     pub symbol: String,
-    #[serde(rename = "side")]
     pub side: String,
     #[serde(with = "string_to_float")]
     pub size: f64,
@@ -3811,10 +3536,10 @@ unsafe impl Send for KlineData {}
 unsafe impl Sync for KlineData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct PositionEvent {
     pub id: String,
     pub topic: String,
-    #[serde(rename = "creationTime")]
     pub creation_time: u64,
     pub data: Vec<PositionData>,
 }
@@ -3823,64 +3548,47 @@ unsafe impl Send for PositionEvent {}
 unsafe impl Sync for PositionEvent {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct PositionData {
     #[serde(rename = "positionIdx")]
     pub position_idx: u8,
-    #[serde(rename = "tradeMode")]
     pub trade_mode: u8,
-    #[serde(rename = "riskId")]
     pub risk_id: u8,
-    #[serde(rename = "riskLimitValue")]
     pub risk_limit_value: String,
     pub symbol: String,
     pub side: String,
     pub size: String,
-    #[serde(rename = "entryPrice")]
     pub entry_price: String,
     pub leverage: String,
-    #[serde(rename = "positionValue")]
     pub position_value: String,
-    #[serde(rename = "positionBalance")]
     pub position_balance: String,
-    #[serde(rename = "markPrice")]
     pub mark_price: String,
     #[serde(rename = "positionIM")]
     pub position_im: String,
     #[serde(rename = "positionMM")]
     pub position_mm: String,
-    #[serde(rename = "takeProfit")]
     pub take_profit: String,
-    #[serde(rename = "stopLoss")]
     pub stop_loss: String,
-    #[serde(rename = "trailingStop")]
     pub trailing_stop: String,
     #[serde(rename = "unrealisedPnl")]
     pub unrealised_pnl: String,
     #[serde(rename = "cumRealisedPnl")]
     pub cum_realised_pnl: String,
-    #[serde(rename = "createdTime")]
     pub created_time: String,
-    #[serde(rename = "updatedTime")]
     pub updated_time: String,
     #[serde(rename = "tpslMode")]
     pub tpsl_mode: String,
-    #[serde(rename = "liqPrice")]
     pub liq_price: String,
-    #[serde(rename = "bustPrice")]
     pub bust_price: String,
     pub category: String,
-    #[serde(rename = "positionStatus")]
     pub position_status: String,
-    #[serde(rename = "adlRankIndicator")]
     pub adl_rank_indicator: u8,
-    #[serde(rename = "autoAddMargin")]
     pub auto_add_margin: u8,
     #[serde(rename = "leverageSysUpdatedTime")]
     pub leverage_sys_updated_time: String,
     #[serde(rename = "mmrSysUpdatedTime")]
     pub mmr_sys_updated_time: String,
     pub seq: u64,
-    #[serde(rename = "isReduceOnly")]
     pub is_reduce_only: bool,
 }
 
@@ -3888,14 +3596,11 @@ unsafe impl Send for PositionData {}
 unsafe impl Sync for PositionData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Execution {
-    #[serde(rename = "id")]
     pub id: String,
-    #[serde(rename = "topic")]
     pub topic: String,
-    #[serde(rename = "creationTime")]
     pub creation_time: u64,
-    #[serde(rename = "data")]
     pub data: Vec<ExecutionData>,
 }
 
@@ -3903,24 +3608,16 @@ unsafe impl Send for Execution {}
 unsafe impl Sync for Execution {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ExecutionData {
-    #[serde(rename = "category")]
     pub category: String,
-    #[serde(rename = "symbol")]
     pub symbol: String,
-    #[serde(rename = "execFee")]
     pub exec_fee: String,
-    #[serde(rename = "execId")]
     pub exec_id: String,
-    #[serde(rename = "execPrice")]
     pub exec_price: String,
-    #[serde(rename = "execQty")]
     pub exec_qty: String,
-    #[serde(rename = "execType")]
     pub exec_type: String,
-    #[serde(rename = "execValue")]
     pub exec_value: String,
-    #[serde(rename = "isMaker")]
     pub is_maker: bool,
     #[serde(rename = "feeRate")]
     pub fee_rate: String,
@@ -3930,35 +3627,21 @@ pub struct ExecutionData {
     pub mark_iv: String,
     #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
-    #[serde(rename = "markPrice")]
     pub mark_price: String,
-    #[serde(rename = "indexPrice")]
     pub index_price: String,
-    #[serde(rename = "underlyingPrice")]
     pub underlying_price: String,
-    #[serde(rename = "leavesQty")]
     pub leaves_qty: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "orderPrice")]
     pub order_price: String,
-    #[serde(rename = "orderQty")]
     pub order_qty: String,
-    #[serde(rename = "orderType")]
     pub order_type: String,
     #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
-    #[serde(rename = "side")]
     pub side: String,
-    #[serde(rename = "execTime")]
     pub exec_time: String,
-    #[serde(rename = "isLeverage")]
     pub is_leverage: String,
-    #[serde(rename = "closedSize")]
     pub closed_size: String,
-    #[serde(rename = "seq")]
     pub seq: u64,
 }
 
@@ -3966,9 +3649,9 @@ unsafe impl Send for ExecutionData {}
 unsafe impl Sync for ExecutionData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct FastExecution {
     pub topic: String,
-    #[serde(rename = "creationTime")]
     pub creation_time: u64,
     pub data: Vec<FastExecData>,
 }
@@ -3977,21 +3660,16 @@ unsafe impl Send for FastExecution {}
 unsafe impl Sync for FastExecution {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct FastExecData {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "execId")]
     pub exec_id: String,
-    #[serde(rename = "execPrice")]
     pub exec_price: String,
-    #[serde(rename = "execQty")]
     pub exec_qty: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
     pub side: String,
-    #[serde(rename = "execTime")]
     pub exec_time: String,
     pub seq: u64,
 }
@@ -4000,60 +3678,39 @@ unsafe impl Send for FastExecData {}
 unsafe impl Sync for FastExecData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct OrderData {
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
     pub side: String,
-    #[serde(rename = "orderType")]
     pub order_type: String,
-    #[serde(rename = "cancelType")]
     pub cancel_type: String,
     pub price: String,
     pub qty: String,
-    #[serde(rename = "orderIv")]
     pub order_iv: String,
-    #[serde(rename = "timeInForce")]
     pub time_in_force: String,
-    #[serde(rename = "orderStatus")]
     pub order_status: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "lastPriceOnCreated")]
     pub last_price_on_created: String,
-    #[serde(rename = "reduceOnly")]
     pub reduce_only: bool,
-    #[serde(rename = "leavesQty")]
     pub leaves_qty: String,
-    #[serde(rename = "leavesValue")]
     pub leaves_value: String,
-    #[serde(rename = "cumExecQty")]
     pub cum_exec_qty: String,
-    #[serde(rename = "cumExecValue")]
     pub cum_exec_value: String,
-    #[serde(rename = "avgPrice")]
     pub avg_price: String,
-    #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
     #[serde(rename = "positionIdx")]
     pub position_idx: u8,
-    #[serde(rename = "cumExecFee")]
     pub cum_exec_fee: String,
-    #[serde(rename = "createdTime")]
     pub created_time: String,
-    #[serde(rename = "updatedTime")]
     pub updated_time: String,
-    #[serde(rename = "rejectReason")]
     pub reject_reason: String,
     #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
     #[serde(rename = "tpslMode")]
     pub tpsl_mode: String,
-    #[serde(rename = "triggerPrice")]
     pub trigger_price: String,
-    #[serde(rename = "takeProfit")]
     pub take_profit: String,
-    #[serde(rename = "stopLoss")]
     pub stop_loss: String,
     #[serde(rename = "tpTriggerBy")]
     pub tp_trigger_by: String,
@@ -4063,22 +3720,14 @@ pub struct OrderData {
     pub tp_limit_price: String,
     #[serde(rename = "slLimitPrice")]
     pub sl_limit_price: String,
-    #[serde(rename = "triggerDirection")]
     pub trigger_direction: u8,
-    #[serde(rename = "triggerBy")]
     pub trigger_by: String,
-    #[serde(rename = "closeOnTrigger")]
     pub close_on_trigger: bool,
     pub category: String,
-    #[serde(rename = "placeType")]
     pub place_type: String,
-    #[serde(rename = "smpType")]
     pub smp_type: String,
-    #[serde(rename = "smpGroup")]
     pub smp_group: u8,
-    #[serde(rename = "smpOrderId")]
     pub smp_order_id: String,
-    #[serde(rename = "feeCurrency")]
     pub fee_currency: String,
 }
 
@@ -4086,10 +3735,10 @@ unsafe impl Send for OrderData {}
 unsafe impl Sync for OrderData {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct OrderEvent {
     pub id: String,
     pub topic: String,
-    #[serde(rename = "creationTime")]
     pub creation_time: u64,
     pub data: Vec<OrderData>,
 }
@@ -4098,10 +3747,10 @@ unsafe impl Send for OrderEvent {}
 unsafe impl Sync for OrderEvent {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct WalletEvent {
     pub id: String,
     pub topic: String,
-    #[serde(rename = "creationTime")]
     pub creation_time: u64,
     pub data: Vec<WalletData>,
 }
@@ -4109,70 +3758,59 @@ unsafe impl Send for WalletEvent {}
 unsafe impl Sync for WalletEvent {}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct WalletData {
     #[serde(rename = "accountIMRate")]
     pub account_im_rate: String,
     #[serde(rename = "accountMMRate")]
     pub account_mm_rate: String,
-    #[serde(rename = "totalEquity")]
-    pub total_equity: String,
-    #[serde(rename = "totalWalletBalance")]
-    pub total_wallet_balance: String,
-    #[serde(rename = "totalMarginBalance")]
-    pub total_margin_balance: String,
-    #[serde(rename = "totalAvailableBalance")]
-    pub total_available_balance: String,
+    #[serde(with = "string_to_float")]
+    pub total_equity: f64,
+    #[serde(with = "string_to_float")]
+    pub total_wallet_balance: f64,
+    #[serde(with = "string_to_float")]
+    pub total_margin_balance: f64,
+    #[serde(with = "string_to_float")]
+    pub total_available_balance: f64,
     #[serde(rename = "totalPerpUPL")]
     pub total_perp_upl: String,
-    #[serde(rename = "totalInitialMargin")]
     pub total_initial_margin: String,
-    #[serde(rename = "totalMaintenanceMargin")]
     pub total_maintenance_margin: String,
-    #[serde(rename = "coin")]
     pub coin: Vec<CoinData>,
     #[serde(rename = "accountLTV")]
     pub account_ltv: String,
-    #[serde(rename = "accountType", skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<String>,
 }
 unsafe impl Send for WalletData {}
 unsafe impl Sync for WalletData {}
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct CoinData {
-    #[serde(rename = "coin")]
     pub coin: String,
-    #[serde(rename = "equity")]
     pub equity: String,
-    #[serde(rename = "usdValue")]
     pub usd_value: String,
-    #[serde(rename = "walletBalance")]
     pub wallet_balance: String,
-    #[serde(rename = "availableToWithdraw")]
     pub available_to_withdraw: String,
-    #[serde(rename = "availableToBorrow")]
     pub available_to_borrow: String,
-    #[serde(rename = "borrowAmount")]
-    pub borrow_amount: String,
-    #[serde(rename = "accruedInterest")]
-    pub accrued_interest: String,
+    #[serde(with = "string_to_float")]
+    pub borrow_amount: f64,
+    #[serde(with = "string_to_float")]
+    pub accrued_interest: f64,
     #[serde(rename = "totalOrderIM")]
     pub total_order_im: String,
     #[serde(rename = "totalPositionIM")]
     pub total_position_im: String,
     #[serde(rename = "totalPositionMM")]
     pub total_position_mm: String,
-    #[serde(rename = "unrealisedPnl")]
-    pub unrealised_pnl: String,
-    #[serde(rename = "cumRealisedPnl")]
-    pub cum_realised_pnl: String,
+    #[serde(with = "string_to_float")]
+    pub unrealised_pnl: f64,
+    #[serde(with = "string_to_float")]
+    pub cum_realised_pnl: f64,
     pub bonus: String,
-    #[serde(rename = "collateralSwitch")]
     pub collateral_switch: bool,
-    #[serde(rename = "marginCollateral")]
     pub margin_collateral: bool,
-    #[serde(rename = "locked")]
     pub locked: String,
-    #[serde(rename = "spotHedgingQty")]
     pub spot_hedging_qty: String,
 }
 
