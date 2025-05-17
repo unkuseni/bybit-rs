@@ -1,7 +1,7 @@
 use bybit::api::*;
 use bybit::config::*;
 use bybit::market::*;
-use bybit::model::{Category, InstrumentRequest, KlineRequest, OrderbookRequest, InstrumentInfo};
+use bybit::model::{Category, InstrumentInfo, InstrumentRequest, KlineRequest, OrderbookRequest};
 use tokio;
 use tokio::time::{Duration, Instant};
 
@@ -11,7 +11,7 @@ mod tests {
     use super::*;
     use bybit::model::{
         FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
-        RecentTradesRequest, RiskLimitRequest,
+        RecentTradesRequest, RiskLimitRequest, TickerData,
     };
 
     #[tokio::test]
@@ -89,8 +89,8 @@ mod tests {
         let instrument = market.get_instrument_info(request).await;
         if let Ok(data) = instrument {
             match data.result {
-             InstrumentInfo::Futures(futures) => println!("{:#?}", futures.list[0]),
-             _ => println!("not futures"),
+                InstrumentInfo::Futures(futures) => println!("{:#?}", futures.list[0]),
+                _ => println!("not futures"),
             }
         }
     }
@@ -102,8 +102,8 @@ mod tests {
         let instrument = market.get_instrument_info(request).await;
         if let Ok(data) = instrument {
             match data.result {
-            InstrumentInfo::Spot(spot) => println!("{:#?}", spot.list[0]),
-            _ => println!("not spot"),
+                InstrumentInfo::Spot(spot) => println!("{:#?}", spot.list[0]),
+                _ => println!("not spot"),
             }
         }
     }
@@ -144,16 +144,29 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_ticker() {
+    async fn test_futures_ticker() {
         let market: MarketData = Bybit::new(None, None);
-        let symbol = "APTUSDT";
-        let ticker = market.get_futures_tickers(Some(symbol)).await;
-        if let Ok(data) = ticker {
-            println!("{:#?}", data.result.list);
+        let symbol = "ETHUSDT";
+        let futures_ticker = market.get_tickers(Some(symbol), Category::Linear).await;
+        if let Ok(data) = futures_ticker {
+            match &data.result.list[0] {
+                TickerData::Futures(futures) => println!("{:#?}", futures),
+                _ => println!("not futures"),
+            }
         }
-        let spot_ticker = market.get_spot_tickers(Some(symbol)).await;
+    }
+
+
+    #[tokio::test]
+    async fn test_spot_ticker() {
+        let market: MarketData = Bybit::new(None, None);
+        let symbol = "ETHUSDT";
+        let spot_ticker = market.get_tickers(Some(symbol), Category::Spot).await;
         if let Ok(data) = spot_ticker {
-            println!("{:#?}", data.result.list);
+            match &data.result.list[0].clone() {
+                TickerData::Spot(spot) => println!("{:#?}", spot),
+                _ => println!("not spot"),
+            }
         }
     }
 

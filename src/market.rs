@@ -2,13 +2,7 @@ use crate::api::{Market, API};
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse,
-    InstrumentInfoResponse, FuturesTickersResponse, HistoricalVolatilityRequest,
-    HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentRequest, InsuranceResponse,
-    KlineRequest, KlineResponse, LongShortRatioResponse, MarkPriceKlineResponse,
-    OpenInterestRequest, OpeninterestResponse, OptionsInstrument, OrderBookResponse,
-    OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse,
-    RiskLimitRequest, RiskLimitResponse, SpotTickersResponse,
+    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse, HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentInfoResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse, LongShortRatioResponse, MarkPriceKlineResponse, OpenInterestRequest, OpeninterestResponse, OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, TickerResponse
 };
 use crate::util::{build_request, date_to_milliseconds};
 
@@ -291,9 +285,10 @@ impl MarketData {
         let category_value = match req.category {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
+            Category::Spot => "spot",
             _ => {
                 return Err(BybitError::from(
-                    "Category must be either Linear or Inverse".to_string(),
+                    "Invalid category".to_string(),
                 ))
             }
         };
@@ -316,15 +311,6 @@ impl MarketData {
             .get(API::Market(Market::InstrumentsInfo), Some(request))
             .await?;
         Ok(response)
-    }
-
-    
-
-    pub async fn get_options_instrument_info<'b>(
-        &self,
-        _req: InstrumentRequest<'_>,
-    ) -> Result<Vec<OptionsInstrument>, BybitError> {
-        todo!()
     }
 
     /// Asynchronously fetches the order book depth for a specified symbol within a certain category.
@@ -369,48 +355,24 @@ impl MarketData {
     /// # Returns
     ///
     /// A Result containing a vector of SpotTicker objects, or an error if the retrieval fails.
-    pub async fn get_spot_tickers(
+    pub async fn get_tickers(
         &self,
         symbol: Option<&str>,
-    ) -> Result<SpotTickersResponse, BybitError> {
+        category: Category,
+    ) -> Result<TickerResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
-        parameters.insert("category".into(), Category::Spot.as_str().into());
+        parameters.insert("category".into(), category.as_str().into());
         if let Some(symbol) = symbol {
             parameters.insert("symbol".into(), symbol.into());
         }
         let request = build_request(&parameters);
-        let response: SpotTickersResponse = self
+        let response: TickerResponse = self
             .client
             .get(API::Market(Market::Tickers), Some(request))
             .await?;
         Ok(response)
     }
 
-    /// Asynchronously retrieves Futures tickers based on the provided symbol.
-    ///
-    /// # Arguments
-    ///
-    /// * `symbol` - An optional reference to a string representing the symbol.
-    ///
-    /// # Returns
-    ///
-    /// A Result containing a vector of FuturesTicker objects, or an error if the retrieval fails.
-    pub async fn get_futures_tickers(
-        &self,
-        symbol: Option<&str>,
-    ) -> Result<FuturesTickersResponse, BybitError> {
-        let mut parameters: BTreeMap<String, String> = BTreeMap::new();
-        parameters.insert("category".into(), Category::Linear.as_str().into());
-        if let Some(symbol) = symbol {
-            parameters.insert("symbol".into(), symbol.into());
-        }
-        let request = build_request(&parameters);
-        let response: FuturesTickersResponse = self
-            .client
-            .get(API::Market(Market::Tickers), Some(request))
-            .await?;
-        Ok(response)
-    }
 
     /// Asynchronously retrieves the funding history based on specified criteria.
     ///
