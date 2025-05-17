@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 use crate::errors::BybitError;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{from_value, Value};
 use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
@@ -1702,17 +1702,23 @@ pub struct OrderHistoryResponse {
 #[serde(rename_all = "camelCase")]
 pub struct OrderHistory {
     pub category: String,
-    pub list: Vec<Orders>,
+    pub list: Vec<Order>,
     #[serde(rename = "nextPageCursor", skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct Orders {
+pub struct Order {
     pub order_id: String,
     pub order_link_id: String,
-    pub block_trade_id: String,
+
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub block_trade_id: Option<String>,
+
     pub symbol: String,
 
     #[serde(with = "string_to_float")]
@@ -1751,13 +1757,21 @@ pub struct Orders {
 
     pub time_in_force: String,
     pub order_type: OrderType,
-    pub stop_order_type: String,
 
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub order_iv: String,
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub stop_order_type: Option<String>,
 
-    #[serde(with = "string_to_float")]
-    pub trigger_price: f64,
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub order_iv: Option<String>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub trigger_price: Option<f64>,
 
     #[serde(with = "string_to_float_optional")]
     pub take_profit: Option<f64>,
@@ -1768,7 +1782,12 @@ pub struct Orders {
     pub tp_trigger_by: String,
     pub sl_trigger_by: String,
     pub trigger_direction: i32,
-    pub trigger_by: String,
+
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub trigger_by: Option<String>,
 
     #[serde(with = "string_to_float_optional")]
     pub last_price_on_created: Option<f64>,
@@ -1778,8 +1797,11 @@ pub struct Orders {
     pub smp_type: String,
     pub smp_group: i32,
 
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub smp_order_id: String,
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub smp_order_id: Option<String>,
 
     #[serde(skip_serializing_if = "String::is_empty")]
     pub tpsl_mode: String,
@@ -1790,14 +1812,33 @@ pub struct Orders {
     #[serde(with = "string_to_float_optional")]
     pub sl_limit_price: Option<f64>,
 
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub place_type: String,
+    #[serde(
+        deserialize_with = "empty_string_as_none",
+        skip_serializing_if = "is_empty_or_none"
+    )]
+    pub place_type: Option<String>,
 
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
 
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
+}
+
+// Custom function to check if Option<String> is None or Some("")
+fn is_empty_or_none(opt: &Option<String>) -> bool {
+    opt.as_ref().map_or(true, |s| s.is_empty())
+}
+
+// Custom deserialization function to treat empty strings as None
+fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    // Deserialize into a String first
+    let s = String::deserialize(deserializer)?;
+    // Return None if the string is empty, otherwise Some(s)
+    Ok(if s.is_empty() { None } else { Some(s) })
 }
 
 #[cfg(test)]
@@ -1851,7 +1892,7 @@ mod tests {
                 "updatedTime": "1684738540561"
             }
         "#;
-        let order: Orders = serde_json::from_str(json).unwrap();
+        let order: Order = serde_json::from_str(json).unwrap();
         assert_eq!(order.order_id, "fd4300ae-7847-404e-b947-b46980a4d140");
     }
 }
