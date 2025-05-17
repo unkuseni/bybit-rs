@@ -1992,12 +1992,10 @@ impl<'a> BatchPlaceRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchPlaceResponse {
-    #[serde(rename = "retCode")]
+    
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: BatchedOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2013,11 +2011,8 @@ pub struct BatchedOrderList {
 pub struct BatchedOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
-    #[serde(rename = "createAt")]
     pub create_at: String,
 }
 
@@ -2049,12 +2044,9 @@ impl<'a> BatchAmendRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct BatchAmendResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: AmendedOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2070,9 +2062,7 @@ pub struct AmendedOrderList {
 pub struct AmendedOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
 }
 
@@ -2093,13 +2083,10 @@ impl<'a> BatchCancelRequest<'a> {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct BatchCancelResponse {
-    #[serde(rename = "retCode")]
+pub struct BatchCancelResponse{
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: CanceledOrderList,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: OrderConfirmationList,
     pub time: u64,
 }
@@ -2115,9 +2102,7 @@ pub struct CanceledOrderList {
 pub struct CanceledOrder {
     pub category: String,
     pub symbol: String,
-    #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "orderLinkId")]
     pub order_link_id: String,
 }
 
@@ -2175,7 +2160,7 @@ pub struct InfoResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InfoResult {
     pub list: Vec<PositionInfo>,
-    #[serde(rename = "nextPageCursor", skip_serializing_if = "Option::is_none")]
+    #[serde( skip_serializing_if = "Option::is_none")]
     pub next_page_cursor: Option<String>,
     pub category: String,
 }
@@ -2241,80 +2226,50 @@ mod string_to_float_optional {
 #[serde(rename_all = "camelCase")]
 pub struct PositionInfo {
     pub position_idx: i32,
-
     pub risk_id: i32,
-
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
-
     pub symbol: String,
-
     pub side: String,
-
     #[serde(with = "string_to_float")]
     pub size: f64,
-
     #[serde(with = "string_to_float_optional")]
     pub avg_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub position_value: Option<f64>,
-
     pub trade_mode: i32,
-
     pub position_status: String,
-
     pub auto_add_margin: i32,
-
     pub adl_rank_indicator: i32,
-
     #[serde(with = "string_to_float_optional")]
     pub leverage: Option<f64>,
-
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
-
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
-
     #[serde(with = "string_to_float_optional")]
     pub liq_price: Option<f64>,
-
     pub bust_price: String,
-
     #[serde(rename = "positionMM", with = "string_to_float_optional")]
     pub position_mm: Option<f64>,
-
     #[serde(rename = "positionIM", with = "string_to_float_optional")]
     pub position_im: Option<f64>,
-
     pub tpsl_mode: String,
-
     pub take_profit: String,
-
     pub stop_loss: String,
-
     pub trailing_stop: String,
-
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub cum_realised_pnl: Option<f64>,
-
     pub seq: u64,
-
     pub is_reduce_only: bool,
-
     #[serde(with = "string_to_u64_optional")]
     pub mmr_sys_updated_time: Option<u64>,
-
     #[serde(with = "string_to_u64_optional")]
     pub leverage_sys_updated_time: Option<u64>,
-
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
-
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
 }
@@ -2394,12 +2349,9 @@ impl<'a> LeverageRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct LeverageResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2433,12 +2385,9 @@ impl<'a> ChangeMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ChangeMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2473,12 +2422,9 @@ impl<'a> MarginModeRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MarginModeResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2513,21 +2459,17 @@ impl<'a> SetRiskLimit<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SetRiskLimitResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: SetRiskLimitResult,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is a JSON value as per provided JSON
     pub time: u64,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SetRiskLimitResult {
-    #[serde(rename = "riskId")]
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue", with = "string_to_u64")]
+    #[serde(with = "string_to_u64")]
     pub risk_limit_value: u64,
     pub category: String,
 }
@@ -2608,12 +2550,9 @@ impl<'a> TradingStopRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TradingStopResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2648,12 +2587,9 @@ impl<'a> AddMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AddMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2688,12 +2624,9 @@ impl<'a> AddReduceMarginRequest<'a> {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AddReduceMarginResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i32,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: AddReduceMarginResult,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
     pub time: u64,
 }
@@ -2704,43 +2637,27 @@ pub struct AddReduceMarginResult {
     pub category: String,
     pub symbol: String,
     pub position_idx: i32,
-    #[serde(rename = "riskId")]
     pub risk_id: i32,
-    #[serde(rename = "riskLimitValue")]
     pub risk_limit_value: String,
     pub size: String,
-    #[serde(rename = "positionValue")]
     pub position_value: String,
-    #[serde(rename = "avgPrice")]
     pub avg_price: String,
-    #[serde(rename = "liqPrice")]
     pub liq_price: String,
-    #[serde(rename = "bustPrice")]
     pub bust_price: String,
-    #[serde(rename = "markPrice")]
     pub mark_price: String,
     pub leverage: String,
-    #[serde(rename = "autoAddMargin")]
     pub auto_add_margin: i32,
-    #[serde(rename = "positionStatus")]
     pub position_status: String,
     #[serde(rename = "positionIM")]
     pub position_im: String,
     #[serde(rename = "positionMM")]
     pub position_mm: String,
-    #[serde(rename = "unrealisedPnl")]
     pub unrealised_pnl: String,
-    #[serde(rename = "cumRealisedPnl")]
     pub cum_realised_pnl: String,
-    #[serde(rename = "stopLoss")]
     pub stop_loss: String,
-    #[serde(rename = "takeProfit")]
     pub take_profit: String,
-    #[serde(rename = "trailingStop")]
     pub trailing_stop: String,
-    #[serde(rename = "createdTime")]
     pub created_time: String,
-    #[serde(rename = "updatedTime")]
     pub updated_time: String,
 }
 
