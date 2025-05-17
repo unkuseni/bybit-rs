@@ -15,12 +15,9 @@ pub struct Empty {}
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ServerTimeResponse {
-    #[serde(rename = "retCode")]
     pub ret_code: i16,
-    #[serde(rename = "retMsg")]
     pub ret_msg: String,
     pub result: ServerTime,
-    #[serde(rename = "retExtInfo")]
     pub ret_ext_info: Empty,
     pub time: u64,
 }
