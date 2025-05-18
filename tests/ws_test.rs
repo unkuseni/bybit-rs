@@ -122,10 +122,10 @@ mod tests {
     #[tokio::test]
     async fn test_default_tickers() {
         let ws: Stream = Bybit::new(None, None);
-        let request = vec!["ADAUSDT", "MATICUSDT"];
+        let request = vec!["ETHUSDT", "ADAUSDT"];
         let (tx, mut rx) = mpsc::unbounded_channel();
         tokio::spawn(async move {
-            ws.ws_tickers(request, Category::Spot, tx).await.unwrap();
+            ws.ws_tickers(request, Category::Linear, tx).await.unwrap();
         });
         while let Some(data) = rx.recv().await {
             match data {
