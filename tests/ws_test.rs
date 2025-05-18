@@ -38,7 +38,7 @@ mod tests {
     async fn test_order_book() {
         let ws: Stream = Bybit::new(None, None);
         let request = Subscription {
-            args: vec!["publicTrade.ADAUSDT"],
+            args: vec!["publicTrade.ETHUSDT"],
             op: "subscribe",
         };
 
@@ -95,7 +95,7 @@ mod tests {
     async fn test_default_orderbook() {
         let ws: Stream = Bybit::new(None, None);
         let (tx, mut rx) = mpsc::unbounded_channel();
-        let request = vec![(1, "POLUSDT")];
+        let request = vec![(1, "ETHUSDT")];
         tokio::spawn(async move {
             ws.ws_orderbook(request, Category::Linear, tx)
                 .await
@@ -109,7 +109,7 @@ mod tests {
     #[tokio::test]
     async fn test_default_trades() {
         let ws: Stream = Bybit::new(None, None);
-        let request = vec!["BTCUSDT", "MATICUSDT", "ETHUSDT", "ADAUSDT"];
+        let request = vec!["BTCUSDT", "SOLUSDT", "ETHUSDT", "XRPUSDT"];
         let (tx, mut rx) = mpsc::unbounded_channel();
         tokio::spawn(async move {
             ws.ws_trades(request, Category::Linear, tx).await.unwrap();
@@ -122,10 +122,10 @@ mod tests {
     #[tokio::test]
     async fn test_default_tickers() {
         let ws: Stream = Bybit::new(None, None);
-        let request = vec!["ADAUSDT", "MATICUSDT"];
+        let request = vec!["ETHUSDT", "SOLUSDT"];
         let (tx, mut rx) = mpsc::unbounded_channel();
         tokio::spawn(async move {
-            ws.ws_tickers(request, Category::Spot, tx).await.unwrap();
+            ws.ws_tickers(request, Category::Linear, tx).await.unwrap();
         });
         while let Some(data) = rx.recv().await {
             match data {
@@ -142,7 +142,7 @@ mod tests {
     #[tokio::test]
     async fn test_default_klines() {
         let ws: Stream = Bybit::new(None, None);
-        let request = vec![("1", "MATICUSDT")];
+        let request = vec![("1", "ETHUSDT")];
         let (tx, mut rx) = mpsc::unbounded_channel();
         tokio::spawn(async move {
             ws.ws_klines(request, Category::Linear, tx).await.unwrap();

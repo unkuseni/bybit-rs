@@ -2,6 +2,7 @@
 use crate::errors::BybitError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{from_value, Value};
+use core::f64;
 use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
 
@@ -1658,58 +1659,44 @@ pub struct Order {
         skip_serializing_if = "is_empty_or_none"
     )]
     pub order_iv: Option<String>,
-
     #[serde(with = "string_to_float_optional")]
     pub trigger_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub take_profit: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub stop_loss: Option<f64>,
-
     pub tp_trigger_by: String,
     pub sl_trigger_by: String,
     pub trigger_direction: i32,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub trigger_by: Option<String>,
-
     #[serde(with = "string_to_float_optional")]
     pub last_price_on_created: Option<f64>,
-
     pub reduce_only: bool,
     pub close_on_trigger: bool,
     pub smp_type: String,
     pub smp_group: i32,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub smp_order_id: Option<String>,
-
     #[serde(skip_serializing_if = "String::is_empty")]
     pub tpsl_mode: String,
-
     #[serde(with = "string_to_float_optional")]
     pub tp_limit_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub sl_limit_price: Option<f64>,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub place_type: Option<String>,
-
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
-
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
 }
@@ -1830,10 +1817,8 @@ impl<'a> CancelallRequest<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct CancelallResponse {
     pub ret_code: i32,
-
     pub ret_msg: String,
     pub result: CancelledList,
-
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -1881,22 +1866,29 @@ pub struct TradeHistory {
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub fee_currency: String,
     pub is_maker: bool,
-    pub exec_fee: String,
+    #[serde(with = "string_to_float")]
+    pub exec_fee: f64,
     pub fee_rate: String,
     pub exec_id: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub trade_iv: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub block_trade_id: String,
-    pub mark_price: String,
-    pub exec_price: String,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_price: f64,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub mark_iv: String,
-    pub order_qty: String,
-    pub order_price: String,
-    pub exec_value: String,
+    #[serde(with = "string_to_float")]
+    pub order_qty: f64,
+    #[serde(with = "string_to_float")]
+    pub order_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_value: f64,
     pub exec_type: String,
-    pub exec_qty: String,
+    #[serde(with = "string_to_float")]
+    pub exec_qty: f64,
     #[serde(
         rename = "closedSize",
         default,
@@ -2227,14 +2219,17 @@ pub struct PositionInfo {
     pub mark_price: f64,
     #[serde(with = "string_to_float_optional")]
     pub liq_price: Option<f64>,
-    pub bust_price: String,
+    #[serde(with = "string_to_float")]
+    pub bust_price: f64,
     #[serde(rename = "positionMM", with = "string_to_float_optional")]
     pub position_mm: Option<f64>,
     #[serde(rename = "positionIM", with = "string_to_float_optional")]
     pub position_im: Option<f64>,
     pub tpsl_mode: String,
-    pub take_profit: String,
-    pub stop_loss: String,
+    #[serde(with = "string_to_float")]
+    pub take_profit: f64,
+    #[serde(with = "string_to_float")]
+    pub stop_loss: f64,
     pub trailing_stop: String,
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
@@ -2616,13 +2611,20 @@ pub struct AddReduceMarginResult {
     pub symbol: String,
     pub position_idx: i32,
     pub risk_id: i32,
-    pub risk_limit_value: String,
-    pub size: String,
-    pub position_value: String,
-    pub avg_price: String,
-    pub liq_price: String,
-    pub bust_price: String,
-    pub mark_price: String,
+    #[serde(with = "string_to_float")]
+    pub risk_limit_value: f64,
+    #[serde(with = "string_to_float")]
+    pub size: f64,
+    #[serde(with = "string_to_float")]
+    pub position_value: f64,
+    #[serde(with = "string_to_float")]
+    pub avg_price: f64,
+    #[serde(with = "string_to_float")]
+    pub liq_price: f64,
+    #[serde(with = "string_to_float")]
+    pub bust_price: f64,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
     pub leverage: String,
     pub auto_add_margin: i32,
     pub position_status: String,
@@ -2694,20 +2696,24 @@ pub struct ClosedPnlItem {
     pub symbol: String,
     pub order_type: String,
     pub leverage: String,
-    pub updated_time: String,
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
     pub side: String,
     pub order_id: String,
     #[serde(with = "string_to_float")]
     pub closed_pnl: f64,
     #[serde(with = "string_to_float")]
     pub avg_entry_price: f64,
-    pub qty: String,
+    #[serde(with = "string_to_float")]
+    pub qty: f64,
     #[serde(with = "string_to_float")]
     pub cum_entry_value: f64,
-    pub created_time: String,
+    #[serde(with = "string_to_float")]
+    pub created_time: f64,
     #[serde(with = "string_to_float")]
     pub order_price: f64,
-    pub closed_size: String,
+    #[serde(with = "string_to_float")]
+    pub closed_size: f64,
     #[serde(with = "string_to_float")]
     pub avg_exit_price: f64,
     pub exec_type: String,
@@ -2837,9 +2843,12 @@ pub struct MoveHistoryEntry {
     pub user_id: u64,
     pub symbol: String,
     pub side: String,
-    pub price: String,
-    pub qty: String,
-    pub exec_fee: String,
+    #[serde(with = "string_to_float")]
+    pub price: f64,
+    #[serde(with = "string_to_float")]
+    pub qty: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_fee: f64,
     pub status: String,
     pub exec_id: String,
     pub result_code: i16,
@@ -2940,15 +2949,21 @@ pub struct BorrowHistory {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BorrowHistoryEntry {
-    pub borrow_amount: String,
+    #[serde(with = "string_to_float")]
+    pub borrow_amount: f64,
     pub cost_exemption: String,
-    pub free_borrowed_amount: String,
+    #[serde(with = "string_to_float")]
+    pub free_borrowed_amount: f64,
     pub created_time: u64,
-    pub interest_bearing_borrow_size: String,
+    #[serde(with = "string_to_float")]
+    pub interest_bearing_borrow_size: f64,
     pub currency: String,
-    pub unrealised_loss: String,
-    pub hourly_borrow_rate: String,
-    pub borrow_cost: String,
+    #[serde(with = "string_to_float")]
+    pub unrealised_loss: f64,
+    #[serde(with = "string_to_float")]
+    pub hourly_borrow_rate: f64,
+    #[serde(with = "string_to_float")]
+    pub borrow_cost: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -2970,7 +2985,8 @@ pub struct LiabilityQty {
 #[serde(rename_all = "camelCase")]
 pub struct LiabilityQtyData {
     pub coin: String,
-    pub repayment_qty: String,
+    #[serde(with = "string_to_float")]
+    pub repayment_qty: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -3026,13 +3042,19 @@ pub struct CollateralInfoList {
 #[serde(rename_all = "camelCase")]
 pub struct CollateralInfo {
     pub available_to_borrow: String,
-    pub free_borrowing_amount: String,
-    pub free_borrow_amount: String,
-    pub max_borrowing_amount: String,
-    pub hourly_borrow_rate: String,
-    pub borrow_usage_rate: String,
+    #[serde(with = "string_to_float")]
+    pub free_borrowing_amount: f64,
+    #[serde(with = "string_to_float")]
+    pub free_borrow_amount: f64,
+    #[serde(with = "string_to_float")]
+    pub max_borrowing_amount: f64,
+    #[serde(with = "string_to_float")]
+    pub hourly_borrow_rate: f64,
+    #[serde(with = "string_to_float")]
+    pub borrow_usage_rate: f64,
     pub collateral_switch: bool,
-    pub borrow_amount: String,
+    #[serde(with = "string_to_float")]
+    pub borrow_amount: f64,
     pub borrowable: bool,
     pub currency: String,
     pub margin_collateral: bool,
@@ -3080,7 +3102,8 @@ pub struct AccountInfoResponse {
 #[serde(rename_all = "camelCase")]
 pub struct AccountInfo {
     pub margin_mode: String,
-    pub updated_time: String,
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
     pub unified_margin_status: i8,
     pub dcp_status: String,
     pub time_window: i32,
@@ -3137,16 +3160,21 @@ pub struct TransactionLogEntry {
     pub funding: Option<String>,
     pub order_link_id: Option<String>,
     pub order_id: String,
-    pub fee: String,
+    #[serde(with = "string_to_float")]
+    pub fee: f64,
     pub change: String,
-    pub cash_flow: String,
+    #[serde(with = "string_to_float")]
+    pub cash_flow: f64,
     pub transaction_time: String,
     pub type_field: String,
     pub fee_rate: String,
     pub bonus_change: Option<String>,
-    pub size: String,
-    pub qty: String,
-    pub cash_balance: String,
+    #[serde(with = "string_to_float")]
+    pub size: f64,
+    #[serde(with = "string_to_float")]
+    pub qty: f64,
+    #[serde(with = "string_to_float")]
+    pub cash_balance: f64,
     pub currency: String,
     pub category: String,
     pub trade_price: String,
@@ -3410,41 +3438,42 @@ pub struct LinearTickerData {
     pub symbol: String,
     #[serde(rename = "tickDirection")]
     pub tick_direction: String,
-    #[serde(rename = "price24hPcnt")]
-    pub price_24h_pcnt: String,
-    #[serde(rename = "lastPrice")]
-    pub last_price: String,
-    #[serde(rename = "prevPrice24h")]
-    pub prev_price_24h: String,
-    #[serde(rename = "highPrice24h")]
-    pub high_price_24h: String,
-    #[serde(rename = "lowPrice24h")]
-    pub low_price_24h: String,
-    #[serde(rename = "prevPrice1h")]
-    pub prev_price_1h: String,
-    #[serde(rename = "markPrice")]
-    pub mark_price: String,
-    #[serde(rename = "indexPrice")]
-    pub index_price: String,
-    #[serde(rename = "openInterest")]
-    pub open_interest: String,
-    #[serde(rename = "openInterestValue")]
-    pub open_interest_value: String,
-    #[serde(rename = "turnover24h")]
-    pub turnover_24h: String,
-    #[serde(rename = "volume24h")]
-    pub volume_24h: String,
-    pub next_funding_time: String,
-    #[serde(rename = "fundingRate")]
-    pub funding_rate: String,
-    #[serde(rename = "bid1Price")]
-    pub bid_price: String,
-    #[serde(rename = "bid1Size")]
-    pub bid_size: String,
-    #[serde(rename = "ask1Price")]
-    pub ask_price: String,
-    #[serde(rename = "ask1Size")]
-    pub ask_size: String,
+    #[serde(rename = "price24hPcnt", with = "string_to_float")]
+    pub price_24h_pcnt: f64,
+    #[serde(with = "string_to_float")]
+    pub last_price: f64,
+    #[serde(rename = "prevPrice24h", with = "string_to_float")]
+    pub prev_price_24h: f64,
+    #[serde(rename = "highPrice24h", with = "string_to_float")]
+    pub high_price_24h: f64,
+    #[serde(rename = "lowPrice24h", with = "string_to_float")]
+    pub low_price_24h: f64,
+    #[serde(rename = "prevPrice1h", with = "string_to_float")]
+    pub prev_price_1h: f64,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+    #[serde(with = "string_to_float")]
+    pub index_price: f64,
+    #[serde(with = "string_to_float")]
+    pub open_interest: f64,
+    #[serde(with = "string_to_float")]
+    pub open_interest_value: f64,
+    #[serde(rename = "turnover24h", with = "string_to_float")]
+    pub turnover_24h: f64,
+    #[serde(rename = "volume24h", with = "string_to_float")]
+    pub volume_24h: f64,
+    #[serde(with = "string_to_u64")]
+    pub next_funding_time: u64,
+    #[serde(with = "string_to_float")]
+    pub funding_rate: f64,
+    #[serde(rename = "bid1Price", with = "string_to_float")]
+    pub bid_price: f64,
+    #[serde(rename = "bid1Size", with = "string_to_float")]
+    pub bid_size: f64,
+    #[serde(rename = "ask1Price", with = "string_to_float")]
+    pub ask_price: f64,
+    #[serde(rename = "ask1Size", with = "string_to_float")]
+    pub ask_size: f64,
 }
 
 unsafe impl Send for LinearTickerData {}
@@ -3454,20 +3483,22 @@ unsafe impl Sync for LinearTickerData {}
 #[serde(rename_all = "camelCase")]
 pub struct SpotTickerData {
     pub symbol: String,
-    pub last_price: String,
-    #[serde(rename = "highPrice24h")]
-    pub high_price_24h: String,
-    #[serde(rename = "lowPrice24h")]
-    pub low_price_24h: String,
-    #[serde(rename = "prevPrice24h")]
-    pub prev_price_24h: String,
-    #[serde(rename = "volume24h")]
-    pub volume_24h: String,
-    #[serde(rename = "turnover24h")]
-    pub turnover_24h: String,
-    #[serde(rename = "price24hPcnt")]
-    pub price_24h_pcnt: String,
-    pub usd_index_price: String,
+    #[serde(with = "string_to_float")]
+    pub last_price: f64,
+    #[serde(with = "string_to_float")]
+    pub high_price_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub low_price_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub prev_price_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub volume_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub turnover_24h: f64,
+    #[serde(with = "string_to_float")]
+    pub price_24h_pcnt: f64,
+    #[serde(with = "string_to_float")]
+    pub usd_index_price: f64,
 }
 
 unsafe impl Send for SpotTickerData {}
@@ -3522,12 +3553,18 @@ pub struct KlineData {
     pub start: u64,
     pub end: u64,
     pub interval: String,
-    pub open: String,
-    pub close: String,
-    pub high: String,
-    pub low: String,
-    pub volume: String,
-    pub turnover: String,
+    #[serde(with = "string_to_float")]
+    pub open: f64,
+    #[serde(with = "string_to_float")]
+    pub close: f64,
+    #[serde(with = "string_to_float")]
+    pub high: f64,
+    #[serde(with = "string_to_float")]
+    pub low: f64,
+    #[serde(with = "string_to_float")]
+    pub volume: f64,
+    #[serde(with = "string_to_float")]
+    pub turnover: f64,
     pub confirm: bool,
     pub timestamp: u64,
 }
@@ -3557,29 +3594,40 @@ pub struct PositionData {
     pub risk_limit_value: String,
     pub symbol: String,
     pub side: String,
-    pub size: String,
-    pub entry_price: String,
+    #[serde(with = "string_to_float")]
+    pub size: f64,
+    #[serde(with = "string_to_float")]
+    pub entry_price: f64,
     pub leverage: String,
-    pub position_value: String,
-    pub position_balance: String,
-    pub mark_price: String,
+    #[serde(with = "string_to_float")]
+    pub position_value: f64,
+    #[serde(with = "string_to_float")]
+    pub position_balance: f64,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
     #[serde(rename = "positionIM")]
     pub position_im: String,
     #[serde(rename = "positionMM")]
     pub position_mm: String,
-    pub take_profit: String,
-    pub stop_loss: String,
+    #[serde(with = "string_to_float")]
+    pub take_profit: f64,
+    #[serde(with = "string_to_float")]
+    pub stop_loss: f64,
     pub trailing_stop: String,
     #[serde(rename = "unrealisedPnl")]
     pub unrealised_pnl: String,
     #[serde(rename = "cumRealisedPnl")]
     pub cum_realised_pnl: String,
-    pub created_time: String,
-    pub updated_time: String,
+    #[serde(with = "string_to_u64")]
+    pub created_time: u64,
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
     #[serde(rename = "tpslMode")]
     pub tpsl_mode: String,
-    pub liq_price: String,
-    pub bust_price: String,
+    #[serde(with = "string_to_float")]
+    pub liq_price: f64,
+    #[serde(with = "string_to_float")]
+    pub bust_price: f64,
     pub category: String,
     pub position_status: String,
     pub adl_rank_indicator: u8,
@@ -3612,34 +3660,45 @@ unsafe impl Sync for Execution {}
 pub struct ExecutionData {
     pub category: String,
     pub symbol: String,
-    pub exec_fee: String,
+    #[serde(with = "string_to_float")]
+    pub exec_fee: f64,
     pub exec_id: String,
-    pub exec_price: String,
-    pub exec_qty: String,
+    #[serde(with = "string_to_float")]
+    pub exec_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_qty: f64,
     pub exec_type: String,
-    pub exec_value: String,
+    #[serde(with = "string_to_float")]
+    pub exec_value: f64,
     pub is_maker: bool,
-    #[serde(rename = "feeRate")]
-    pub fee_rate: String,
+    #[serde(rename = "feeRate", with = "string_to_float")]
+    pub fee_rate: f64,
     #[serde(rename = "tradeIv")]
     pub trade_iv: String,
     #[serde(rename = "markIv")]
     pub mark_iv: String,
     #[serde(rename = "blockTradeId")]
     pub block_trade_id: String,
-    pub mark_price: String,
-    pub index_price: String,
-    pub underlying_price: String,
-    pub leaves_qty: String,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+    #[serde(with = "string_to_float")]
+    pub index_price: f64,
+    #[serde(with = "string_to_float")]
+    pub underlying_price: f64,
+    #[serde(with = "string_to_float")]
+    pub leaves_qty: f64,
     pub order_id: String,
     pub order_link_id: String,
-    pub order_price: String,
-    pub order_qty: String,
+    #[serde(with = "string_to_float")]
+    pub order_price: f64,
+    #[serde(with = "string_to_float")]
+    pub order_qty: f64,
     pub order_type: String,
     #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
     pub side: String,
-    pub exec_time: String,
+    #[serde(with = "string_to_u64")]
+    pub exec_time: u64,
     pub is_leverage: String,
     pub closed_size: String,
     pub seq: u64,
@@ -3665,12 +3724,15 @@ pub struct FastExecData {
     pub category: String,
     pub symbol: String,
     pub exec_id: String,
-    pub exec_price: String,
-    pub exec_qty: String,
+    #[serde(with = "string_to_float")]
+    pub exec_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_qty: f64,
     pub order_id: String,
     pub order_link_id: String,
     pub side: String,
-    pub exec_time: String,
+    #[serde(with = "string_to_u64")]
+    pub exec_time: u64,
     pub seq: u64,
 }
 
@@ -3685,41 +3747,55 @@ pub struct OrderData {
     pub side: String,
     pub order_type: String,
     pub cancel_type: String,
-    pub price: String,
-    pub qty: String,
+    #[serde(with = "string_to_float")]
+    pub price: f64,
+    #[serde(with = "string_to_float")]
+    pub qty: f64,
     pub order_iv: String,
     pub time_in_force: String,
     pub order_status: String,
     pub order_link_id: String,
-    pub last_price_on_created: String,
+    #[serde(with = "string_to_float")]
+    pub last_price_on_created: f64,
     pub reduce_only: bool,
-    pub leaves_qty: String,
-    pub leaves_value: String,
-    pub cum_exec_qty: String,
-    pub cum_exec_value: String,
-    pub avg_price: String,
+    #[serde(with = "string_to_float")]
+    pub leaves_qty: f64,
+    #[serde(with = "string_to_float")]
+    pub leaves_value: f64,
+    #[serde(with = "string_to_float")]
+    pub cum_exec_qty: f64,
+    #[serde(with = "string_to_float")]
+    pub cum_exec_value: f64,
+    #[serde(with = "string_to_float")]
+    pub avg_price: f64,
     pub block_trade_id: String,
     #[serde(rename = "positionIdx")]
     pub position_idx: u8,
-    pub cum_exec_fee: String,
-    pub created_time: String,
-    pub updated_time: String,
+    #[serde(with = "string_to_float")]
+    pub cum_exec_fee: f64,
+    #[serde(with = "string_to_u64")]
+    pub created_time: u64,
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
     pub reject_reason: String,
     #[serde(rename = "stopOrderType")]
     pub stop_order_type: String,
     #[serde(rename = "tpslMode")]
     pub tpsl_mode: String,
-    pub trigger_price: String,
-    pub take_profit: String,
-    pub stop_loss: String,
+    #[serde(with = "string_to_float")]
+    pub trigger_price: f64,
+    #[serde(with = "string_to_float")]
+    pub take_profit: f64,
+    #[serde(with = "string_to_float")]
+    pub stop_loss: f64,
     #[serde(rename = "tpTriggerBy")]
     pub tp_trigger_by: String,
     #[serde(rename = "slTriggerBy")]
     pub sl_trigger_by: String,
-    #[serde(rename = "tpLimitPrice")]
-    pub tp_limit_price: String,
-    #[serde(rename = "slLimitPrice")]
-    pub sl_limit_price: String,
+    #[serde(rename = "tpLimitPrice", with = "string_to_float")]
+    pub tp_limit_price: f64,
+    #[serde(rename = "slLimitPrice", with = "string_to_float")]
+    pub sl_limit_price: f64,
     pub trigger_direction: u8,
     pub trigger_by: String,
     pub close_on_trigger: bool,
@@ -3772,10 +3848,12 @@ pub struct WalletData {
     pub total_margin_balance: f64,
     #[serde(with = "string_to_float")]
     pub total_available_balance: f64,
-    #[serde(rename = "totalPerpUPL")]
-    pub total_perp_upl: String,
-    pub total_initial_margin: String,
-    pub total_maintenance_margin: String,
+    #[serde(rename = "totalPerpUPL", with = "string_to_float")]
+    pub total_perp_upl: f64,
+    #[serde(with = "string_to_float")]
+    pub total_initial_margin: f64,
+    #[serde(with = "string_to_float")]
+    pub total_maintenance_margin: f64,
     pub coin: Vec<CoinData>,
     #[serde(rename = "accountLTV")]
     pub account_ltv: String,
@@ -3788,17 +3866,22 @@ unsafe impl Sync for WalletData {}
 #[serde(rename_all = "camelCase")]
 pub struct CoinData {
     pub coin: String,
-    pub equity: String,
-    pub usd_value: String,
-    pub wallet_balance: String,
-    pub available_to_withdraw: String,
-    pub available_to_borrow: String,
+    #[serde(with = "string_to_float")]
+    pub equity: f64,
+    #[serde(with = "string_to_float")]
+    pub usd_value: f64,
+    #[serde(with = "string_to_float")]
+    pub wallet_balance: f64,
+    #[serde(with = "string_to_float")]
+    pub available_to_withdraw: f64,
+    #[serde(with = "string_to_float")]
+    pub available_to_borrow: f64,
     #[serde(with = "string_to_float")]
     pub borrow_amount: f64,
     #[serde(with = "string_to_float")]
     pub accrued_interest: f64,
-    #[serde(rename = "totalOrderIM")]
-    pub total_order_im: String,
+    #[serde(rename = "totalOrderIM", with = "string_to_float")]
+    pub total_order_im: f64,
     #[serde(rename = "totalPositionIM")]
     pub total_position_im: String,
     #[serde(rename = "totalPositionMM")]

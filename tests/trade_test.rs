@@ -15,7 +15,7 @@ mod tests {
     async fn test_trade() {
         let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let order = trade
-            .place_futures_limit_order(Category::Linear, "MATICUSDT", Side::Buy, 100.0, 0.7500, 0)
+            .place_futures_limit_order(Category::Linear, "ETHUSDT", Side::Buy, 100.0, 0.7500, 0)
             .await;
         println!("{:#?}", order);
     }
@@ -65,7 +65,7 @@ mod tests {
         let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let request = vec![
             OrderRequest {
-                symbol: "MATICUSDT".into(),
+                symbol: "ETHUSDT".into(),
                 side: Side::Buy,
                 qty: 100.0,
                 order_type: OrderType::Market,
