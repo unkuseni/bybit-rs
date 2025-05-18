@@ -1,8 +1,8 @@
 #![allow(unused_imports)]
 use crate::errors::BybitError;
+use core::f64;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{from_value, Value};
-use core::f64;
 use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
 
@@ -918,7 +918,8 @@ pub struct LongShortRatio {
 /// --------------------------------------------------
 ///  REQUEST & RESPONSE STRUCTS FOR TRADE
 /// --------------------------------------------------
-#[derive(Clone, Copy, Default, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Category {
     Spot,
     #[default]
@@ -926,6 +927,7 @@ pub enum Category {
     Inverse,
     Option,
 }
+
 impl Category {
     pub fn as_str(&self) -> &str {
         match self {
@@ -1706,15 +1708,22 @@ fn is_empty_or_none(opt: &Option<String>) -> bool {
     opt.as_ref().map_or(true, |s| s.is_empty())
 }
 
-// Custom deserialization function to treat empty strings as None
-fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+fn empty_string_as_none<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     D: Deserializer<'de>,
+    T: Deserialize<'de>,
 {
-    // Deserialize into a String first
-    let s = String::deserialize(deserializer)?;
-    // Return None if the string is empty, otherwise Some(s)
-    Ok(if s.is_empty() { None } else { Some(s) })
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        Some(ref s) if s.trim().is_empty() => Ok(None),
+        Some(s) => {
+            let kind = T::deserialize(serde_json::Value::String(s))
+                .map(Some)
+                .map_err(serde::de::Error::custom)?;
+            Ok(kind)
+        }
+        None => Ok(None),
+    }
 }
 
 #[cfg(test)]
@@ -2196,56 +2205,88 @@ mod string_to_float_optional {
 #[serde(rename_all = "camelCase")]
 pub struct PositionInfo {
     pub position_idx: i32,
+
     pub risk_id: i32,
+
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
+
     pub symbol: String,
-    pub side: String,
+
+    #[serde(deserialize_with = "empty_string_as_none")]
+    pub side: Option<Side>,
+
     #[serde(with = "string_to_float")]
     pub size: f64,
+
     #[serde(with = "string_to_float_optional")]
     pub avg_price: Option<f64>,
+
     #[serde(with = "string_to_float_optional")]
     pub position_value: Option<f64>,
+
     pub trade_mode: i32,
+
     pub position_status: String,
+
     pub auto_add_margin: i32,
+
     pub adl_rank_indicator: i32,
+
     #[serde(with = "string_to_float_optional")]
     pub leverage: Option<f64>,
+
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
+
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
+
     #[serde(with = "string_to_float_optional")]
     pub liq_price: Option<f64>,
-    #[serde(with = "string_to_float")]
-    pub bust_price: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub bust_price: Option<f64>,
+
     #[serde(rename = "positionMM", with = "string_to_float_optional")]
     pub position_mm: Option<f64>,
+
     #[serde(rename = "positionIM", with = "string_to_float_optional")]
     pub position_im: Option<f64>,
+
     pub tpsl_mode: String,
-    #[serde(with = "string_to_float")]
-    pub take_profit: f64,
-    #[serde(with = "string_to_float")]
-    pub stop_loss: f64,
+
+    #[serde(with = "string_to_float_optional")]
+    pub take_profit: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub stop_loss: Option<f64>,
+
     pub trailing_stop: String,
+
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
+
     #[serde(with = "string_to_float_optional")]
     pub cum_realised_pnl: Option<f64>,
+
     pub seq: u64,
+
     pub is_reduce_only: bool,
+
     #[serde(with = "string_to_u64_optional")]
     pub mmr_sys_updated_time: Option<u64>,
+
     #[serde(with = "string_to_u64_optional")]
     pub leverage_sys_updated_time: Option<u64>,
+
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
+
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
 }
+
 #[cfg(test)]
 mod test_decode_position_info {
     use super::*;
@@ -2607,38 +2648,61 @@ pub struct AddReduceMarginResponse {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AddReduceMarginResult {
-    pub category: String,
+    pub category: Category,
+
     pub symbol: String,
+
     pub position_idx: i32,
+
     pub risk_id: i32,
+
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
+
     #[serde(with = "string_to_float")]
     pub size: f64,
+
     #[serde(with = "string_to_float")]
     pub position_value: f64,
+
     #[serde(with = "string_to_float")]
     pub avg_price: f64,
+
     #[serde(with = "string_to_float")]
     pub liq_price: f64,
+
     #[serde(with = "string_to_float")]
     pub bust_price: f64,
+
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
+
     pub leverage: String,
     pub auto_add_margin: i32,
     pub position_status: String,
+
     #[serde(rename = "positionIM")]
     pub position_im: String,
+
     #[serde(rename = "positionMM")]
     pub position_mm: String,
+
     pub unrealised_pnl: String,
     pub cum_realised_pnl: String,
-    pub stop_loss: String,
-    pub take_profit: String,
+
+    #[serde(with = "string_to_float_optional")]
+    pub stop_loss: Option<f64>,
+
+    #[serde(with = "string_to_float_optional")]
+    pub take_profit: Option<f64>,
+
     pub trailing_stop: String,
-    pub created_time: String,
-    pub updated_time: String,
+
+    #[serde(with = "string_to_u64")]
+    pub created_time: u64,
+
+    #[serde(with = "string_to_u64")]
+    pub updated_time: u64,
 }
 
 #[derive(Clone, Default)]
