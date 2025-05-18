@@ -3670,56 +3670,87 @@ unsafe impl Sync for PositionEvent {}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PositionData {
-    #[serde(rename = "positionIdx")]
     pub position_idx: u8,
+
     pub trade_mode: u8,
+
     pub risk_id: u8,
+
     pub risk_limit_value: String,
+
     pub symbol: String,
-    pub side: String,
+
+    pub side: Side,
+
     #[serde(with = "string_to_float")]
     pub size: f64,
+
     #[serde(with = "string_to_float")]
     pub entry_price: f64,
+
     pub leverage: String,
+
     #[serde(with = "string_to_float")]
     pub position_value: f64,
+
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
+
     #[serde(with = "string_to_float")]
     pub mark_price: f64,
+
     #[serde(rename = "positionIM")]
     pub position_im: String,
+
     #[serde(rename = "positionMM")]
     pub position_mm: String,
+
     #[serde(with = "string_to_float")]
     pub take_profit: f64,
+
     #[serde(with = "string_to_float")]
     pub stop_loss: f64,
-    pub trailing_stop: String,
+
+    #[serde(with = "string_to_float_optional")]
+    pub trailing_stop: Option<f64>,
+
     #[serde(rename = "unrealisedPnl")]
     pub unrealised_pnl: String,
+
     #[serde(rename = "cumRealisedPnl")]
     pub cum_realised_pnl: String,
+
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
+
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
+
     #[serde(rename = "tpslMode")]
     pub tpsl_mode: String,
+
     #[serde(with = "string_to_float")]
     pub liq_price: f64,
-    #[serde(with = "string_to_float")]
-    pub bust_price: f64,
-    pub category: String,
+
+    #[serde(with = "string_to_float_optional")]
+    pub bust_price: Option<f64>,
+
+    pub category: Category,
+
     pub position_status: String,
+
     pub adl_rank_indicator: u8,
+
     pub auto_add_margin: u8,
-    #[serde(rename = "leverageSysUpdatedTime")]
-    pub leverage_sys_updated_time: String,
-    #[serde(rename = "mmrSysUpdatedTime")]
-    pub mmr_sys_updated_time: String,
+
+    #[serde(with = "string_to_u64_optional")]
+    pub mmr_sys_updated_time: Option<u64>,
+
+    #[serde(with = "string_to_u64_optional")]
+    pub leverage_sys_updated_time: Option<u64>,
+
     pub seq: u64,
+
     pub is_reduce_only: bool,
 }
 
