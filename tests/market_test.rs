@@ -227,7 +227,7 @@ mod tests {
     async fn test_risk_limit() {
         let market: MarketData =
             Bybit::new_with_config(&Config::default().set_recv_window(1000), None, None);
-        let symbol = "MATICUSDT";
+        let symbol = "ETHUSDT";
         let request: RiskLimitRequest<'_> = RiskLimitRequest::new(Category::Linear, Some(symbol));
         let risk_limit = market.get_risk_limit(request).await;
         if let Ok(data) = risk_limit {
