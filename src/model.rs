@@ -2,6 +2,7 @@
 use crate::errors::BybitError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{from_value, Value};
+use core::f64;
 use std::{borrow::Cow, collections::BTreeMap};
 use thiserror::Error;
 
@@ -1658,58 +1659,44 @@ pub struct Order {
         skip_serializing_if = "is_empty_or_none"
     )]
     pub order_iv: Option<String>,
-
     #[serde(with = "string_to_float_optional")]
     pub trigger_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub take_profit: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub stop_loss: Option<f64>,
-
     pub tp_trigger_by: String,
     pub sl_trigger_by: String,
     pub trigger_direction: i32,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub trigger_by: Option<String>,
-
     #[serde(with = "string_to_float_optional")]
     pub last_price_on_created: Option<f64>,
-
     pub reduce_only: bool,
     pub close_on_trigger: bool,
     pub smp_type: String,
     pub smp_group: i32,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub smp_order_id: Option<String>,
-
     #[serde(skip_serializing_if = "String::is_empty")]
     pub tpsl_mode: String,
-
     #[serde(with = "string_to_float_optional")]
     pub tp_limit_price: Option<f64>,
-
     #[serde(with = "string_to_float_optional")]
     pub sl_limit_price: Option<f64>,
-
     #[serde(
         deserialize_with = "empty_string_as_none",
         skip_serializing_if = "is_empty_or_none"
     )]
     pub place_type: Option<String>,
-
     #[serde(with = "string_to_u64")]
     pub created_time: u64,
-
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
 }
@@ -1830,10 +1817,8 @@ impl<'a> CancelallRequest<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct CancelallResponse {
     pub ret_code: i32,
-
     pub ret_msg: String,
     pub result: CancelledList,
-
     pub ret_ext_info: Empty,
     pub time: u64,
 }
@@ -1881,22 +1866,29 @@ pub struct TradeHistory {
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub fee_currency: String,
     pub is_maker: bool,
-    pub exec_fee: String,
+    #[serde(with = "string_to_float")]
+    pub exec_fee: f64,
     pub fee_rate: String,
     pub exec_id: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub trade_iv: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub block_trade_id: String,
-    pub mark_price: String,
-    pub exec_price: String,
+    #[serde(with = "string_to_float")]
+    pub mark_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_price: f64,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub mark_iv: String,
-    pub order_qty: String,
-    pub order_price: String,
-    pub exec_value: String,
+    #[serde(with = "string_to_float")]
+    pub order_qty: f64,
+    #[serde(with = "string_to_float")]
+    pub order_price: f64,
+    #[serde(with = "string_to_float")]
+    pub exec_value: f64,
     pub exec_type: String,
-    pub exec_qty: String,
+    #[serde(with = "string_to_float")]
+    pub exec_qty: f64,
     #[serde(
         rename = "closedSize",
         default,
