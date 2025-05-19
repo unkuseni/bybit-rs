@@ -5552,7 +5552,7 @@ pub struct PositionInfo {
     /// The sequence number of the position update.
     ///
     /// A unique sequence ID for ordering position updates. Bots use this to ensure proper chronological processing of position data.
-    pub seq: u64,
+    pub seq: i64,
 
     /// Indicates if the position is reduce-only.
     ///
@@ -9868,15 +9868,15 @@ pub struct WalletData {
     ///
     /// This represents the ratio of initial margin to total equity, a key risk metric in perpetual futures. A higher rate indicates greater leverage and risk (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots monitor `account_im_rate` to ensure compliance with Bybit’s margin requirements, adjusting positions to avoid margin calls.
-    #[serde(rename = "accountIMRate")]
-    pub account_im_rate: String,
+    #[serde(rename = "accountIMRate", with = "string_to_float_optional")]
+    pub account_im_rate: Option<f64>,
 
     /// Maintenance margin rate for the account, as a string (e.g., "0.05" for 5%).
     ///
     /// This is the minimum margin ratio required to maintain open positions. Falling below this triggers a margin call or liquidation (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots prioritize `account_mm_rate` to prevent forced liquidations, especially in volatile markets where margin requirements can spike.
-    #[serde(rename = "accountMMRate")]
-    pub account_mm_rate: String,
+    #[serde(rename = "accountMMRate", with = "string_to_float_optional")]
+    pub account_mm_rate: Option<f64>,
 
     /// Total equity in the account, in USDT or the base currency.
     ///
@@ -9896,15 +9896,15 @@ pub struct WalletData {
     ///
     /// This reflects the account’s total margin capacity, used to support open positions (https://bybit-exchange.github.io/docs/v5/account/wallet-balance).
     /// **Bot Implication**: Bots use `total_margin_balance` to calculate leverage limits and ensure positions are adequately margined.
-    #[serde(with = "string_to_float")]
-    pub total_margin_balance: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_margin_balance: Option<f64>,
 
     /// Total available balance for new trades or withdrawals.
     ///
     /// This is the portion of the wallet balance not tied up in margin or open positions (https://bybit-exchange.github.io/docs/v5/account/wallet-balance).
     /// **Bot Implication**: Bots rely on `total_available_balance` to determine capacity for new trades, ensuring no over-allocation of funds.
-    #[serde(with = "string_to_float")]
-    pub total_available_balance: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_available_balance: Option<f64>,
 
     /// Total unrealized profit and loss for perpetual futures positions.
     ///
@@ -9917,15 +9917,15 @@ pub struct WalletData {
     ///
     /// This is the collateral required to open and maintain positions, based on Bybit’s risk limits (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots track `total_initial_margin` to ensure sufficient margin allocation, preventing rejections or forced closures.
-    #[serde(with = "string_to_float")]
-    pub total_initial_margin: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_initial_margin: Option<f64>,
 
     /// Total maintenance margin required to keep positions open.
     ///
     /// This is the minimum collateral needed to avoid liquidation, typically lower than initial margin (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots prioritize `total_maintenance_margin` to maintain account stability, as falling below this triggers risk management actions.
-    #[serde(with = "string_to_float")]
-    pub total_maintenance_margin: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_maintenance_margin: Option<f64>,
 
     /// List of coin-specific balance data for the account.
     ///
@@ -9937,8 +9937,8 @@ pub struct WalletData {
     ///
     /// This measures borrowed funds relative to total equity, a leverage risk indicator in Bybit’s unified margin account (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots monitor `account_ltv` to control leverage risk, as high LTV increases liquidation probability in adverse markets.
-    #[serde(rename = "accountLTV")]
-    pub account_ltv: String,
+    #[serde(rename = "accountLTV", with = "string_to_float_optional")]
+    pub account_ltv: Option<f64>,
 
     /// Type of account, e.g., "UNIFIED", if specified.
     ///
@@ -10024,15 +10024,15 @@ pub struct CoinData {
     ///
     /// This is the collateral tied up in open positions, expressed as a string for precision (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots monitor `total_position_im` to manage position margin, preventing over-leveraging or margin shortages.
-    #[serde(rename = "totalPositionIM")]
-    pub total_position_im: String,
+    #[serde(rename = "totalPositionIM", with = "string_to_float")]
+    pub total_position_im: f64,
 
     /// Maintenance margin for positions in the currency, as a string.
     ///
     /// This is the minimum collateral needed to maintain positions, critical for avoiding liquidations (https://bybit-exchange.github.io/docs/v5/account/risk-limit).
     /// **Bot Implication**: Bots prioritize `total_position_mm` to ensure positions remain funded, adjusting leverage or topping up margin as needed.
-    #[serde(rename = "totalPositionMM")]
-    pub total_position_mm: String,
+    #[serde(rename = "totalPositionMM", with = "string_to_float")]
+    pub total_position_mm: f64,
 
     /// Unrealized profit and loss for positions in the currency.
     ///
@@ -10052,7 +10052,8 @@ pub struct CoinData {
     ///
     /// This represents non-withdrawable funds, often from Bybit promotions, used for trading (https://bybit-exchange.github.io/docs/v5/account/wallet-balance).
     /// **Bot Implication**: Bots account for `bonus` in balance calculations, but must adjust for withdrawal restrictions when planning cash flow.
-    pub bonus: String,
+    #[serde(with = "string_to_float")]
+    pub bonus: f64,
 
     /// Indicates if the currency can be used as collateral.
     ///
@@ -10070,13 +10071,15 @@ pub struct CoinData {
     ///
     /// This represents funds tied up in non-withdrawable states, reducing available balance (https://bybit-exchange.github.io/docs/v5/account/wallet-balance).
     /// **Bot Implication**: Bots track `locked` to avoid overestimating available funds, ensuring accurate liquidity planning.
-    pub locked: String,
+    #[serde(with = "string_to_float")]
+    pub locked: f64,
 
     /// Quantity of the currency used for spot hedging.
     ///
     /// This reflects the amount allocated to spot positions for hedging futures exposure, as a string (https://bybit-exchange.github.io/docs/v5/account/position).
     /// **Bot Implication**: Bots use `spot_hedging_qty` to balance futures and spot positions, minimizing directional risk in hedging strategies.
-    pub spot_hedging_qty: String,
+    #[serde(with = "string_to_float")]
+    pub spot_hedging_qty: f64,
 }
 
 unsafe impl Send for CoinData {}
