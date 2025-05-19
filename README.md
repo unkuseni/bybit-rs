@@ -80,4 +80,6 @@ I like the project design of binance-rs and decided to use it. You might stumble
 
 ## Special thanks
 
-A special thank you to [Sajjon](https://github.com/Sajjon) and [enseed](https://github.com/enseed-dev) for their valuable contributions to this project!
+A special thank you to [Sajjon](https://github.com/Sajjon) for all of his many [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Asajjon+).
+
+Also thanks to [enseed](https://github.com/enseed-dev) for the [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Aenseed-dev+)
