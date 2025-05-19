@@ -14,7 +14,7 @@ mod tests {
         let account: AccountManager = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let wallet = account.get_wallet_balance("UNIFIED", None).await;
 
-        println!("{:?}", wallet);
+        println!("{:#?}", wallet);
     }
 
     #[tokio::test]
