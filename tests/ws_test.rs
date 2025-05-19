@@ -1,11 +1,7 @@
-use bybit::api::*;
+use bybit::prelude::*;
 
 #[cfg(test)]
 mod tests {
-    use bybit::{
-        model::{Category, Subscription, Tickers, WebsocketEvents},
-        ws::Stream,
-    };
     use tokio::test;
     use tokio::{sync::mpsc, time::Instant};
 

@@ -1,11 +1,9 @@
-use bybit::api::Bybit;
+use bybit::prelude::*;
 
 /// Module containing unit tests for the Bybit API.
 mod tests {
     // Import the parent module.
     use super::*;
-    // Import the Bybit general module.
-    use bybit::general::General;
     // Import the tokio test module.
     use tokio::test;
 
