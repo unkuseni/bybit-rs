@@ -55,11 +55,11 @@ impl<'a> KlineRequest<'a> {
         limit: Option<u64>,
     ) -> KlineRequest<'a> {
         KlineRequest {
-            category: category,
+            category,
             symbol: Cow::Borrowed(symbol),
             interval: Cow::Borrowed(interval),
-            start: start.map(|s| Cow::Borrowed(s)),
-            end: end.map(|s| Cow::Borrowed(s)),
+            start: start.map(Cow::Borrowed),
+            end: end.map(Cow::Borrowed),
             limit,
         }
     }
@@ -202,10 +202,10 @@ impl<'a> InstrumentRequest<'a> {
         limit: Option<u64>,
     ) -> InstrumentRequest<'a> {
         InstrumentRequest {
-            category: category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
-            status: status,
-            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
+            category,
+            symbol: symbol.map(Cow::Borrowed),
+            status,
+            base_coin: base_coin.map(Cow::Borrowed),
             limit,
         }
     }
@@ -639,8 +639,8 @@ impl<'a> RecentTradesRequest<'a> {
     ) -> RecentTradesRequest<'a> {
         RecentTradesRequest {
             category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
-            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
+            base_coin: base_coin.map(Cow::Borrowed),
             limit,
         }
     }
@@ -704,8 +704,8 @@ impl<'a> OpenInterestRequest<'a> {
             category,
             symbol: Cow::Borrowed(symbol),
             interval: Cow::Borrowed(interval),
-            start: start.map(|s| Cow::Borrowed(s)),
-            end: end.map(|s| Cow::Borrowed(s)),
+            start: start.map(Cow::Borrowed),
+            end: end.map(Cow::Borrowed),
             limit,
         }
     }
@@ -758,10 +758,10 @@ impl<'a> HistoricalVolatilityRequest<'a> {
         end: Option<&'a str>,
     ) -> HistoricalVolatilityRequest<'a> {
         HistoricalVolatilityRequest {
-            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
-            period: period.map(|s| Cow::Borrowed(s)),
-            start: start.map(|s| Cow::Borrowed(s)),
-            end: end.map(|s| Cow::Borrowed(s)),
+            base_coin: base_coin.map(Cow::Borrowed),
+            period: period.map(Cow::Borrowed),
+            start: start.map(Cow::Borrowed),
+            end: end.map(Cow::Borrowed),
         }
     }
 }
@@ -825,7 +825,7 @@ impl<'a> RiskLimitRequest<'a> {
     pub fn new(category: Category, symbol: Option<&'a str>) -> RiskLimitRequest<'a> {
         RiskLimitRequest {
             category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
         }
     }
 }
@@ -1485,7 +1485,7 @@ impl<'a> OpenOrdersRequest<'a> {
             order_id: order_id.map(Cow::Borrowed),
             order_link_id: order_link_id.map(Cow::Borrowed),
             open_only: match open_only {
-                0 | 1 | 2 => Some(open_only),
+                0..=2 => Some(open_only),
                 _ => None,
             },
             order_filter: order_filter.map(Cow::Borrowed),
@@ -1726,7 +1726,7 @@ pub struct Order {
 
 // Custom function to check if Option<String> is None or Some("")
 fn is_empty_or_none(opt: &Option<String>) -> bool {
-    opt.as_ref().map_or(true, |s| s.is_empty())
+    opt.as_ref().is_none_or(|s| s.is_empty())
 }
 
 fn empty_string_as_none<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
@@ -1968,13 +1968,13 @@ impl<'a> TradeHistoryRequest<'a> {
     ) -> TradeHistoryRequest<'a> {
         TradeHistoryRequest {
             category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
-            order_id: order_id.map(|s| Cow::Borrowed(s)),
-            order_link_id: order_link_id.map(|s| Cow::Borrowed(s)),
-            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
+            order_id: order_id.map(Cow::Borrowed),
+            order_link_id: order_link_id.map(Cow::Borrowed),
+            base_coin: base_coin.map(Cow::Borrowed),
             start_time,
             end_time,
-            exec_type: exec_type.map(|s| Cow::Borrowed(s)),
+            exec_type: exec_type.map(Cow::Borrowed),
             limit,
         }
     }
@@ -2445,8 +2445,8 @@ impl<'a> MarginModeRequest<'a> {
         Self {
             category,
             mode,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
-            coin: coin.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
+            coin: coin.map(Cow::Borrowed),
         }
     }
     pub fn default() -> MarginModeRequest<'a> {
@@ -2549,9 +2549,9 @@ impl<'a> TradingStopRequest<'a> {
             symbol: Cow::Borrowed(symbol),
             take_profit,
             stop_loss,
-            tp_trigger_by: tp_trigger_by.map(|s| Cow::Borrowed(s)),
-            sl_trigger_by: sl_trigger_by.map(|s| Cow::Borrowed(s)),
-            tpsl_mode: tpsl_mode.map(|s| Cow::Borrowed(s)),
+            tp_trigger_by: tp_trigger_by.map(Cow::Borrowed),
+            sl_trigger_by: sl_trigger_by.map(Cow::Borrowed),
+            tpsl_mode: tpsl_mode.map(Cow::Borrowed),
             tp_order_type,
             sl_order_type,
             tp_size,
@@ -2745,7 +2745,7 @@ impl<'a> ClosedPnlRequest<'a> {
     ) -> Self {
         Self {
             category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
             start_time,
             end_time,
             limit,
@@ -2887,12 +2887,12 @@ impl<'a> MoveHistoryRequest<'a> {
     ) -> Self {
         Self {
             category,
-            symbol: symbol.map(|s| Cow::Borrowed(s)),
+            symbol: symbol.map(Cow::Borrowed),
             start_time,
             end_time,
-            status: status.map(|s| Cow::Borrowed(s)),
-            block_trade_id: block_trade_id.map(|s| Cow::Borrowed(s)),
-            limit: limit.map(|s| Cow::Borrowed(s)),
+            status: status.map(Cow::Borrowed),
+            block_trade_id: block_trade_id.map(Cow::Borrowed),
+            limit: limit.map(Cow::Borrowed),
         }
     }
     pub fn default() -> MoveHistoryRequest<'a> {
@@ -3003,10 +3003,10 @@ impl<'a> BorrowHistoryRequest<'a> {
         limit: Option<&'a str>,
     ) -> Self {
         Self {
-            coin: coin.map(|s| Cow::Borrowed(s)),
+            coin: coin.map(Cow::Borrowed),
             start_time,
             end_time,
-            limit: limit.map(|s| Cow::Borrowed(s)),
+            limit: limit.map(Cow::Borrowed),
         }
     }
     pub fn default() -> BorrowHistoryRequest<'a> {
@@ -3221,11 +3221,11 @@ impl<'a> TransactionLogRequest<'a> {
         limit: Option<u32>,
     ) -> Self {
         Self {
-            account_type: account_type.map(|s| Cow::Borrowed(s)),
+            account_type: account_type.map(Cow::Borrowed),
             category,
-            currency: currency.map(|s| Cow::Borrowed(s)),
-            base_coin: base_coin.map(|s| Cow::Borrowed(s)),
-            log_type: log_type.map(|s| Cow::Borrowed(s)),
+            currency: currency.map(Cow::Borrowed),
+            base_coin: base_coin.map(Cow::Borrowed),
+            log_type: log_type.map(Cow::Borrowed),
             start_time,
             end_time,
             limit,

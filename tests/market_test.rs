@@ -2,7 +2,6 @@ use bybit::api::*;
 use bybit::config::*;
 use bybit::market::*;
 use bybit::model::{Category, InstrumentInfo, InstrumentRequest, KlineRequest, OrderbookRequest};
-use tokio;
 use tokio::time::{Duration, Instant};
 
 #[cfg(test)]

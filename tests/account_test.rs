@@ -1,6 +1,5 @@
 use bybit::api::*;
 use bybit::model::*;
-use tokio;
 
 #[cfg(test)]
 mod tests {

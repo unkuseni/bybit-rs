@@ -92,7 +92,7 @@ impl Client {
         // If there is a query string, append it to the URL
         if let Some(request) = request {
             if !request.is_empty() {
-                url.push_str("?");
+                url.push('?');
                 url.push_str(&request);
             }
         }
@@ -278,7 +278,7 @@ impl Client {
             custom_headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         }
         // Return the signed headers
-        Ok(custom_headers).map_err(|e| BybitError::ReqError(e))
+        Ok(custom_headers).map_err(BybitError::ReqError)
     }
 
     fn mac_from_secret_key(&self) -> Result<Hmac<Sha256>, BybitError> {
@@ -405,7 +405,7 @@ impl Client {
             // wrap it in BybitError and return it
             StatusCode::BAD_REQUEST => {
                 let error: BybitContentError = response.json().await.map_err(BybitError::from)?;
-                Err(BybitError::BybitError(error).into())
+                Err(BybitError::BybitError(error))
             }
             // If the status code is INTERNAL_SERVER_ERROR, return BybitError::InternalServerError
             StatusCode::INTERNAL_SERVER_ERROR => Err(BybitError::InternalServerError),
@@ -445,7 +445,7 @@ impl Client {
 
         // Calculate the expiration time for the authentication message
         let expiry_time = alive_dur.unwrap_or(9) as u64 * 1000 * 60;
-        let expires = get_timestamp() + expiry_time as u64;
+        let expires = get_timestamp() + expiry_time;
 
         // Calculate the signature for the authentication message
         let mut mac = self.mac_from_secret_key()?;
@@ -471,7 +471,7 @@ impl Client {
                         .await?;
                 }
                 // Send the request body if it is not empty
-                let request = request_body.unwrap_or_else(String::new);
+                let request = request_body.unwrap_or_default();
                 if !request.is_empty() {
                     ws_stream.send(WsMessage::Text(request)).await?;
                 }

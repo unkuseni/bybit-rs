@@ -13,7 +13,7 @@ use crate::model::{
 
 use serde_json::{json, Value};
 
-use crate::util::{build_json_request, build_request, date_to_milliseconds};
+use crate::util::{build_json_request, build_request};
 
 #[derive(Clone)]
 pub struct AccountManager {
@@ -56,7 +56,7 @@ impl AccountManager {
             .client
             .get_signed(
                 API::Account(Account::Balance),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -82,11 +82,7 @@ impl AccountManager {
         // Send the request and await the response.
         let response: UTAResponse = self
             .client
-            .post_signed(
-                API::Account(Account::UpgradetoUTA),
-                self.recv_window.into(),
-                None,
-            )
+            .post_signed(API::Account(Account::UpgradetoUTA), self.recv_window, None)
             .await?;
 
         // Return the response.
@@ -140,7 +136,7 @@ impl AccountManager {
             .client
             .get_signed(
                 API::Account(Account::BorrowHistory),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -170,7 +166,7 @@ impl AccountManager {
             .client
             .post_signed(
                 API::Account(Account::RepayLiability),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -208,7 +204,7 @@ impl AccountManager {
             .client
             .post_signed(
                 API::Account(Account::SetCollateral),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -248,7 +244,7 @@ impl AccountManager {
             .client
             .post_signed(
                 API::Account(Account::BatchSetCollateral),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -286,7 +282,7 @@ impl AccountManager {
             .client
             .get_signed(
                 API::Account(Account::CollateralInfo),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(req),
             )
             .await?;
@@ -326,11 +322,7 @@ impl AccountManager {
         // Send the signed request to the Bybit API and await the response.
         let response: FeeRateResponse = self
             .client
-            .post_signed(
-                API::Account(Account::FeeRate),
-                self.recv_window.into(),
-                Some(req),
-            )
+            .post_signed(API::Account(Account::FeeRate), self.recv_window, Some(req))
             .await?;
 
         // Return the response.
@@ -355,11 +347,7 @@ impl AccountManager {
         // Send the request and await the response.
         let response: AccountInfoResponse = self
             .client
-            .get_signed(
-                API::Account(Account::Information),
-                self.recv_window.into(),
-                None,
-            )
+            .get_signed(API::Account(Account::Information), self.recv_window, None)
             .await?;
 
         // Return the response.
@@ -439,7 +427,7 @@ impl AccountManager {
             .client
             .get_signed(
                 API::Account(Account::TransactionLog),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -458,11 +446,7 @@ impl AccountManager {
         // The request does not require any additional parameters.
         let response: SmpResponse = self
             .client
-            .get_signed(
-                API::Account(Account::SMPGroupID),
-                self.recv_window.into(),
-                None,
-            )
+            .get_signed(API::Account(Account::SMPGroupID), self.recv_window, None)
             .await?;
 
         // Return the response.
@@ -489,7 +473,7 @@ impl AccountManager {
             .client
             .post_signed(
                 API::Account(Account::SetMarginMode),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -524,7 +508,7 @@ impl AccountManager {
             .client
             .post_signed(
                 API::Account(Account::SetSpotHedging),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
