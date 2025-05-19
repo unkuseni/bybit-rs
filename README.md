@@ -18,13 +18,15 @@ This is simply a bybit V5 api connector using binance-rs implementation, Some pa
 
 # Features
 
+Some part of the project is still under development. Please regularly take a look at this README for updates.
+
 -   **REST API:**
-    -   **Market Data:** Access to K-line, tickers, order book, and more. (see [`tests/market_test.rs`](https://github.com/unkuseni/rs_bybit/tests/market_test.rs))
-    -   **Trade:** Functionality for placing, amending, and canceling orders. (see [`tests/trade_test.rs`](https://github.com/unkuseni/rs_bybit/tests/trade_test.rs))
-    -   **Position:** Manage your trading positions. (see [`tests/position_test.rs`](https://github.com/unkuseni/rs_bybit/tests/position_test.rs))
-    -   **Account & Asset:** These sections are currently under active development. See the [Under Development](#under-development) section for more details. (see [`tests/account_test.rs`](https://github.com/unkuseni/rs_bybit/tests/account_test.rs) for progress)
+    -   [x] **Market Data:** Access to K-line, tickers, order book, and more. See [`tests/market_test.rs`](https://github.com/unkuseni/rs_bybit/tests/market_test.rs)
+    -   [x] **Trade:** Functionality for placing, amending, and canceling orders. See [`tests/trade_test.rs`](https://github.com/unkuseni/rs_bybit/tests/trade_test.rs)
+    -   [x] **Position:** Manage your trading positions. See [`tests/position_test.rs`](https://github.com/unkuseni/rs_bybit/tests/position_test.rs)
+    -   [ ] **Account & Asset:** These sections are currently under active development. See [`tests/account_test.rs`](https://github.com/unkuseni/rs_bybit/tests/account_test.rs) for progress
 -   **Websocket API:**
-    -   Support for subscribing to real-time public and private data streams. (see [`tests/ws_test.rs`](https://github.com/unkuseni/rs_bybit/tests/ws_test.rs))
+    -   [x] Support for subscribing to real-time public and private data streams. See [`tests/ws_test.rs`](https://github.com/unkuseni/rs_bybit/tests/ws_test.rs)
 
 # Development
 
@@ -45,17 +47,6 @@ brew install pre-commit
 ```sh
 pre-commit install
 ```
-
-## Work in progress
-
-Some part of the project is still under development. Please check back later for updates.
-
-### Roadmap
-
--   [x] Order endpoints
--   [x] Position endpoints
--   [ ] Account endpoints
--   [ ] Asset endpoints
 
 # Usage
 
@@ -82,4 +73,4 @@ I like the project design of binance-rs and decided to use it. You might stumble
 
 A special thank you to [Sajjon](https://github.com/Sajjon) for all of his many [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Asajjon+).
 
-Also thanks to [enseed](https://github.com/enseed-dev) for the [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Aenseed-dev+)
+Also thanks to [enseed](https://github.com/enseed-dev) for the [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Aenseed-dev+).
