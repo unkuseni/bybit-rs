@@ -2,7 +2,7 @@
 
 This is simply a bybit V5 api connector using binance-rs implementation, Some parts of the api have not been completed yet...Anyone is welcome to branch/fork the repository and add their own upgrades, see [Development](development) section for details.
 
-> ![CAUTION]
+> [!CAUTION]
 > This is a personal project, use at your own risk. Neither the original author,
 > nor any of the contributors of this software shall ever be held responsible
 > for your investment losses. Cryptocurrency investment is subject to high market risk.
