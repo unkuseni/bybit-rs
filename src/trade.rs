@@ -480,6 +480,7 @@ impl Trader {
     ///
     /// This function will send a signed POST request to the Bybit API to cancel
     /// a batch of orders. The request should contain the category, symbol, order_id,
+
     /// and order_link_id for each order to be cancelled.
     ///
     /// # Arguments

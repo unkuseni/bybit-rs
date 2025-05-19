@@ -30,6 +30,7 @@ impl Stream {
     /// # Returns
     ///
     /// Returns a `Result` containing a `String` with the response message if successful,
+
     /// * `private` is set to `true` if the request is for a private endpoint
     /// or a `BybitError` if an error occurs.
     pub async fn ws_ping(&self, private: bool) -> Result<(), BybitError> {

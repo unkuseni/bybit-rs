@@ -257,6 +257,7 @@ impl AccountManager {
     /// # Arguments
     ///
     /// * `coin` - The optional coin for which to retrieve the collateral information. If not specified,
+
     /// information for all coins is returned.
     ///
     /// # Returns
@@ -485,6 +486,7 @@ impl AccountManager {
     /// # Arguments
     ///
     /// * `spot_hedging` - The desired spot hedging mode. `true` sets the mode to "ON",
+
     ///   `false` sets the mode to "OFF".
     ///
     /// # Returns

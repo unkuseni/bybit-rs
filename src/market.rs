@@ -5,7 +5,7 @@ use crate::model::{
     Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse,
     HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse,
     InstrumentInfoResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse,
-    LongShortRatioResponse, MarkPriceKlineResponse, OpenInterestRequest, OpeninterestResponse,
+    LongShortRatioResponse, MarkPriceKlineResponse, OpenInterestRequest, OpenInterestResponse,
     OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest,
     RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, TickerResponse,
 };
@@ -25,6 +25,7 @@ impl MarketData {
     /// Retrieves historical price klines.
     ///
     /// This method fetches historical klines (candlestick data) for a specified category, trading pair,
+
     /// and interval. It supports additional parameters to define a date range and to limit the response size.
     ///
     /// Suitable for USDT perpetual, USDC contract, and Inverse contract categories.
@@ -83,6 +84,7 @@ impl MarketData {
     /// Provides historical kline data for mark prices based on the specified category, symbol, and interval.
     /// Optional parameters can be used to define the range of the data with start and end times, as well as
     /// to limit the number of kline entries returned. This function supports queries for USDT perpetual,
+
     /// USDC contract, and Inverse contract categories.
     ///
     /// # Arguments
@@ -97,6 +99,7 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<Vec<MarkPriceKline>, Error>` containing the historical mark price kline data if successful,
+
     /// or an error otherwise.
 
     pub async fn get_mark_price_klines<'b>(
@@ -269,6 +272,7 @@ impl MarketData {
     ///
     /// This function queries the exchange for instruments, optionally filtered by the provided
     /// symbol, status, base coin, and result count limit. It supports both Futures and Spot instruments,
+
     /// returning results encapsulated in the `InstrumentInfo` enum.
     ///
     /// # Arguments
@@ -328,6 +332,7 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<OrderBook, Error>` which is Ok if the order book is successfully retrieved,
+
     /// or an Err with a detailed error message otherwise.
     pub async fn get_depth<'b>(
         &self,
@@ -378,6 +383,7 @@ impl MarketData {
     /// Asynchronously retrieves the funding history based on specified criteria.
     ///
     /// This function obtains historical funding rates for futures contracts given a category,
+
     /// symbol, and an optional time range and limit. Only Linear or Inverse categories are supported.
     ///
     /// # Arguments
@@ -391,6 +397,7 @@ impl MarketData {
     /// # Returns
     ///
     /// A `Result<Vec<FundingRate>, Error>` representing the historical funding rates if the request is successful,
+
     /// otherwise an error.
     ///
     /// # Errors
@@ -450,6 +457,7 @@ impl MarketData {
     /// # Returns
     ///
     /// Returns `Ok(Vec<Trade>)` containing the recent trades if the operation is successful,
+
     /// or an `Err` with an error message if it fails.
     pub async fn get_recent_trades<'b>(
         &self,
@@ -478,6 +486,7 @@ impl MarketData {
     /// Retrieves open interest for a specific market category and symbol over a defined time interval.
     ///
     /// Open interest is the total number of outstanding derivative contracts, such as futures or options,
+
     /// that have not been settled. This function provides a summary of such open interests.
     ///
     /// # Arguments
@@ -497,7 +506,7 @@ impl MarketData {
     pub async fn get_open_interest<'b>(
         &self,
         req: OpenInterestRequest<'_>,
-    ) -> Result<OpeninterestResponse, BybitError> {
+    ) -> Result<OpenInterestResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         let category_value = match req.category {
             Category::Linear => "linear",
@@ -511,17 +520,15 @@ impl MarketData {
         parameters.insert("category".into(), category_value.into());
         parameters.insert("symbol".into(), req.symbol.into());
         parameters.insert("intervalTime".into(), req.interval.into());
-        if let Some(start_str) = req.start.as_ref().map(|s| s.as_ref()) {
-            let start_millis = date_to_milliseconds(start_str);
+        if let Some(start_time) = req.start_time {
             parameters
                 .entry("startTime".to_owned())
-                .or_insert_with(|| start_millis.to_string());
+                .or_insert_with(|| start_time.to_string());
         }
-        if let Some(end_str) = req.end.as_ref().map(|s| s.as_ref()) {
-            let end_millis = date_to_milliseconds(end_str);
+        if let Some(end_time) = req.end_time {
             parameters
                 .entry("endTime".to_owned())
-                .or_insert_with(|| end_millis.to_string());
+                .or_insert_with(|| end_time.to_string());
         }
         if let Some(l) = req.limit {
             parameters
@@ -529,7 +536,7 @@ impl MarketData {
                 .or_insert_with(|| l.to_string());
         }
         let request = build_request(&parameters);
-        let response: OpeninterestResponse = self
+        let response: OpenInterestResponse = self
             .client
             .get(API::Market(Market::OpenInterest), Some(request))
             .await?;
