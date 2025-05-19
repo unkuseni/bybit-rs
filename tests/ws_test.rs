@@ -29,7 +29,7 @@ mod tests {
 
     #[tokio::test]
     async fn ping() {
-   let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
+        let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let response = ws.ws_ping(true).await;
         println!("{:#?}", response);
     }

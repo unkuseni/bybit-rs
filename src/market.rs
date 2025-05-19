@@ -2,7 +2,12 @@ use crate::api::{Market, API};
 use crate::client::Client;
 use crate::errors::BybitError;
 use crate::model::{
-    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse, HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse, InstrumentInfoResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse, LongShortRatioResponse, MarkPriceKlineResponse, OpenInterestRequest, OpeninterestResponse, OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest, RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, TickerResponse
+    Category, DeliveryPriceResponse, FundingHistoryRequest, FundingRateResponse,
+    HistoricalVolatilityRequest, HistoricalVolatilityResponse, IndexPriceKlineResponse,
+    InstrumentInfoResponse, InstrumentRequest, InsuranceResponse, KlineRequest, KlineResponse,
+    LongShortRatioResponse, MarkPriceKlineResponse, OpenInterestRequest, OpeninterestResponse,
+    OrderBookResponse, OrderbookRequest, PremiumIndexPriceKlineResponse, RecentTradesRequest,
+    RecentTradesResponse, RiskLimitRequest, RiskLimitResponse, TickerResponse,
 };
 use crate::util::{build_request, date_to_milliseconds};
 
@@ -287,11 +292,7 @@ impl MarketData {
             Category::Linear => "linear",
             Category::Inverse => "inverse",
             Category::Spot => "spot",
-            _ => {
-                return Err(BybitError::from(
-                    "Invalid category".to_string(),
-                ))
-            }
+            _ => return Err(BybitError::from("Invalid category".to_string())),
         };
         parameters.insert("category".into(), category_value.into());
         if let Some(symbol) = req.symbol {
@@ -373,7 +374,6 @@ impl MarketData {
             .await?;
         Ok(response)
     }
-
 
     /// Asynchronously retrieves the funding history based on specified criteria.
     ///

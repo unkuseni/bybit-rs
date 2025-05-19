@@ -156,7 +156,6 @@ mod tests {
         }
     }
 
-
     #[tokio::test]
     async fn test_spot_ticker() {
         let market: MarketData = Bybit::new(None, None);
