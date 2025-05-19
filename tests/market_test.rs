@@ -6,14 +6,14 @@ use tokio::time::{Duration, Instant};
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
     use bybit::model::{
         FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
         RecentTradesRequest, RiskLimitRequest, TickerData,
     };
+    use tokio::test;
 
-    #[tokio::test]
+    #[test]
     async fn test_kline() {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
@@ -30,7 +30,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_mark_klines() {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
@@ -47,7 +47,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_index_klines() {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
@@ -64,7 +64,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_premium_klines() {
         let market: MarketData = Bybit::new(None, None);
         let request = KlineRequest::new(
@@ -81,7 +81,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_futures_instrument() {
         let market: MarketData = Bybit::new(None, None);
         let request = InstrumentRequest::new(Category::Linear, Some("ETHUSDT"), None, None, None);
@@ -94,7 +94,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_spot_instrument() {
         let market: MarketData = Bybit::new(None, None);
         let request = InstrumentRequest::new(Category::Spot, Some("ETHUSDT"), None, None, None);
@@ -107,7 +107,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_market() {
         let market: MarketData = Bybit::new(None, None);
         let five_minutes = Duration::from_secs(5 * 60);
@@ -142,7 +142,7 @@ mod tests {
         (percent / 100.0) * value
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_futures_ticker() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "ETHUSDT";
@@ -155,7 +155,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_spot_ticker() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "ETHUSDT";
@@ -168,7 +168,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_recent_trades() {
         let market: MarketData = Bybit::new(None, None);
         let request = RecentTradesRequest::new(Category::Linear, Some("POLUSDT"), None, None);
@@ -178,7 +178,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_funding_rate() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "BTCUSDT";
@@ -189,7 +189,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_open_interest() {
         let market: MarketData = Bybit::new(None, None);
         let request = OpenInterestRequest::new(Category::Linear, "ETHUSDT", "1h", None, None, None);
@@ -199,7 +199,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_historical_volatility() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "ETH";
@@ -211,7 +211,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_insurance() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = Some("BTC");
@@ -221,7 +221,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_risk_limit() {
         let market: MarketData =
             Bybit::new_with_config(&Config::default().set_recv_window(1000), None, None);
@@ -233,7 +233,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_delivery_price() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "BTCUSDT";

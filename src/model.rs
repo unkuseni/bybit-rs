@@ -2240,8 +2240,8 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float")]
     pub size: f64,
 
-    #[serde(with = "string_to_float_optional")]
-    pub avg_price: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub avg_price: f64,
 
     #[serde(with = "string_to_float_optional")]
     pub position_value: Option<f64>,
@@ -2254,8 +2254,8 @@ pub struct PositionInfo {
 
     pub adl_rank_indicator: i32,
 
-    #[serde(with = "string_to_float_optional")]
-    pub leverage: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub leverage: f64,
 
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
@@ -2269,11 +2269,11 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float_optional")]
     pub bust_price: Option<f64>,
 
-    #[serde(rename = "positionMM", with = "string_to_float_optional")]
-    pub position_mm: Option<f64>,
+    #[serde(rename = "positionMM", with = "string_to_float")]
+    pub position_mm: f64,
 
-    #[serde(rename = "positionIM", with = "string_to_float_optional")]
-    pub position_im: Option<f64>,
+    #[serde(rename = "positionIM", with = "string_to_float")]
+    pub position_im: f64,
 
     pub tpsl_mode: String,
 
@@ -2283,15 +2283,16 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float_optional")]
     pub stop_loss: Option<f64>,
 
-    pub trailing_stop: String,
+    #[serde(with = "string_to_float")]
+    pub trailing_stop: f64,
 
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
 
-    #[serde(with = "string_to_float_optional")]
-    pub cum_realised_pnl: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub cum_realised_pnl: f64,
 
-    pub seq: u64,
+    pub seq: i64,
 
     pub is_reduce_only: bool,
 
@@ -3952,11 +3953,11 @@ unsafe impl Sync for WalletEvent {}
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct WalletData {
-    #[serde(rename = "accountIMRate")]
-    pub account_im_rate: String,
+    #[serde(rename = "accountIMRate", with = "string_to_float_optional")]
+    pub account_im_rate: Option<f64>,
 
-    #[serde(rename = "accountMMRate")]
-    pub account_mm_rate: String,
+    #[serde(rename = "accountMMRate", with = "string_to_float_optional")]
+    pub account_mm_rate: Option<f64>,
 
     #[serde(with = "string_to_float")]
     pub total_equity: f64,
@@ -3964,25 +3965,25 @@ pub struct WalletData {
     #[serde(with = "string_to_float")]
     pub total_wallet_balance: f64,
 
-    #[serde(with = "string_to_float")]
-    pub total_margin_balance: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_margin_balance: Option<f64>,
 
-    #[serde(with = "string_to_float")]
-    pub total_available_balance: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_available_balance: Option<f64>,
 
     #[serde(rename = "totalPerpUPL", with = "string_to_float")]
     pub total_perp_upl: f64,
 
-    #[serde(with = "string_to_float")]
-    pub total_initial_margin: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_initial_margin: Option<f64>,
 
-    #[serde(with = "string_to_float")]
-    pub total_maintenance_margin: f64,
+    #[serde(with = "string_to_float_optional")]
+    pub total_maintenance_margin: Option<f64>,
 
     pub coin: Vec<CoinData>,
 
-    #[serde(rename = "accountLTV")]
-    pub account_ltv: String,
+    #[serde(rename = "accountLTV", with = "string_to_float_optional")]
+    pub account_ltv: Option<f64>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<String>,
@@ -4020,11 +4021,11 @@ pub struct CoinData {
     #[serde(rename = "totalOrderIM", with = "string_to_float")]
     pub total_order_im: f64,
 
-    #[serde(rename = "totalPositionIM")]
-    pub total_position_im: String,
+    #[serde(rename = "totalPositionIM", with = "string_to_float")]
+    pub total_position_im: f64,
 
-    #[serde(rename = "totalPositionMM")]
-    pub total_position_mm: String,
+    #[serde(rename = "totalPositionMM", with = "string_to_float")]
+    pub total_position_mm: f64,
 
     #[serde(with = "string_to_float")]
     pub unrealised_pnl: f64,
@@ -4032,15 +4033,18 @@ pub struct CoinData {
     #[serde(with = "string_to_float")]
     pub cum_realised_pnl: f64,
 
-    pub bonus: String,
+    #[serde(with = "string_to_float")]
+    pub bonus: f64,
 
     pub collateral_switch: bool,
 
     pub margin_collateral: bool,
 
-    pub locked: String,
+    #[serde(with = "string_to_float")]
+    pub locked: f64,
 
-    pub spot_hedging_qty: String,
+    #[serde(with = "string_to_float")]
+    pub spot_hedging_qty: f64,
 }
 
 unsafe impl Send for CoinData {}
