@@ -143,7 +143,7 @@ pub enum SpotMargin {
     Repay,
     BorrowOrderDetail,
     RepayOrderDetail,
-    ClassicMarginTogggle,
+    ClassicMarginToggle,
 }
 
 impl AsRef<str> for API {
@@ -253,7 +253,7 @@ impl AsRef<str> for API {
                 SpotMargin::Repay => "/v5/spot-cross-margin-trade/repay",
                 SpotMargin::BorrowOrderDetail => "/v5/spot-cross-margin-trade/orders",
                 SpotMargin::RepayOrderDetail => "/v5/spot-cross-margin-trade/repay-history",
-                SpotMargin::ClassicMarginTogggle => "/v5/spot-cross-margin-trade/switch",
+                SpotMargin::ClassicMarginToggle => "/v5/spot-cross-margin-trade/switch",
             },
         }
     }

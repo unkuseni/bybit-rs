@@ -840,19 +840,21 @@ pub struct RiskLimitResponse {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RiskLimitSummary {
     pub category: String,
     pub list: Vec<RiskLimit>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RiskLimit {
     pub id: u64,
     pub symbol: String,
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
     #[serde(with = "string_to_float")]
-    pub maintainence_margin: f64,
+    pub maintenance_margin: f64,
     #[serde(with = "string_to_float")]
     pub initial_margin: f64,
     pub is_lowest_risk: u8,
