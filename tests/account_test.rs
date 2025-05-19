@@ -3,13 +3,13 @@ use bybit::model::*;
 
 #[cfg(test)]
 mod tests {
-    use bybit::account::AccountManager;
-
     use super::*;
+    use bybit::account::AccountManager;
+    use tokio::test;
     static API_KEY: &str = ""; //Mockup string
     static SECRET: &str = ""; // Mockup string
 
-    #[tokio::test]
+    #[test]
     async fn test_wallet() {
         let account: AccountManager = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let wallet = account.get_wallet_balance("UNIFIED", None).await;
@@ -17,7 +17,7 @@ mod tests {
         println!("{:#?}", wallet);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_fee_rate() {
         let account: AccountManager = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let wallet = account
@@ -27,7 +27,7 @@ mod tests {
         println!("{:?}", wallet);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_borrow_history() {
         let account: AccountManager = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let wallet = account.get_fee_rate(Category::Spot, None).await;

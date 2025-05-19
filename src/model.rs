@@ -2240,8 +2240,8 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float")]
     pub size: f64,
 
-    #[serde(with = "string_to_float_optional")]
-    pub avg_price: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub avg_price: f64,
 
     #[serde(with = "string_to_float_optional")]
     pub position_value: Option<f64>,
@@ -2254,8 +2254,8 @@ pub struct PositionInfo {
 
     pub adl_rank_indicator: i32,
 
-    #[serde(with = "string_to_float_optional")]
-    pub leverage: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub leverage: f64,
 
     #[serde(with = "string_to_float")]
     pub position_balance: f64,
@@ -2269,11 +2269,11 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float_optional")]
     pub bust_price: Option<f64>,
 
-    #[serde(rename = "positionMM", with = "string_to_float_optional")]
-    pub position_mm: Option<f64>,
+    #[serde(rename = "positionMM", with = "string_to_float")]
+    pub position_mm: f64,
 
-    #[serde(rename = "positionIM", with = "string_to_float_optional")]
-    pub position_im: Option<f64>,
+    #[serde(rename = "positionIM", with = "string_to_float")]
+    pub position_im: f64,
 
     pub tpsl_mode: String,
 
@@ -2283,15 +2283,16 @@ pub struct PositionInfo {
     #[serde(with = "string_to_float_optional")]
     pub stop_loss: Option<f64>,
 
-    pub trailing_stop: String,
+    #[serde(with = "string_to_float")]
+    pub trailing_stop: f64,
 
     #[serde(with = "string_to_float_optional")]
     pub unrealised_pnl: Option<f64>,
 
-    #[serde(with = "string_to_float_optional")]
-    pub cum_realised_pnl: Option<f64>,
+    #[serde(with = "string_to_float")]
+    pub cum_realised_pnl: f64,
 
-    pub seq: u64,
+    pub seq: i64,
 
     pub is_reduce_only: bool,
 
