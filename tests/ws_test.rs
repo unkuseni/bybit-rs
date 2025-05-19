@@ -2,11 +2,11 @@ use bybit::api::*;
 
 #[cfg(test)]
 mod tests {
-
     use bybit::{
         model::{Category, Subscription, Tickers, WebsocketEvents},
         ws::Stream,
     };
+    use tokio::test;
     use tokio::{sync::mpsc, time::Instant};
 
     use super::*;
@@ -14,7 +14,7 @@ mod tests {
     static API_KEY: &str = ""; //Mockup string
     static SECRET: &str = ""; // Mockup string
 
-    #[tokio::test]
+    #[test]
     async fn test_auth() {
         let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let (tx, mut rx) = mpsc::unbounded_channel();
@@ -26,14 +26,14 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn ping() {
         let ws: Stream = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let response = ws.ws_ping(true).await;
         println!("{:#?}", response);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_order_book() {
         let ws: Stream = Bybit::new(None, None);
         let request = Subscription {
@@ -90,7 +90,7 @@ mod tests {
         println!("{:#?}", response);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_default_orderbook() {
         let ws: Stream = Bybit::new(None, None);
         let (tx, mut rx) = mpsc::unbounded_channel();
@@ -105,7 +105,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_default_trades() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec!["BTCUSDT", "SOLUSDT", "ETHUSDT", "XRPUSDT"];
@@ -118,7 +118,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_default_tickers() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec!["ETHUSDT", "SOLUSDT"];
@@ -138,7 +138,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_default_klines() {
         let ws: Stream = Bybit::new(None, None);
         let request = vec![("1", "ETHUSDT")];

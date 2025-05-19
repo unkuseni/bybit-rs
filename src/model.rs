@@ -13,15 +13,21 @@ pub struct Empty {}
 ///  RESPONSE STRUCTS FOR MARKET REQUESTS
 /// ----------------------------------------
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ServerTimeResponse {
+pub struct BybitApiResponse<T = Value, U = Empty, V = u64> {
     pub ret_code: i32,
     pub ret_msg: String,
-    pub result: ServerTime,
-    pub ret_ext_info: Empty,
-    pub time: u64,
+    pub result: T,
+    #[serde(default)]
+    pub ret_ext_info: U,
+    #[serde(default)]
+    pub time: V, // V can be `u64` or `Option<u64>`
 }
+
+pub type BybitApiResponseOpaquePayload = BybitApiResponse<Value, Value, u64>;
+
+pub type ServerTimeResponse = BybitApiResponse<ServerTime>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -64,15 +70,8 @@ impl<'a> KlineRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct KlineResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: KlineSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+
+pub type KlineResponse = BybitApiResponse<KlineSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -95,15 +94,7 @@ pub struct Kline {
     pub quote_asset_volume: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MarkPriceKlineResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: MarkPriceKlineSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type MarkPriceKlineResponse = BybitApiResponse<MarkPriceKlineSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -124,15 +115,7 @@ pub struct MarkPriceKline {
     pub close_price: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct IndexPriceKlineResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: IndexPriceKlineSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type IndexPriceKlineResponse = BybitApiResponse<IndexPriceKlineSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -153,15 +136,7 @@ pub struct IndexPriceKline {
     pub close_price: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct PremiumIndexPriceKlineResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: PremiumIndexPriceKlineSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type PremiumIndexPriceKlineResponse = BybitApiResponse<PremiumIndexPriceKlineSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -211,15 +186,7 @@ impl<'a> InstrumentRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct InstrumentInfoResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: InstrumentInfo,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type InstrumentInfoResponse = BybitApiResponse<InstrumentInfo>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
@@ -407,15 +374,8 @@ impl<'a> OrderbookRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct OrderBookResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderBook,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+
+pub type OrderBookResponse = BybitApiResponse<OrderBook>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct OrderBook {
@@ -460,15 +420,7 @@ impl Ask {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct TickerResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: TickersInfo,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type TickerResponse = BybitApiResponse<TickersInfo>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -593,15 +545,7 @@ impl<'a> FundingHistoryRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct FundingRateResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: FundingRateSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type FundingRateResponse = BybitApiResponse<FundingRateSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -646,15 +590,7 @@ impl<'a> RecentTradesRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct RecentTradesResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: RecentTrades,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type RecentTradesResponse = BybitApiResponse<RecentTrades>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -710,15 +646,8 @@ impl<'a> OpenInterestRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct OpeninterestResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OpenInterestSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+
+pub type OpeninterestResponse = BybitApiResponse<OpenInterestSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -766,14 +695,7 @@ impl<'a> HistoricalVolatilityRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct HistoricalVolatilityResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub category: String,
-    pub result: Vec<HistoricalVolatility>,
-}
+pub type HistoricalVolatilityResponse = BybitApiResponse<HistoricalVolatility>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -785,15 +707,7 @@ pub struct HistoricalVolatility {
     pub timestamp: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct InsuranceResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: InsuranceSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type InsuranceResponse = BybitApiResponse<InsuranceSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -830,14 +744,7 @@ impl<'a> RiskLimitRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct RiskLimitResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: RiskLimitSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type RiskLimitResponse = BybitApiResponse<RiskLimitSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -861,15 +768,7 @@ pub struct RiskLimit {
     pub max_leverage: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct DeliveryPriceResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: DeliveryPriceSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type DeliveryPriceResponse = BybitApiResponse<DeliveryPriceSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -889,15 +788,7 @@ pub struct DeliveryPrice {
     pub delivery_time: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct LongShortRatioResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: LongShortRatioSummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type LongShortRatioResponse = BybitApiResponse<LongShortRatioSummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -1329,15 +1220,8 @@ impl<'a> OrderRequest<'a> {
         }
     }
 }
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct AmendOrderResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderStatus,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+
+pub type AmendOrderResponse = BybitApiResponse<OrderStatus>;
 
 #[derive(Clone, Default, Serialize)]
 pub struct AmendOrderRequest<'a> {
@@ -1428,15 +1312,7 @@ pub struct CancelOrderRequest<'a> {
     pub order_filter: Option<Cow<'a, str>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CancelOrderResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderStatus,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type CancelOrderResponse = BybitApiResponse<OrderStatus>;
 
 #[derive(Clone, Default)]
 pub struct OpenOrdersRequest<'a> {
@@ -1452,6 +1328,8 @@ pub struct OpenOrdersRequest<'a> {
 }
 
 impl<'a> OpenOrdersRequest<'a> {
+    /*************  ✨ Windsurf Command ⭐  *************/
+    /*******  cd433d4a-2028-4d09-b0a5-db7fcc146562  *******/
     pub fn default() -> Self {
         Self {
             category: Category::Linear,
@@ -1494,15 +1372,7 @@ impl<'a> OpenOrdersRequest<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct OpenOrdersResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderHistory,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type OpenOrdersResponse = BybitApiResponse<OrderHistory>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -1511,15 +1381,7 @@ pub struct OrderStatus {
     pub order_link_id: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct OrderResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderStatus,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type OrderResponse = BybitApiResponse<OrderStatus>;
 
 #[derive(Clone, Default)]
 pub struct OrderHistoryRequest<'a> {
@@ -1581,16 +1443,7 @@ impl<'a> OrderHistoryRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct OrderHistoryResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: OrderHistory,
-    #[serde(rename = "retExtInfo")]
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type OrderHistoryResponse = BybitApiResponse<OrderHistory>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -1843,15 +1696,7 @@ impl<'a> CancelallRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CancelallResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: CancelledList,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type CancelallResponse = BybitApiResponse<CancelledList>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -1859,15 +1704,7 @@ pub struct CancelledList {
     pub list: Vec<OrderStatus>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct TradeHistoryResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: TradeHistorySummary,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type TradeHistoryResponse = BybitApiResponse<TradeHistorySummary>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -1990,15 +1827,8 @@ impl<'a> BatchPlaceRequest<'a> {
         BatchPlaceRequest { category, requests }
     }
 }
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct BatchPlaceResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: BatchedOrderList,
-    pub ret_ext_info: OrderConfirmationList,
-    pub time: u64,
-}
+
+pub type BatchPlaceResponse = BybitApiResponse<BatchedOrderList, OrderConfirmationList>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -2016,7 +1846,7 @@ pub struct BatchedOrder {
     pub create_at: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderConfirmationList {
     pub list: Vec<OrderConfirmation>,
@@ -2041,15 +1871,7 @@ impl<'a> BatchAmendRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct BatchAmendResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: AmendedOrderList,
-    pub ret_ext_info: OrderConfirmationList,
-    pub time: u64,
-}
+pub type BatchAmendResponse = BybitApiResponse<AmendedOrderList, OrderConfirmationList>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -2081,25 +1903,17 @@ impl<'a> BatchCancelRequest<'a> {
     }
 }
 
+pub type BatchCancelResponse = BybitApiResponse<CancelledOrderList, OrderConfirmationList>;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct BatchCancelResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: CanceledOrderList,
-    pub ret_ext_info: OrderConfirmationList,
-    pub time: u64,
+pub struct CancelledOrderList {
+    pub list: Vec<CancelledOrder>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CanceledOrderList {
-    pub list: Vec<CanceledOrder>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct CanceledOrder {
+pub struct CancelledOrder {
     pub category: String,
     pub symbol: String,
     pub order_id: String,
@@ -2147,15 +1961,7 @@ impl<'a> PositionRequest<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct InfoResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: InfoResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type InfoResponse = BybitApiResponse<InfoResult>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InfoResult {
@@ -2354,7 +2160,7 @@ mod test_decode_position_info {
         "#;
         let result = serde_json::from_str::<PositionInfo>(json);
         let result = result.unwrap();
-        assert_eq!(result.cum_realised_pnl, Some(-0.00096902));
+        assert_eq!(result.cum_realised_pnl, -0.00096902);
         assert_eq!(result.mmr_sys_updated_time, Some(1676538056444));
         assert_eq!(result.leverage_sys_updated_time, Some(1676538056333));
         assert_eq!(result.created_time, 1676538056258);
@@ -2382,15 +2188,7 @@ impl<'a> LeverageRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct LeverageResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type LeverageResponse = BybitApiResponse<Empty>;
 
 #[derive(Default, Clone)]
 pub struct ChangeMarginRequest<'a> {
@@ -2418,15 +2216,7 @@ impl<'a> ChangeMarginRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct ChangeMarginResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type ChangeMarginResponse = BybitApiResponse<Empty>;
 
 #[derive(Clone, Default)]
 pub struct MarginModeRequest<'a> {
@@ -2455,15 +2245,7 @@ impl<'a> MarginModeRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MarginModeResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type MarginModeResponse = BybitApiResponse<Empty>;
 
 #[derive(Clone, Default)]
 pub struct SetRiskLimit<'a> {
@@ -2492,15 +2274,7 @@ impl<'a> SetRiskLimit<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct SetRiskLimitResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: SetRiskLimitResult,
-    pub ret_ext_info: Empty, // Assuming retExtInfo is a JSON value as per provided JSON
-    pub time: u64,
-}
+pub type SetRiskLimitResponse = BybitApiResponse<SetRiskLimitResult>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SetRiskLimitResult {
@@ -2583,15 +2357,7 @@ impl<'a> TradingStopRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct TradingStopResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type TradingStopResponse = BybitApiResponse<Empty>;
 
 #[derive(Clone, Default)]
 pub struct AddMarginRequest<'a> {
@@ -2620,15 +2386,7 @@ impl<'a> AddMarginRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct AddMarginResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty, // Assuming result is an empty struct as per provided JSON
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type AddMarginResponse = BybitApiResponse<Empty>;
 
 #[derive(Clone, Default)]
 pub struct AddReduceMarginRequest<'a> {
@@ -2657,15 +2415,7 @@ impl<'a> AddReduceMarginRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct AddReduceMarginResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: AddReduceMarginResult,
-    pub ret_ext_info: Empty, // Assuming retExtInfo is an empty struct as per provided JSON
-    pub time: u64,
-}
+pub type AddReduceMarginResponse = BybitApiResponse<AddReduceMarginResult>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -2757,15 +2507,7 @@ impl<'a> ClosedPnlRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct ClosedPnlResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: ClosedPnlResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type ClosedPnlResponse = BybitApiResponse<ClosedPnlResult>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -2851,14 +2593,10 @@ impl<'a> PositionItem<'a> {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct MovePositionResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: MovePositionResult,
-}
+pub type MovePositionResponse = BybitApiResponse<MovePositionResult>;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct MovePositionResult {
     pub block_trade_id: String,
     pub status: String,
@@ -2901,15 +2639,7 @@ impl<'a> MoveHistoryRequest<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct MoveHistoryResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: MoveHistoryResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type MoveHistoryResponse = BybitApiResponse<MoveHistoryResult>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -2950,31 +2680,14 @@ pub struct MoveHistoryEntry {
 //
 // = = = = = = = = = = = = = = = = = = ==  = = = = ==  = = == = =  = = = =
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct WalletResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: WalletList,
-    #[serde(rename = "retExtInfo")]
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type WalletResponse = BybitApiResponse<WalletList>;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct WalletList {
     pub list: Vec<WalletData>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UTAResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: UTAUpdateStatus,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type UTAResponse = BybitApiResponse<UTAUpdateStatus>;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -3015,15 +2728,7 @@ impl<'a> BorrowHistoryRequest<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct BorrowHistoryResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: BorrowHistory,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type BorrowHistoryResponse = BybitApiResponse<BorrowHistory>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3052,15 +2757,7 @@ pub struct BorrowHistoryEntry {
     pub borrow_cost: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct RepayLiabilityResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: LiabilityQty,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type RepayLiabilityResponse = BybitApiResponse<LiabilityQty>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LiabilityQty {
@@ -3075,25 +2772,9 @@ pub struct LiabilityQtyData {
     pub repayment_qty: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SetCollateralCoinResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: Empty,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type SetCollateralCoinResponse = BybitApiResponse<Empty>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct BatchSetCollateralCoinResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: SwitchList,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type BatchSetCollateralCoinResponse = BybitApiResponse<SwitchList>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3108,15 +2789,7 @@ pub struct SwitchListData {
     pub collateral_switch: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CollateralInfoResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: CollateralInfoList,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type CollateralInfoResponse = BybitApiResponse<CollateralInfoList>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3148,15 +2821,7 @@ pub struct CollateralInfo {
     pub collateral_ratio: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct FeeRateResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: FeeRateList,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type FeeRateResponse = BybitApiResponse<FeeRateList>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3172,17 +2837,7 @@ pub struct FeeRate {
     pub taker_fee_rate: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct AccountInfoResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: AccountInfo,
-    #[serde(default)]
-    pub ret_ext_info: Empty,
-    #[serde(default)]
-    pub time: Option<u64>,
-}
+pub type AccountInfoResponse = BybitApiResponse<AccountInfo, Empty, Option<u64>>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3274,25 +2929,9 @@ pub struct TransactionLogResult {
     pub list: Vec<TransactionLogEntry>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct TransactionLogResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: TransactionLogResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type TransactionLogResponse = BybitApiResponse<TransactionLogResult>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SmpResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: SmpResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type SmpResponse = BybitApiResponse<SmpResult>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -3300,15 +2939,7 @@ pub struct SmpResult {
     pub smp_group: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct SetMarginModeResponse {
-    pub ret_code: i32,
-    pub ret_msg: String,
-    pub result: MarginModeResult,
-    pub ret_ext_info: Empty,
-    pub time: u64,
-}
+pub type SetMarginModeResponse = BybitApiResponse<MarginModeResult>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

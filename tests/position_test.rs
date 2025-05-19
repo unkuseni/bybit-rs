@@ -14,8 +14,8 @@ mod tests {
         let position: PositionManager = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let request = PositionRequest::new(Category::Linear, Some("BTCUSDT"), None, None, None);
         match position.get_info(request).await {
-            Ok(data) => println!("{:?}", data),
-            Err(e) => println!("{:?}", e),
+            Ok(data) => println!("{:#?}", data),
+            Err(e) => println!("{:#?}", e),
         }
     }
 

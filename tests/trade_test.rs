@@ -19,7 +19,7 @@ mod tests {
         println!("{:#?}", order);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_order_history() {
         let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let data: OrderHistoryRequest = OrderHistoryRequest::new(
@@ -39,7 +39,7 @@ mod tests {
         println!("{:#?}", order_history);
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_trade_history() {
         let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let data: TradeHistoryRequest = TradeHistoryRequest::new(
@@ -59,7 +59,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_batch() {
         let trade: Trader = Bybit::new(Some(API_KEY.into()), Some(SECRET.into()));
         let request = vec![
