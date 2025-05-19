@@ -28,10 +28,13 @@ use url::Url as WsUrl;
 pub struct Client {
     /// The API key for the Bybit account.
     pub api_key: String,
+
     /// The secret key for the Bybit account.
     pub secret_key: String,
+
     /// The host to make requests to.
     pub host: String,
+
     /// The reqwest client that makes the HTTP requests.
     pub inner_client: ReqwestClient,
 }
@@ -379,9 +382,11 @@ impl Client {
     ///
     /// The result of deserializing the response body into a specific type.
     /// Returns `Ok(T)` if the response status is `StatusCode::OK`,
+
     /// returns `Err(BybitError::BybitError(BybitContentError))` if the response
     /// status is `StatusCode::BAD_REQUEST`, returns `Err(BybitError::InternalServerError)`
     /// if the response status is `StatusCode::INTERNAL_SERVER_ERROR`,
+
     /// returns `Err(BybitError::ServiceUnavailable)` if the response status is
     /// `StatusCode::SERVICE_UNAVAILABLE`, returns `Err(BybitError::Unauthorized)`
     /// if the response status is `StatusCode::UNAUTHORIZED`, and returns

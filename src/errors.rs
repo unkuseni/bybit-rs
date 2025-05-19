@@ -9,7 +9,7 @@ use thiserror::Error;
 /// representing the error message.
 #[derive(Debug, Deserialize)]
 pub struct BybitContentError {
-    pub code: i16,
+    pub code: i32,
     pub msg: String,
 }
 

@@ -15,6 +15,7 @@ impl General {
     /// # Returns
     ///
     /// Returns a `Result` containing a `String` with the response message if successful,
+
     /// or a `BybitError` if an error occurs.
     pub async fn ping(&self) -> Result<String, BybitError> {
         // Call the get method on the client field of self, passing in the time variable and None as arguments, and return the result
@@ -30,6 +31,7 @@ impl General {
     /// # Returns
     ///
     /// Returns a `Result` containing a `ServerTime` struct if successful,
+
     /// or a `BybitError` if an error occurs.
     pub async fn get_server_time(&self) -> Result<ServerTimeResponse, BybitError> {
         // Create a variable called time and set it to an API::Market enum variant with a Market::Time value
