@@ -1,61 +1,76 @@
-# AN API CONNECTOR FOR BYBIT V5 API IN RUST
+# Bybit API v5 client in Rust
 
-## Table of Contents
+This is simply a bybit V5 api connector using binance-rs implementation, Some parts of the api have not been completed yet...Anyone is welcome to branch/fork the repository and add their own upgrades, see [Development](development) section for details.
 
-- [Description](#description)
-- [Features](#features)
-- [Installation](#Installation)
-- [Usage](#usage)
+> [!CAUTION]
+> This is a personal project, use at your own risk. Neither the original author,
+> nor any of the contributors of this software shall ever be held responsible
+> for your investment losses. Cryptocurrency investment is subject to high market risk.
 
+# Table of Contents
 
-### DESCRIPTION
-This is simply a bybit V5 api connector using binance-rs implementation, Some parts of the api have not been completed yet...Anyone is welcome to branch/fork the repository and add their own upgrades. If you think you've made substantial improvements to the module, submit a pull request and we'll gladly take a look.
+-   [Description](#description)
+-   [Features](#features)
+-   [Development](#Development)
+-   [Usage](#usage)
+-   [Contact](#contact)
+-   [Acknowledgments](#acknowledgments)
 
-### FEATURES
+# Features
 
-- **REST API:**
-  - **Market Data:** Access to K-line, tickers, order book, and more. (see [`tests/market_test.rs`](https://github.com/unkuseni/rs_bybit/tests/market_test.rs))
-  - **Trade:** Functionality for placing, amending, and canceling orders. (see [`tests/trade_test.rs`](https://github.com/unkuseni/rs_bybit/tests/trade_test.rs))
-  - **Position:** Manage your trading positions. (see [`tests/position_test.rs`](https://github.com/unkuseni/rs_bybit/tests/position_test.rs))
-  - **Account & Asset:** These sections are currently under active development. See the [Under Development](#under-development) section for more details. (see [`tests/account_test.rs`](https://github.com/unkuseni/rs_bybit/tests/account_test.rs) for progress)
-- **Websocket API:**
-  - Support for subscribing to real-time public and private data streams. (see [`tests/ws_test.rs`](https://github.com/unkuseni/rs_bybit/tests/ws_test.rs))
+Some part of the project is still under development. Please regularly take a look at this README for updates.
 
-### INSTALLATION
+-   **REST API:**
+    -   [x] **Market Data:** Access to K-line, tickers, order book, and more. See [`tests/market_test.rs`](https://github.com/unkuseni/rs_bybit/tests/market_test.rs)
+    -   [x] **Trade:** Functionality for placing, amending, and canceling orders. See [`tests/trade_test.rs`](https://github.com/unkuseni/rs_bybit/tests/trade_test.rs)
+    -   [x] **Position:** Manage your trading positions. See [`tests/position_test.rs`](https://github.com/unkuseni/rs_bybit/tests/position_test.rs)
+    -   [ ] **Account & Asset:** These sections are currently under active development. See [`tests/account_test.rs`](https://github.com/unkuseni/rs_bybit/tests/account_test.rs) for progress
+-   **Websocket API:**
+    -   [x] Support for subscribing to real-time public and private data streams. See [`tests/ws_test.rs`](https://github.com/unkuseni/rs_bybit/tests/ws_test.rs)
 
-this module can be installed by adding the following to your `Cargo.toml`:
+# Development
 
+If you want to contribubute please make sure to follow this setup. Install the precommit tool if you don't have it installed already and make sure to install the pre-commit hooks
+
+## Precommit
+
+Install the [`pre-commit` CLI tool](https://pre-commit.com/) and in this repo install the hooks.
+
+### Install tool
+
+```sh
+brew install pre-commit
 ```
+
+### Install hooks
+
+```sh
+pre-commit install
+```
+
+# Usage
+
+This crate can be installed by adding the following to your `Cargo.toml`:
+
+```toml
 [dependencies]
 rs_bybit = "*"
-
 ```
-### USAGE  
 
 Take a look at tests for usage.
 
+# Contact
 
-### CONTACT
-if you have any issues contact me on twitter @unkuseni
+if you have any issues contact me on X (twitter) @unkuseni
 
+# Acknowledgments
 
-## Risk Warning
-
-It is a personal project, use at your own risk. I will not be responsible for your investment losses.
-Cryptocurrency investment is subject to high market risk.
-
-
-## UNDER DEVELOPMENT
-Some part of the project is still under development. Please check back later for updates. 
-
-...ACCOUNT RELATED FUNCTIONS ARE STILL UNDER DEVELOPMENT.
-...ASSET RELATED FUNCTIONS ARE STILL UNDER DEVELOPMENT.
-
-
-## CREDIT
+## Credit
 
 I like the project design of binance-rs and decided to use it. You might stumble upon some changes where both projects differ.
 
-## SPECIAL THANKS
+## Special thanks
 
-A special thank you to [Sajjon](https://github.com/Sajjon) and [enseed](https://github.com/enseed-dev) for their valuable contributions to this project!
+A special thank you to [Sajjon](https://github.com/Sajjon) for all of his many [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Asajjon+).
+
+Also thanks to [enseed](https://github.com/enseed-dev) for the [contributions](https://github.com/unkuseni/rs_bybit/pulls?q=is%3Amerged+is%3Apr+author%3Aenseed-dev+).

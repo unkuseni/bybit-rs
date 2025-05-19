@@ -12,7 +12,7 @@ use crate::model::{
     MoveHistoryResponse, MovePositionRequest, MovePositionResponse, PositionRequest, SetRiskLimit,
     SetRiskLimitResponse, TradingStopRequest, TradingStopResponse,
 };
-use crate::util::{build_json_request, build_request, date_to_milliseconds};
+use crate::util::{build_json_request, build_request};
 
 #[derive(Clone)]
 pub struct PositionManager {
@@ -67,7 +67,7 @@ impl PositionManager {
             .client
             .get_signed(
                 API::Position(Position::Information),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -97,7 +97,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SetLeverage),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -126,7 +126,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SwitchIsolated),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -160,7 +160,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SwitchMode),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -192,7 +192,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SetRiskLimit),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -254,7 +254,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SetTradingStop),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -301,7 +301,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::SetAutoaddMargin),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -346,7 +346,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::AddorReduceMargin),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -383,7 +383,7 @@ impl PositionManager {
             .client
             .get_signed(
                 API::Position(Position::ClosedPnl),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -415,7 +415,7 @@ impl PositionManager {
             .client
             .post_signed(
                 API::Position(Position::MovePosition),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -485,7 +485,7 @@ impl PositionManager {
             .client
             .get_signed(
                 API::Position(Position::MovePositionHistory),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;

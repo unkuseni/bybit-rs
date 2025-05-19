@@ -11,7 +11,7 @@ use crate::model::{
     OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest, OrderHistoryResponse, OrderRequest,
     OrderResponse, OrderType, RequestType, Side, TradeHistoryRequest, TradeHistoryResponse,
 };
-use crate::util::{build_json_request, build_request, date_to_milliseconds, generate_random_uid};
+use crate::util::{build_json_request, build_request, generate_random_uid};
 
 use std::borrow::Cow;
 use std::collections::BTreeMap;
@@ -82,11 +82,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(
-                API::Trade(Trade::Place),
-                self.recv_window.into(),
-                Some(request),
-            )
+            .post_signed(API::Trade(Trade::Place), self.recv_window, Some(request))
             .await?;
         Ok(response)
     }
@@ -122,7 +118,7 @@ impl Trader {
         parameters.insert("qty".into(), req.qty.to_string());
         if let Some(v) = req.position_idx {
             match v {
-                0 | 1 | 2 => {
+                0..=2 => {
                     parameters.insert("positionIdx".into(), v.to_string());
                 }
                 _ => return Err(BybitError::from("Invalid position index".to_string())),
@@ -135,11 +131,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: OrderResponse = self
             .client
-            .post_signed(
-                API::Trade(Trade::Place),
-                self.recv_window.into(),
-                Some(request),
-            )
+            .post_signed(API::Trade(Trade::Place), self.recv_window, Some(request))
             .await?;
         Ok(response)
     }
@@ -153,11 +145,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: AmendOrderResponse = self
             .client
-            .post_signed(
-                API::Trade(Trade::Amend),
-                self.recv_window.into(),
-                Some(request),
-            )
+            .post_signed(API::Trade(Trade::Amend), self.recv_window, Some(request))
             .await?;
         Ok(response)
     }
@@ -170,11 +158,7 @@ impl Trader {
         let request = build_json_request(&parameters);
         let response: CancelOrderResponse = self
             .client
-            .post_signed(
-                API::Trade(Trade::Cancel),
-                self.recv_window.into(),
-                Some(request),
-            )
+            .post_signed(API::Trade(Trade::Cancel), self.recv_window, Some(request))
             .await?;
         Ok(response)
     }
@@ -200,15 +184,15 @@ impl Trader {
             parameters.insert("orderLinkId".into(), order_link_id.into());
         }
         if let Some(open_only) = req.open_only {
-            if matches!(open_only, 0 | 1 | 2) {
-                parameters.insert("openOnly".into(), open_only.to_string().into());
+            if matches!(open_only, 0..=2) {
+                parameters.insert("openOnly".into(), open_only.to_string());
             }
         }
         if let Some(order_filter) = req.order_filter {
             parameters.insert("orderFilter".into(), order_filter.into());
         }
         if let Some(limit) = req.limit {
-            parameters.insert("limit".into(), limit.to_string().into());
+            parameters.insert("limit".into(), limit.to_string());
         }
 
         let request = build_request(&parameters);
@@ -243,7 +227,7 @@ impl Trader {
             .client
             .post_signed(
                 API::Trade(Trade::CancelAll),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -289,11 +273,7 @@ impl Trader {
         let request = build_request(&parameters);
         let response: OrderHistoryResponse = self
             .client
-            .get_signed(
-                API::Trade(Trade::History),
-                self.recv_window.into(),
-                Some(request),
-            )
+            .get_signed(API::Trade(Trade::History), self.recv_window, Some(request))
             .await?;
         Ok(response)
     }
@@ -357,7 +337,7 @@ impl Trader {
             .client
             .get_signed(
                 API::Trade(Trade::TradeHistory),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -422,7 +402,7 @@ impl Trader {
             .client
             .post_signed(
                 API::Trade(Trade::BatchPlace),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -487,7 +467,7 @@ impl Trader {
             .client
             .post_signed(
                 API::Trade(Trade::BatchAmend),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -541,7 +521,7 @@ impl Trader {
             .client
             .post_signed(
                 API::Trade(Trade::BatchCancel),
-                self.recv_window.into(),
+                self.recv_window,
                 Some(request),
             )
             .await?;
@@ -562,7 +542,7 @@ impl Trader {
         let mut parameters: BTreeMap<String, Value> = BTreeMap::new();
         match action {
             Action::Order(req, batch) => {
-                if batch == false {
+                if !batch {
                     parameters.insert("category".into(), req.category.as_str().into());
                 }
                 parameters.insert("symbol".into(), req.symbol.into());
@@ -606,7 +586,7 @@ impl Trader {
                 }
                 if let Some(v) = req.position_idx {
                     match v {
-                        0 | 1 | 2 => {
+                        0..=2 => {
                             parameters.insert("positionIdx".into(), v.to_string().into());
                         }
                         _ => error!("Invalid position idx"),
@@ -656,7 +636,7 @@ impl Trader {
                 }
             }
             Action::Amend(req, batch) => {
-                if batch == false {
+                if !batch {
                     parameters.insert("category".into(), req.category.as_str().into());
                 }
                 parameters.insert("symbol".into(), req.symbol.into());
@@ -702,7 +682,7 @@ impl Trader {
                 }
             }
             Action::Cancel(req, batch) => {
-                if batch == false {
+                if !batch {
                     parameters.insert("category".into(), req.category.as_str().into());
                 }
                 parameters.insert("symbol".into(), req.symbol.into());

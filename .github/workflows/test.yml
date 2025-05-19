@@ -1,0 +1,32 @@
+# Testing CI - Runs on each PR and Push
+
+name: Test
+on:
+    pull_request:
+    push:
+        branches:
+            - master
+
+permissions:
+    id-token: write
+    contents: read
+env:
+    CARGO_TERM_COLOR: always
+    RUST_TOOLCHAIN: 1.85.0
+    RUST_COMPONENTS: "rust-std"
+jobs:
+    # cargo fmt check
+    check-formatting:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Rust Toolchain
+              uses: actions-rs/toolchain@v1
+              with:
+                  toolchain: ${{ env.RUST_TOOLCHAIN }}
+                  default: true
+                  components: rustfmt
+
+            - name: Check formatting
+              run: cargo fmt --check

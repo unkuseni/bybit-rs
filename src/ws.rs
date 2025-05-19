@@ -54,19 +54,16 @@ impl Stream {
 
         let data = data
             .map_err(|e| BybitError::Base(format!("Failed to get ping response, error {}", e)))?;
-        match data {
-            WsMessage::Text(data) => {
-                let response: PongResponse = serde_json::from_str(&data)?;
-                match response {
-                    PongResponse::PublicPong(pong) => {
-                        trace!("Pong received successfully: {:#?}", pong);
-                    }
-                    PongResponse::PrivatePong(pong) => {
-                        trace!("Pong received successfully: {:#?}", pong);
-                    }
+        if let WsMessage::Text(data) = data {
+            let response: PongResponse = serde_json::from_str(&data)?;
+            match response {
+                PongResponse::PublicPong(pong) => {
+                    trace!("Pong received successfully: {:#?}", pong);
+                }
+                PongResponse::PrivatePong(pong) => {
+                    trace!("Pong received successfully: {:#?}", pong);
                 }
             }
-            _ => {}
         }
         Ok(())
     }
@@ -84,10 +81,7 @@ impl Stream {
             .client
             .wss_connect(WebsocketAPI::Private, Some(request), true, Some(10))
             .await?;
-        match Self::event_loop(response, handler, None).await {
-            Ok(_) => {}
-            Err(_) => {}
-        }
+        if let Ok(_) = Self::event_loop(response, handler, None).await {}
         Ok(())
     }
 
@@ -141,29 +135,20 @@ impl Stream {
             "X-BAPI-RECV-WINDOW".into(),
             recv_window.unwrap_or(5000).to_string(),
         );
-        parameters.insert("header".into(), json!(header_map).into());
+        parameters.insert("header".into(), json!(header_map));
         match orders {
             RequestType::Create(order) => {
                 parameters.insert("op".into(), "order.create".into());
-                parameters.insert(
-                    "args".into(),
-                    build_ws_orders(RequestType::Create(order)).into(),
-                );
+                parameters.insert("args".into(), build_ws_orders(RequestType::Create(order)));
             }
             RequestType::Cancel(order) => {
                 parameters.insert("op".into(), "order.cancel".into());
-                parameters.insert(
-                    "args".into(),
-                    build_ws_orders(RequestType::Cancel(order)).into(),
-                );
+                parameters.insert("args".into(), build_ws_orders(RequestType::Cancel(order)));
             }
 
             RequestType::Amend(order) => {
                 parameters.insert("op".into(), "order.amend".into());
-                parameters.insert(
-                    "args".into(),
-                    build_ws_orders(RequestType::Amend(order)).into(),
-                );
+                parameters.insert("args".into(), build_ws_orders(RequestType::Amend(order)));
             }
         }
         build_json_request(&parameters)
