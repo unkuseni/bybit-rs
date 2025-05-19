@@ -245,7 +245,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[test]
     async fn test_longshort_ratio() {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "BTCUSDT";

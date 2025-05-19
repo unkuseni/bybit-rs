@@ -4,6 +4,7 @@ use tokio::net::TcpStream;
 
 use crate::api::{WebsocketAPI, API};
 use crate::errors::{BybitContentError, BybitError};
+use crate::model::BybitApiResponseOpaquePayload;
 use crate::util::{generate_random_uid, get_timestamp};
 use hex::encode as hex_encode;
 use hmac::{Hmac, Mac};
@@ -391,34 +392,56 @@ impl Client {
     /// if the response status is `StatusCode::UNAUTHORIZED`, and returns
     /// `Err(BybitError::StatusCode(status))` if the response status is any other
     /// value.
+
     async fn handler<T: DeserializeOwned + Send + 'static>(
         &self,
         response: ReqwestResponse,
     ) -> Result<T, BybitError> {
         // Match the status code of the response
-        match response.status() {
-            // If the status code is OK, deserialize the response body into T and return it
-            StatusCode::OK => match response.json::<T>().await {
-                Ok(data) => Ok(data),
-                Err(e) => Err(BybitError::Base(format!(
-                    "Json decode error parsing response as {} {:?}",
-                    type_name::<T>(),
-                    e
-                ))),
-            },
-            // If the status code is BAD_REQUEST, deserialize the response body into BybitContentError and
-            // wrap it in BybitError and return it
+        let status = response.status();
+        let response_text = &response.text().await.map_err(BybitError::from)?;
+        match status {
+            StatusCode::OK => {
+                // Deserialize the entire response into BybitApiResponseOpaquePayload first.
+                let wrapper: BybitApiResponseOpaquePayload = serde_json::from_str(response_text)
+                    .map_err(|e| {
+                        BybitError::Base(format!(
+                            "Failed to parse response wrapper: {} | Response: {}",
+                            e, response_text
+                        ))
+                    })?;
+
+                match wrapper.ret_code {
+                    0 => {
+                        // If ret_code is 0, the operation was successful at the API level.
+                        // The actual data is in `response_json.result` (a serde_json::Value).
+                        // Deserialize this `Value` into the target type `T`.
+                        serde_json::from_str(response_text).map_err(|e| {
+                            BybitError::Base(format!(
+                                "Failed to parse full response into {}: {} | Response: {}",
+                                type_name::<T>(),
+                                e,
+                                response_text
+                            ))
+                        })
+                    }
+                    _ => {
+                        // If ret_code is non-zero, it's an API error.
+                        Err(BybitError::BybitError(BybitContentError {
+                            code: wrapper.ret_code,
+                            msg: wrapper.ret_msg,
+                        }))
+                    }
+                }
+            }
             StatusCode::BAD_REQUEST => {
-                let error: BybitContentError = response.json().await.map_err(BybitError::from)?;
+                let error: BybitContentError =
+                    serde_json::from_str(response_text).map_err(BybitError::from)?;
                 Err(BybitError::BybitError(error))
             }
-            // If the status code is INTERNAL_SERVER_ERROR, return BybitError::InternalServerError
             StatusCode::INTERNAL_SERVER_ERROR => Err(BybitError::InternalServerError),
-            // If the status code is SERVICE_UNAVAILABLE, return BybitError::ServiceUnavailable
             StatusCode::SERVICE_UNAVAILABLE => Err(BybitError::ServiceUnavailable),
-            // If the status code is UNAUTHORIZED, return BybitError::Unauthorized
             StatusCode::UNAUTHORIZED => Err(BybitError::Unauthorized),
-            // If the status code is any other value, wrap it in BybitError::StatusCode and return it
             status => Err(BybitError::StatusCode(status.as_u16())),
         }
     }

@@ -492,7 +492,8 @@ impl AccountManager {
     /// # Returns
     ///
     /// A result containing the set spot hedging mode response or an error.
-    pub async fn set_spot_hedging(
+    ///
+    pub async fn _set_spot_hedging(
         &self,
         spot_hedging: bool,
     ) -> Result<SpotHedgingResponse, BybitError> {
