@@ -592,21 +592,6 @@ pub struct FuturesInstrument {
     ///
     /// The minimum funding rate (can be negative). Bots should use this to estimate funding costs or benefits, especially for short positions when rates are negative.
     pub lower_funding_rate: String,
-
-    /// Indicates if the instrument is in the pre-listing phase.
-    ///
-    /// True if the instrument is undergoing the pre-listing process. Not typically relevant for perpetual futures.
-    pub is_pre_listing: bool,
-
-    /// Information regarding the pre-listing phase.
-    ///
-    /// Contains optional data about the pre-listing process, such as auction details. Not typically relevant for perpetual futures.
-    pub pre_listing_info: Option<PreListingInfo>,
-
-    /// Risk parameters for the spot pair.
-    ///
-    /// Specifies risk-related constraints. Not relevant for perpetuals.
-    pub risk_parameters: RiskParameters,
 }
 
 /// Contains instrument information for spot markets.
@@ -624,6 +609,12 @@ pub struct SpotInstrumentsInfo {
     ///
     /// Contains data for each spot trading pair. Not relevant for perpetual futures.
     pub list: Vec<SpotInstrument>,
+
+    /// The cursor for pagination.
+    ///
+    /// Used for paginated requests. Bots can ignore this unless querying spot instruments.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub next_page_cursor: String,
 }
 
 /// Represents a single spot instrument.
@@ -823,15 +814,15 @@ pub struct AuctionFeeInfo {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RiskParameters {
-    /// The limit order risk parameter (e.g., "0.01").
+    /// The limit order risk parameter.
     ///
     /// Defines risk constraints for limit orders in spot trading. Not relevant for perpetuals.
-    pub price_limit_ratio_x: String, // Renamed from limit_parameter
+    pub limit_parameter: String,
 
-    /// The market order risk parameter (e.g., "0.03").
+    /// The market order risk parameter.
     ///
     /// Defines risk constraints for market orders in spot trading. Not relevant for perpetuals.
-    pub price_limit_ratio_y: String, // Renamed from market_parameter
+    pub market_parameter: String,
 }
 
 /// Leverage constraints for a futures instrument.
