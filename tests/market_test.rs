@@ -1,16 +1,11 @@
-use bybit::api::*;
-use bybit::config::*;
-use bybit::market::*;
-use bybit::model::{Category, InstrumentInfo, InstrumentRequest, KlineRequest, OrderbookRequest};
+use bybit::prelude::*;
+
 use tokio::time::{Duration, Instant};
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bybit::model::{
-        FundingHistoryRequest, HistoricalVolatilityRequest, OpenInterestRequest,
-        RecentTradesRequest, RiskLimitRequest, TickerData,
-    };
+
     use tokio::test;
 
     #[test]

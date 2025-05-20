@@ -1,10 +1,8 @@
-use bybit::api::*;
-use bybit::model::*;
+use bybit::prelude::*;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bybit::account::AccountManager;
     use tokio::test;
     static API_KEY: &str = ""; //Mockup string
     static SECRET: &str = ""; // Mockup string

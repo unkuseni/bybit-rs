@@ -1,9 +1,7 @@
+use bybit::prelude::*;
+
 mod tests {
-    use bybit::{
-        api::*,
-        model::{Category, LeverageRequest, PositionRequest},
-        position::PositionManager,
-    };
+    use super::*;
     use tokio::test;
 
     static API_KEY: &str = ""; //Mockup string

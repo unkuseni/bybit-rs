@@ -1,6 +1,4 @@
-use bybit::api::*;
-use bybit::model::*;
-use bybit::trade::*;
+use bybit::prelude::*;
 
 #[cfg(test)]
 mod tests {

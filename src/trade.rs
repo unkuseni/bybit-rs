@@ -1,20 +1,4 @@
-use log::error;
-use serde_json::{json, Value};
-
-use crate::api::{Trade, API};
-use crate::client::Client;
-use crate::errors::BybitError;
-use crate::model::{
-    AmendOrderRequest, AmendOrderResponse, BatchAmendRequest, BatchAmendResponse,
-    BatchCancelRequest, BatchCancelResponse, BatchPlaceRequest, BatchPlaceResponse,
-    CancelOrderRequest, CancelOrderResponse, CancelallRequest, CancelallResponse, Category,
-    OpenOrdersRequest, OpenOrdersResponse, OrderHistoryRequest, OrderHistoryResponse, OrderRequest,
-    OrderResponse, OrderType, RequestType, Side, TradeHistoryRequest, TradeHistoryResponse,
-};
-use crate::util::{build_json_request, build_request, generate_random_uid};
-
-use std::borrow::Cow;
-use std::collections::BTreeMap;
+use crate::prelude::*;
 
 #[derive(Clone)]
 pub struct Trader {
@@ -205,8 +189,8 @@ impl Trader {
     }
     pub async fn cancel_all_orders<'b>(
         &self,
-        req: CancelallRequest<'_>,
-    ) -> Result<CancelallResponse, BybitError> {
+        req: CancelAllRequest<'_>,
+    ) -> Result<CancelAllResponse, BybitError> {
         let mut parameters: BTreeMap<String, String> = BTreeMap::new();
         parameters.insert("category".into(), req.category.as_str().into());
         parameters.insert("symbol".into(), req.symbol.into());
@@ -223,7 +207,7 @@ impl Trader {
             parameters.insert("stopOrderType".into(), stop_order_type.into());
         }
         let request = build_json_request(&parameters);
-        let response: CancelallResponse = self
+        let response: CancelAllResponse = self
             .client
             .post_signed(
                 API::Trade(Trade::CancelAll),
