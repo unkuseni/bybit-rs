@@ -19,8 +19,11 @@ pub struct LotSizeFilter {
     /// The maximum market order quantity (optional).
     ///
     /// The largest quantity allowed for market orders. Bots should check this to avoid oversized market orders, which could be rejected or cause slippage.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_mkt_order_qty: Option<String>,
+    #[serde(
+        with = "string_to_float_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub max_mkt_order_qty: Option<f64>,
     /// The minimum order quantity.
     ///
     /// The smallest quantity allowed for orders. Bots must ensure order sizes are at least this value to avoid rejections.
@@ -44,16 +47,25 @@ pub struct LotSizeFilter {
     /// The quantity step size (optional).
     ///
     /// The increment for order quantities. Bots must round order sizes to this step to comply with Bybit’s rules.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub qty_step: Option<String>,
+    #[serde(
+        with = "string_to_float_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub qty_step: Option<f64>,
     /// The maximum post-only order quantity (optional).
     ///
     /// The largest quantity for post-only orders. Bots using post-only orders (maker-only) should respect this limit.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub post_only_max_order_qty: Option<String>,
+    #[serde(
+        with = "string_to_float_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub post_only_max_order_qty: Option<f64>,
     /// The minimum notional value (optional).
     ///
     /// The smallest notional value (price × quantity) for orders. Bots should verify orders meet this to avoid rejections.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_notional_value: Option<String>,
+    #[serde(
+        with = "string_to_float_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub min_notional_value: Option<f64>,
 }

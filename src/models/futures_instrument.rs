@@ -34,8 +34,8 @@ pub struct FuturesInstrument {
     /// The delivery time for non-perpetual futures (empty for perpetuals).
     ///
     /// For perpetual futures, this is an empty string since they have no expiry. Bots can ignore this for perpetuals but should check it for quarterly futures to understand settlement dates.
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub delivery_time: String,
+    #[serde(with = "string_to_u64")]
+    pub delivery_time: u64,
     /// The delivery fee rate for non-perpetual futures.
     ///
     /// For perpetual futures, this is typically empty or irrelevant since there’s no delivery. Bots can ignore this unless trading quarterly futures.
@@ -43,7 +43,8 @@ pub struct FuturesInstrument {
     /// The price scale (number of decimal places for price).
     ///
     /// Defines the precision for price quotes (e.g., `"2"` for two decimal places). Bots must use this to format order prices correctly to avoid rejection due to invalid precision.
-    pub price_scale: String,
+    #[serde(with = "string_to_float")]
+    pub price_scale: f64,
     /// The leverage constraints for the contract.
     ///
     /// Specifies the minimum, maximum, and step size for leverage. Bots must adhere to these constraints when setting leverage to avoid API errors and manage risk in perpetual futures.
@@ -75,9 +76,26 @@ pub struct FuturesInstrument {
     /// The upper bound for the funding rate.
     ///
     /// The maximum funding rate that can be applied during a funding interval. Bots should use this to estimate worst-case funding costs for long or short positions in perpetual futures.
-    pub upper_funding_rate: String,
+    #[serde(with = "string_to_float")]
+    pub upper_funding_rate: f64,
     /// The lower bound for the funding rate.
     ///
     /// The minimum funding rate (can be negative). Bots should use this to estimate funding costs or benefits, especially for short positions when rates are negative.
-    pub lower_funding_rate: String,
+    #[serde(with = "string_to_float")]
+    pub lower_funding_rate: f64,
+
+    /// Indicates if the instrument is in the pre-listing phase.
+    ///
+    /// This boolean flag determines whether the futures instrument is yet to be officially listed for trading.
+    pub is_pre_listing: bool,
+
+    /// Optional information for instruments in the pre-listing phase.
+    ///
+    /// Contains additional details relevant to the instrument before it becomes tradable.
+    pub pre_listing_info: Option<PreListingInfo>,
+
+    /// The display name of the instrument.
+    ///
+    /// A human-readable name for the futures instrument, used for display purposes in UIs and logs.
+    pub display_name: String,
 }
