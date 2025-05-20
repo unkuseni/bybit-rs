@@ -132,14 +132,34 @@ impl Stream {
                 parameters.insert("op".into(), "order.create".into());
                 parameters.insert("args".into(), build_ws_orders(RequestType::Create(order)));
             }
+            RequestType::CreateBatch(order) => {
+                parameters.insert("op".into(), "order.create-batch".into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::CreateBatch(order)),
+                );
+            }
+            RequestType::Amend(order) => {
+                parameters.insert("op".into(), "order.amend".into());
+                parameters.insert("args".into(), build_ws_orders(RequestType::Amend(order)));
+            }
+            RequestType::AmendBatch(order) => {
+                parameters.insert("op".into(), "order.amend-batch".into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::AmendBatch(order)),
+                );
+            }
             RequestType::Cancel(order) => {
                 parameters.insert("op".into(), "order.cancel".into());
                 parameters.insert("args".into(), build_ws_orders(RequestType::Cancel(order)));
             }
-
-            RequestType::Amend(order) => {
-                parameters.insert("op".into(), "order.amend".into());
-                parameters.insert("args".into(), build_ws_orders(RequestType::Amend(order)));
+            RequestType::CancelBatch(order) => {
+                parameters.insert("op".into(), "order.cancel-batch".into());
+                parameters.insert(
+                    "args".into(),
+                    build_ws_orders(RequestType::CancelBatch(order)),
+                );
             }
         }
         build_json_request(&parameters)
