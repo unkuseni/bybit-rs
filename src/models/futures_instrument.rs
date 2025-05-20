@@ -84,6 +84,8 @@ pub struct FuturesInstrument {
     #[serde(with = "string_to_float")]
     pub lower_funding_rate: f64,
 
+    pub risk_parameters: RiskParameters,
+
     /// Indicates if the instrument is in the pre-listing phase.
     ///
     /// This boolean flag determines whether the futures instrument is yet to be officially listed for trading.
