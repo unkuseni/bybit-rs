@@ -40,7 +40,7 @@ pub struct PositionData {
     /// The side of the position ("Buy" for long, "Sell" for short).
     ///
     /// Indicates the direction of the position. Bots use this to calculate exposure and hedge positions.
-    pub side: String,
+    pub side: Side,
 
     /// The size of the position (in contracts or base currency).
     ///
