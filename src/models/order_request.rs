@@ -20,6 +20,7 @@ pub struct OrderRequest<'a> {
     /// the intended market. Misconfiguring the category can result in API errors or
     /// orders placed in the wrong market, disrupting strategy execution.
     pub category: Category,
+
     /// The trading pair symbol, e.g., "BTCUSDT".
     ///
     /// The symbol identifies the asset pair being traded, such as BTCUSDT for Bitcoin
@@ -28,6 +29,7 @@ pub struct OrderRequest<'a> {
     /// lead to order rejection. Additionally, each symbol has specific contract details
     /// (e.g., tick size, quantity precision), which bots should validate to avoid errors.
     pub symbol: Cow<'a, str>,
+
     /// Indicates if the order uses leverage (true for margin trading, false otherwise).
     ///
     /// Leverage allows traders to amplify positions with borrowed funds, common in
@@ -37,6 +39,7 @@ pub struct OrderRequest<'a> {
     /// but also liquidation risk if prices move adversely. Bots should monitor margin
     /// levels to avoid forced liquidations.
     pub is_leverage: Option<bool>,
+
     /// The side of the order (Buy or Sell).
     ///
     /// Specifies whether the order is to buy (long) or sell (short). In perpetual
@@ -45,14 +48,17 @@ pub struct OrderRequest<'a> {
     /// market outlook and position management strategy. Incorrect sides can lead to
     /// unintended exposure, so bots should include validation logic.
     pub side: Side,
+
     /// The type of order (Limit or Market).
     ///
     /// Determines how the order is executed. Limit orders specify a price, while Market
     /// orders execute at the best available price. In volatile perpetual futures markets,
+
     /// Market orders risk slippage, while Limit orders may not execute if the price moves
     /// away. Bots should choose based on strategy goals (e.g., speed vs. price control)
     /// and account for Bybit's fee structure (maker vs. taker fees).
     pub order_type: OrderType,
+
     /// The quantity of the asset to trade.
     ///
     /// Represents the size of the order, typically in the base asset (e.g., BTC for
@@ -61,6 +67,7 @@ pub struct OrderRequest<'a> {
     /// balance, margin requirements, and symbol constraints to avoid rejections. Overly
     /// large quantities can trigger liquidations if the market moves against the position.
     pub qty: f64,
+
     /// The unit for market orders (optional, used in specific cases).
     ///
     /// Some Bybit markets allow specifying quantities in alternative units (e.g., USDT
@@ -69,6 +76,7 @@ pub struct OrderRequest<'a> {
     /// requirements, as incorrect units can cause order failures. Most strategies leave
     /// this as `None` unless explicitly required.
     pub market_unit: Option<f64>,
+
     /// The price at which to place a limit order (optional for market orders).
     ///
     /// For Limit orders, this specifies the target price. For Market orders, it’s
@@ -77,6 +85,7 @@ pub struct OrderRequest<'a> {
     /// conditions to ensure orders are realistic. Setting prices too far from the market
     /// can prevent execution, while tight prices risk being filled at suboptimal levels.
     pub price: Option<f64>,
+
     /// The direction of the trigger price (true for rising, false for falling).
     ///
     /// Used for conditional orders (e.g., stop or take-profit orders), indicating whether
@@ -85,6 +94,7 @@ pub struct OrderRequest<'a> {
     /// to align with the intended risk management strategy. Incorrect directions can lead
     /// to premature or missed triggers, impacting profitability.
     pub trigger_direction: Option<bool>,
+
     /// A filter to specify the order type (e.g., "tpslOrder" for take-profit/stop-loss).
     ///
     /// Bybit uses order filters to categorize special order types, such as take-profit/
@@ -93,14 +103,17 @@ pub struct OrderRequest<'a> {
     /// as per Bybit’s API to avoid rejections. This field is crucial for automated risk
     /// management in perpetual futures, where volatility necessitates robust controls.
     pub order_filter: Option<Cow<'a, str>>,
+
     /// The price at which a conditional order is triggered.
     ///
     /// Specifies the price level that activates a conditional order (e.g., stop-loss or
     /// take-profit). In perpetual futures, trigger prices are critical for risk management,
+
     /// as they define exit points for profitable or losing positions. Bots should set
     /// trigger prices based on technical analysis or risk thresholds, ensuring they align
     /// with market volatility and symbol tick sizes to avoid invalid orders.
     pub trigger_price: Option<f64>,
+
     /// The price type for triggering the order (e.g., "LastPrice", "IndexPrice").
     ///
     /// Defines which price metric (e.g., last traded price, index price, or mark price)
@@ -109,6 +122,7 @@ pub struct OrderRequest<'a> {
     /// is less susceptible to spoofing than "LastPrice". Bots must choose the appropriate
     /// trigger type to ensure reliable execution, especially in high-frequency trading.
     pub trigger_by: Option<Cow<'a, str>>,
+
     /// The implied volatility for options orders (optional, not used in perpetual futures).
     ///
     /// While not typically used in perpetual futures, this field applies to options
@@ -116,6 +130,7 @@ pub struct OrderRequest<'a> {
     /// Bots trading perpetual futures can ignore this field, but those expanding to
     /// options must calculate or source accurate volatility data to set this correctly.
     pub order_iv: Option<f64>,
+
     /// The time-in-force policy for the order.
     ///
     /// Specifies how long the order remains active (e.g., GTC, IOC). In perpetual
@@ -124,6 +139,7 @@ pub struct OrderRequest<'a> {
     /// TIF based on market conditions and strategy goals, ensuring compatibility with
     /// Bybit’s API requirements.
     pub time_in_force: Option<Cow<'a, str>>,
+
     /// The position index for futures (0 for one-way, 1 or 2 for hedge mode).
     ///
     /// In Bybit’s perpetual futures, position index distinguishes between one-way mode
@@ -132,13 +148,16 @@ pub struct OrderRequest<'a> {
     /// account’s position mode to avoid order rejections. Mismanaging position index can
     /// lead to unintended position netting or increased margin requirements.
     pub position_idx: Option<u8>,
+
     /// A user-defined identifier for the order.
     ///
     /// Allows bots to tag orders with a custom ID for tracking and management. In
     /// perpetual futures, where multiple orders may be active, `order_link_id` helps
     /// bots correlate API responses with specific strategies. Bots should use unique,
+
     /// descriptive IDs to avoid confusion and ensure robust order tracking.
     pub order_link_id: Option<Cow<'a, str>>,
+
     /// The take-profit price for the order.
     ///
     /// Sets the price at which a position is automatically closed to lock in profits.
@@ -147,13 +166,16 @@ pub struct OrderRequest<'a> {
     /// on market analysis and risk-reward ratios, ensuring the price is realistic given
     /// volatility and tick size constraints.
     pub take_profit: Option<f64>,
+
     /// The stop-loss price for the order.
     ///
     /// Sets the price at which a position is closed to limit losses. In perpetual futures,
+
     /// stop-loss (SL) is critical to prevent significant drawdowns, especially with
     /// leverage. Bots should set SL based on risk tolerance and market volatility, ensuring
     /// it’s not too tight (risking premature exit) or too loose (risking large losses).
     pub stop_loss: Option<f64>,
+
     /// The price type for triggering take-profit (e.g., "LastPrice", "MarkPrice").
     ///
     /// Specifies which price metric triggers the take-profit order. Choosing the right
@@ -161,12 +183,16 @@ pub struct OrderRequest<'a> {
     /// Bots should prefer stable metrics like "MarkPrice" for reliability, especially in
     /// volatile markets.
     pub tp_trigger_by: Option<Cow<'a, str>>,
+
     /// The price type for triggering stop-loss (e.g., "LastPrice", "MarkPrice").
     ///
     /// Specifies which price metric triggers the stop-loss order. Similar to `tp_trigger_by`,
+
     /// bots should select a reliable trigger type to ensure stop-loss activates as intended,
+
     /// protecting against adverse price movements in perpetual futures.
     pub sl_trigger_by: Option<Cow<'a, str>>,
+
     /// Indicates if the order reduces an existing position (true) or opens a new one (false).
     ///
     /// In perpetual futures, `reduce_only` ensures an order only closes an existing
@@ -174,6 +200,7 @@ pub struct OrderRequest<'a> {
     /// when closing positions to avoid accidentally opening opposing positions, which could
     /// increase margin requirements or trigger liquidations.
     pub reduce_only: Option<bool>,
+
     /// Indicates if the order closes the position when triggered (used for stop orders).
     ///
     /// When `true`, the order closes the position upon triggering, typically used for
@@ -181,6 +208,7 @@ pub struct OrderRequest<'a> {
     /// by ensuring automatic position closure at predefined levels. Bots should enable
     /// this for risk-limiting orders to prevent unintended position retention.
     pub close_on_trigger: Option<bool>,
+
     /// The type of self-match prevention (optional, for institutional traders).
     ///
     /// Self-match prevention (SMP) prevents a trader’s own orders from matching against
@@ -188,6 +216,7 @@ pub struct OrderRequest<'a> {
     /// is relevant for large or institutional bots to comply with exchange rules. Most
     /// retail bots can leave this as `None` unless operating at scale.
     pub smp_type: Option<Cow<'a, str>>,
+
     /// Indicates if the order uses market maker protection (optional).
     ///
     /// Market maker protection (MMP) prevents rapid liquidations for market makers by
@@ -195,6 +224,7 @@ pub struct OrderRequest<'a> {
     /// bots providing liquidity. Retail bots can usually ignore this field unless
     /// participating in Bybit’s market maker program.
     pub mmp: Option<bool>,
+
     /// The take-profit/stop-loss mode (e.g., "Full", "Partial").
     ///
     /// Specifies whether TP/SL applies to the entire position ("Full") or a portion
@@ -203,19 +233,23 @@ pub struct OrderRequest<'a> {
     /// strategy; "Full" is simpler for risk management, while "Partial" suits complex
     /// exit strategies.
     pub tpsl_mode: Option<Cow<'a, str>>,
+
     /// The limit price for take-profit orders (for limit TP orders).
     ///
     /// Specifies the exact price for a limit-based take-profit order. In perpetual futures,
+
     /// this allows precise profit-taking but risks non-execution if the market doesn’t
     /// reach the price. Bots should set this based on market depth and volatility to
     /// balance execution likelihood and profitability.
     pub tp_limit_price: Option<f64>,
+
     /// The limit price for stop-loss orders (for limit SL orders).
     ///
     /// Specifies the exact price for a limit-based stop-loss order. Similar to
     /// `tp_limit_price`, bots must balance precision with execution risk, ensuring the
     /// price is achievable in volatile perpetual futures markets to protect against losses.
     pub sl_limit_price: Option<f64>,
+
     /// The order type for take-profit (e.g., "Market", "Limit").
     ///
     /// Defines whether the take-profit order executes as a Market or Limit order. Market
@@ -223,6 +257,7 @@ pub struct OrderRequest<'a> {
     /// may not fill. Bots should choose based on market conditions and strategy priorities
     /// in perpetual futures trading.
     pub tp_order_type: Option<Cow<'a, str>>,
+
     /// The order type for stop-loss (e.g., "Market", "Limit").
     ///
     /// Defines whether the stop-loss order executes as a Market or Limit order. Similar
@@ -235,6 +270,7 @@ impl<'a> OrderRequest<'a> {
     /// Creates a default `OrderRequest` with predefined values.
     ///
     /// Initializes an order request with common defaults (e.g., Linear category,
+
     /// BTCUSDT symbol, Market order). Bots can use this as a starting point and modify
     /// fields as needed. Ensure all required fields are set before submitting to Bybit’s API.
     pub fn default() -> Self {
@@ -274,6 +310,7 @@ impl<'a> OrderRequest<'a> {
     ///
     /// Allows bots to construct an order request with full control over all fields.
     /// Ensure all parameters comply with Bybit’s API constraints (e.g., valid symbol,
+
     /// quantity precision) to avoid rejections. This method is ideal for tailored
     /// strategies in perpetual futures trading.
     pub fn custom(

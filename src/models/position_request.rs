@@ -9,18 +9,22 @@ pub struct PositionRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to fetch positions for the correct contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Optionally filters positions by symbol. If unset, all positions in the category are returned. Bots should specify this for targeted position monitoring.
     pub symbol: Option<Cow<'a, str>>,
+
     /// The base coin (e.g., "BTC").
     ///
     /// Optionally filters positions by the base asset. Useful for bots managing multiple pairs of the same asset.
     pub base_coin: Option<Cow<'a, str>>,
+
     /// The settlement coin (e.g., "USDT").
     ///
     /// Optionally filters positions by the settlement currency. For `Linear` perpetuals, this is typically "USDT". Bots can use this to focus on specific margin types.
     pub settle_coin: Option<Cow<'a, str>>,
+
     /// The maximum number of position records to return.
     ///
     /// Controls the number of position records returned. Bots should set a reasonable limit to balance data completeness with performance.

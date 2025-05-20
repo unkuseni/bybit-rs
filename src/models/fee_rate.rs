@@ -16,10 +16,12 @@ pub struct FeeRate {
     ///
     /// This identifies the specific market to which the fee rates apply. For trading bots, this field is essential for mapping fee structures to specific markets, ensuring accurate cost calculations per trade.
     pub symbol: String,
+
     /// The fee rate charged for maker orders (as a string, e.g., "0.0001" for 0.01%).
     ///
     /// Maker orders add liquidity to the order book by placing limit orders that are not immediately matched. Lower maker fees incentivize bots to provide liquidity, which can be a strategy for reducing trading costs. Bots should monitor this rate to optimize order placement strategies, especially in market-making algorithms.
     pub maker_fee_rate: String,
+
     /// The fee rate charged for taker orders (as a string, e.g., "0.0006" for 0.06%).
     ///
     /// Taker orders remove liquidity by matching existing orders (e.g., market orders). Higher taker fees mean bots executing immediate trades pay more, impacting profitability. Bots should compare maker vs. taker fees to decide whether to place limit or market orders based on strategy goals.

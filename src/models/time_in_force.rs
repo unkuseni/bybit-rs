@@ -17,10 +17,13 @@ pub enum TimeInForce {
     /// Good Till Canceled: Order remains active until filled or canceled.
     #[default]
     GTC,
+
     /// Immediate or Cancel: Executes immediately, with unfilled portion canceled.
     IOC,
+
     /// Fill or Kill: Must be fully filled immediately or canceled.
     FOK,
+
     /// Post Only: Ensures the order is a maker order, cancels if it would be a taker.
     PostOnly,
 }

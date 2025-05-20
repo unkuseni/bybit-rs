@@ -10,6 +10,7 @@ pub struct OpenInterestSummary {
     ///
     /// Confirms the perpetual futures contract for the open interest data. Bots should verify this matches the requested symbol.
     pub symbol: String,
+
     /// A list of open interest records.
     ///
     /// Contains the open interest data for each time interval, including quantity and timestamp. Bots use this to analyze trends in market participation and predict potential price volatility.

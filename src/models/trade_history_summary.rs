@@ -11,10 +11,12 @@ pub struct TradeHistorySummary {
     /// Indicates the next page of results for large datasets. Bots should use this for paginated requests to fetch additional trade history when `limit` is reached.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub next_page_cursor: String,
+
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type (e.g., `linear` for USDT-margined perpetuals). Bots should verify this matches the requested `category` to ensure data relevance.
     pub category: String,
+
     /// A list of trade history records.
     ///
     /// Contains detailed execution data for each trade, such as price, quantity, and fees. Bots use this to analyze trade performance and refine strategies.

@@ -13,6 +13,7 @@ pub struct OrderStatus {
     /// Used to reference the order in API requests and responses. Bots must store
     /// this to manage orders effectively in perpetual futures trading.
     pub order_id: String,
+
     /// The user-defined identifier of the order.
     ///
     /// Allows bots to track orders using custom IDs. Essential for complex strategies

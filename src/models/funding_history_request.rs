@@ -9,18 +9,22 @@ pub struct FundingHistoryRequest<'a> {
     ///
     /// Specifies the instrument type. For perpetual futures, use `Linear` or `Inverse`. Bots must set this correctly.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract. Bots must specify a valid symbol.
     pub symbol: Cow<'a, str>,
+
     /// The start time for the funding history (Unix timestamp in milliseconds).
     ///
     /// Defines the beginning of the time range. Bots should set this for historical analysis of funding costs.
     pub start_time: Option<u64>,
+
     /// The end time for the funding history (Unix timestamp in milliseconds).
     ///
     /// Defines the end of the time range. Bots should set this to limit data to a specific period.
     pub end_time: Option<u64>,
+
     /// The maximum number of records to return (1-200, default: 200).
     ///
     /// Controls the response size. Bots should set a reasonable limit to balance data completeness and performance.

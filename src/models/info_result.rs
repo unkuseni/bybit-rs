@@ -9,11 +9,13 @@ pub struct InfoResult {
     ///
     /// Contains detailed position data, such as size, entry price, and P&L. Bots use this to calculate risk metrics and update position tracking systems.
     pub list: Vec<PositionInfo>,
+
     /// The cursor for pagination (optional).
     ///
     /// Indicates the next page of results for large datasets. Bots should use this for paginated requests to fetch additional position data when `limit` is reached.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_page_cursor: Option<String>,
+
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type. Bots should verify this matches the requested `category` to ensure data relevance.

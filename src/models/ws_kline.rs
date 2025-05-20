@@ -15,15 +15,18 @@ pub struct WsKline {
     ///
     /// Identifies the k-line stream and interval. Bots use this to subscribe to specific timeframes and symbols.
     pub topic: String,
+
     /// The k-line data for the update.
     ///
     /// Contains a vector of candlestick data points. Bots process this to update technical indicators or chart patterns.
     pub data: Vec<KlineData>,
+
     /// The timestamp of the update (in milliseconds).
     ///
     /// Indicates when the k-line data was sent. Bots use this to ensure data is processed in chronological order.
     #[serde(rename = "ts")]
     pub timestamp: u64,
+
     /// The type of WebSocket event (e.g., "snapshot" or "delta").
     ///
     /// Specifies whether the data is a full snapshot or incremental update. Bots must handle both to maintain accurate k-line history.

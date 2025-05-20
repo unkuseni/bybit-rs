@@ -10,6 +10,7 @@ pub struct SwitchListData {
     ///
     /// Specifies the coin whose collateral status was updated. Bots should verify this matches the requested coin.
     pub coin: String,
+
     /// The collateral switch status (e.g., "ON", "OFF").
     ///
     /// Indicates whether the coin is enabled (`ON`) or disabled (`OFF`) as collateral. Bots use this to confirm the new collateral setting.

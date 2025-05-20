@@ -9,18 +9,22 @@ pub struct ClosedPnlRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to fetch P&L data for the correct contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT") (optional).
     ///
     /// Optionally filters P&L data by symbol. If unset, data for all symbols in the category is returned. Bots should specify this for targeted performance analysis.
     pub symbol: Option<Cow<'a, str>>,
+
     /// The start time for the P&L data (Unix timestamp in milliseconds) (optional).
     ///
     /// Defines the beginning of the time range. Bots should set this to focus on a specific historical period, such as a trading session or month.
     pub start_time: Option<u64>,
+
     /// The end time for the P&L data (Unix timestamp in milliseconds) (optional).
     ///
     /// Defines the end of the time range. Bots should set this to limit data to a specific period, optimizing performance.
     pub end_time: Option<u64>,
+
     /// The maximum number of P&L records to return (optional).
     ///
     /// Controls the number of records returned (e.g., max 50). Bots should set a reasonable limit to balance data completeness with performance.

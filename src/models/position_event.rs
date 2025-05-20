@@ -16,14 +16,17 @@ pub struct PositionEvent {
     ///
     /// Used to track specific position updates. Bots can use this to correlate events with internal state.
     pub id: String,
+
     /// The WebSocket topic (e.g., "position").
     ///
     /// Identifies the position data stream. Bots use this to filter relevant messages.
     pub topic: String,
+
     /// The timestamp when the event was created (in milliseconds).
     ///
     /// Indicates when the position update occurred. Bots use this for time-based analysis.
     pub creation_time: u64,
+
     /// The position data for the event.
     ///
     /// Contains details about the user's positions. Bots process this to manage open trades.

@@ -10,6 +10,7 @@ pub struct BorrowHistory {
     ///
     /// Indicates the next page of results for large datasets. Bots should use this for paginated requests to fetch additional borrowing history.
     pub next_page_cursor: String,
+
     /// A list of borrowing records.
     ///
     /// Contains detailed borrowing data, such as amounts, interest rates, and timestamps. Bots use this to audit borrowing activity and manage leverage.

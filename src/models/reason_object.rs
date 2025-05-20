@@ -10,6 +10,7 @@ pub struct ReasonObject {
     ///
     /// A code indicating the specific reason for success or failure (e.g., "10001" for invalid settings). Bots use this to implement targeted error handling.
     pub reason_code: String,
+
     /// A human-readable message describing the reason.
     ///
     /// Provides context for the `reason_code`, such as `"Cannot change mode with open positions"`. Bots should log this for debugging and user feedback.

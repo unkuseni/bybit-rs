@@ -9,14 +9,17 @@ pub struct ChangeMarginRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract for which margin settings are being changed. Bots must specify a valid symbol.
     pub symbol: Cow<'a, str>,
+
     /// The trade mode (0 for cross margin, 1 for isolated margin).
     ///
     /// Specifies whether to use cross margin (shared across positions) or isolated margin (specific to this position). Bots use this to control margin allocation.
     pub trade_mode: i8,
+
     /// The leverage value (e.g., 10 for 10x).
     ///
     /// The desired leverage multiplier. Bots should ensure this complies with Bybit’s limits for the symbol and trade mode.

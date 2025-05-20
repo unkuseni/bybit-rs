@@ -9,6 +9,7 @@ pub struct Subscription<'a> {
     ///
     /// Specifies the WebSocket operation, typically `"subscribe"` for subscribing to data streams. Bots must set this correctly to initiate subscriptions.
     pub op: &'a str,
+
     /// A list of subscription arguments.
     ///
     /// Specifies the data streams to subscribe to, such as `"orderbook.50.BTCUSDT"` or `"trade.BTCUSDT"`. Bots should provide valid topics to receive relevant market data.

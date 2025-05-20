@@ -10,10 +10,12 @@ pub struct LeverageFilter {
     ///
     /// The lowest leverage setting for the contract (e.g., `"1"` for 1x). Bots must ensure leverage settings are at least this value to avoid API errors. Low leverage reduces risk but also potential returns.
     pub min_leverage: String,
+
     /// The maximum leverage allowed.
     ///
     /// The highest leverage setting (e.g., `"100"` for 100x). High leverage amplifies gains and losses in perpetual futures, increasing liquidation risk. Bots should use this to cap leverage based on risk tolerance.
     pub max_leverage: String,
+
     /// The leverage step size.
     ///
     /// The increment for leverage adjustments (e.g., `"0.1"`). Bots must set leverage in multiples of this step to comply with Bybit’s rules.

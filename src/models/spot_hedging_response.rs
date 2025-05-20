@@ -10,6 +10,7 @@ pub struct SpotHedgingResponse {
     ///
     /// A `0` indicates success. Non-zero codes require error handling for issues like invalid settings. Bots should implement retry logic or parameter adjustments.
     pub ret_code: i32,
+
     /// A human-readable message describing the result or error.
     ///
     /// Provides context for the `ret_code`, such as `"OK"` or an error description. Bots should log this for debugging.

@@ -10,6 +10,7 @@ pub enum TickerData {
     ///
     /// Contains market data for spot trading pairs. Not relevant for perpetual futures.
     Spot(SpotTicker),
+
     /// Ticker data for futures (including perpetuals).
     ///
     /// Contains market data for perpetual futures, including funding rates and open interest. Critical for bots monitoring market conditions and funding costs.

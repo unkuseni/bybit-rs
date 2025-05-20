@@ -10,6 +10,7 @@ pub struct InsuranceSummary {
     /// Bots use this to verify the recency of the data, as outdated fund balances could signal risk.
     #[serde(with = "string_to_u64")]
     pub updated_time: u64,
+
     /// List of insurance fund entries for different coins.
     /// Each entry details the fund’s balance for a specific cryptocurrency, used to assess
     /// Bybit’s capacity to cover losses in perpetual futures.
