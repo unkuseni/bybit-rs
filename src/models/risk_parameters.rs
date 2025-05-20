@@ -9,10 +9,11 @@ pub struct RiskParameters {
     /// The limit order risk parameter.
     ///
     /// Defines risk constraints for limit orders in spot trading. Not relevant for perpetuals.
-    pub limit_parameter: String,
-
+    #[serde(with = "string_to_float")]
+    pub price_limit_ratio_x: f64,
     /// The market order risk parameter.
     ///
     /// Defines risk constraints for market orders in spot trading. Not relevant for perpetuals.
-    pub market_parameter: String,
+    #[serde(with = "string_to_float")]
+    pub price_limit_ratio_y: f64,
 }

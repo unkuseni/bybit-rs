@@ -690,8 +690,15 @@ pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
     let mut order_array = Vec::new();
     match orders {
         RequestType::Create(req) => {
+            let action = Action::Order(req, false);
+            let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+            let built_order = json!(order_object);
+            order_array.push(built_order);
+            Value::Array(order_array)
+        }
+        RequestType::CreateBatch(req) => {
             for v in req.requests {
-                let action = Action::Order(v, false);
+                let action = Action::Order(v, true);
                 let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
                 let built_order = json!(order_object);
                 order_array.push(built_order);
@@ -699,8 +706,15 @@ pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
             Value::Array(order_array)
         }
         RequestType::Amend(req) => {
+            let action = Action::Amend(req, false);
+            let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+            let built_order = json!(order_object);
+            order_array.push(built_order);
+            Value::Array(order_array)
+        }
+        RequestType::AmendBatch(req) => {
             for v in req.requests {
-                let action = Action::Amend(v, false);
+                let action = Action::Amend(v, true);
                 let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
                 let built_order = json!(order_object);
                 order_array.push(built_order);
@@ -708,8 +722,15 @@ pub fn build_ws_orders<'a>(orders: RequestType) -> Value {
             Value::Array(order_array)
         }
         RequestType::Cancel(req) => {
+            let action = Action::Cancel(req, false);
+            let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
+            let built_order = json!(order_object);
+            order_array.push(built_order);
+            Value::Array(order_array)
+        }
+        RequestType::CancelBatch(req) => {
             for v in req.requests {
-                let action = Action::Cancel(v, false);
+                let action = Action::Cancel(v, true);
                 let order_object = Trader::build_orders(action); // Assuming this returns the correct object structure
                 let built_order = json!(order_object);
                 order_array.push(built_order);
