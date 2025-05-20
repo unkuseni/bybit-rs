@@ -9,22 +9,27 @@ pub struct CancelAllRequest<'a> {
     ///
     /// Specifies the instrument type, such as `Linear` for USDT-margined perpetual futures. Bots must set this correctly to target the desired contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the specific perpetual futures contract. If specified, only orders for this symbol are canceled. Bots can leave this empty to cancel orders across all symbols in the category.
     pub symbol: &'a str,
+
     /// The base coin of the instrument (e.g., "BTC").
     ///
     /// Optionally filters orders by the base asset (e.g., all BTC-based perpetuals). Useful for bots managing multiple pairs of the same asset.
     pub base_coin: Option<&'a str>,
+
     /// The settlement coin (e.g., "USDT").
     ///
     /// Optionally filters orders by the settlement currency. For `Linear` perpetuals, this is typically "USDT". Bots can use this to narrow down cancellations to specific margin types.
     pub settle_coin: Option<&'a str>,
+
     /// The order filter (e.g., "Order", "StopOrder").
     ///
     /// Specifies the type of orders to cancel, such as regular orders or stop orders. Bots can use this to selectively cancel specific order types, preserving others like take-profit/stop-loss orders.
     pub order_filter: Option<&'a str>,
+
     /// The stop order type (e.g., "StopLoss", "TakeProfit").
     ///
     /// Optionally filters by specific stop order types. Useful for bots managing complex strategies with multiple conditional orders in perpetual futures.

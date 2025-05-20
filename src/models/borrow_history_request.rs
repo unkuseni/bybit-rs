@@ -9,14 +9,17 @@ pub struct BorrowHistoryRequest<'a> {
     ///
     /// Optionally filters borrowing records by currency. If unset, data for all currencies is returned. Bots should specify this to focus on specific margin types.
     pub coin: Option<Cow<'a, str>>,
+
     /// The start time for the borrow history (Unix timestamp in milliseconds) (optional).
     ///
     /// Defines the beginning of the time range. Bots should set this to focus on a specific historical period.
     pub start_time: Option<u64>,
+
     /// The end time for the borrow history (Unix timestamp in milliseconds) (optional).
     ///
     /// Defines the end of the time range. Bots should set this to limit data to a specific period, optimizing performance.
     pub end_time: Option<u64>,
+
     /// The maximum number of borrow records to return (optional).
     ///
     /// Controls the number of records returned as a string (e.g., "50"). Bots should set a reasonable limit to balance data completeness with performance.

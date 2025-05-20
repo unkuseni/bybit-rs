@@ -10,6 +10,7 @@ pub struct TickersInfo {
     ///
     /// Indicates the instrument type. For perpetual futures, this is `linear` or `inverse`. Bots should verify this matches their strategy.
     pub category: String,
+
     /// A list of ticker data records.
     ///
     /// Contains the actual market data for each trading pair. Bots iterate over this list to extract prices, volumes, and funding rates for perpetual futures.

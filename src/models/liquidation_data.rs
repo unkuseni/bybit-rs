@@ -16,19 +16,23 @@ pub struct LiquidationData {
     ///
     /// Indicates the exact time of the liquidation event. Bots can use this to align liquidation data with price or volume spikes.
     pub updated_time: u64,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Specifies the market where the liquidation occurred. Bots filter by symbol to focus on relevant markets.
     pub symbol: String,
+
     /// The side of the liquidated position ("Buy" or "Sell").
     ///
     /// Indicates whether the liquidated position was long (Buy) or short (Sell). A high volume of liquidations on one side can signal a potential price reversal, which bots can exploit.
     pub side: String,
+
     /// The size of the liquidated position (in contracts or base currency).
     ///
     /// Represents the volume of the position closed. Large liquidations can cause significant price movements, and bots should monitor this to anticipate volatility.
     #[serde(with = "string_to_float")]
     pub size: f64,
+
     /// The price at which the position was liquidated.
     ///
     /// This is the market price at which the position was forcibly closed. Bots can use this to identify liquidation price levels, which often act as support or resistance zones.

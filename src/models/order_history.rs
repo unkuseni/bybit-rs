@@ -13,12 +13,14 @@ pub struct OrderHistory {
     /// Indicates the market of the orders (e.g., Spot or Linear for perpetual futures).
     /// Bots should verify this matches the query to ensure correct data processing.
     pub category: String,
+
     /// The list of historical orders.
     ///
     /// Contains detailed information about each order. Bots should iterate over this
     /// to extract metrics like execution price, fees, and status for perpetual futures
     /// analysis.
     pub list: Vec<Order>,
+
     /// The cursor for fetching the next page of results.
     ///
     /// Used for pagination when the query returns more orders than the `limit`. Bots

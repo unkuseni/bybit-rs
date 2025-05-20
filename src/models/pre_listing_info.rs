@@ -10,10 +10,12 @@ pub struct PreListingInfo {
     ///
     /// Indicates the stage of the pre-listing auction. Not relevant for perpetuals.
     pub cur_auction_phase: String,
+
     /// A list of pre-listing phases.
     ///
     /// Details the schedule of the auction phases. Not relevant for perpetuals.
     pub phases: Vec<PreListingPhase>,
+
     /// Auction fee information.
     ///
     /// Specifies fees for the pre-listing auction. Not relevant for perpetuals.

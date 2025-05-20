@@ -16,6 +16,7 @@ pub enum Side {
     /// Represents a buy order, initiating a long position or closing a short position.
     #[default]
     Buy,
+
     /// Represents a sell order, initiating a short position or closing a long position.
     Sell,
 }

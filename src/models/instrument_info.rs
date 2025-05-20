@@ -10,10 +10,12 @@ pub enum InstrumentInfo {
     ///
     /// Contains details for perpetual futures contracts, such as leverage filters and funding intervals. Bots use this to configure trading parameters and manage risk.
     Futures(FuturesInstrumentsInfo),
+
     /// Instrument information for spot markets.
     ///
     /// Contains details for spot trading pairs. Less relevant for perpetual futures but included for completeness.
     Spot(SpotInstrumentsInfo),
+
     /// Instrument information for options.
     ///
     /// Contains details for options contracts. Not typically used for perpetual futures trading.

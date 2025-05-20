@@ -10,6 +10,7 @@ pub struct LiabilityQtyData {
     ///
     /// Specifies the currency used for the repayment. Bots should verify this matches the expected currency.
     pub coin: String,
+
     /// The quantity repaid.
     ///
     /// The amount of the currency repaid to reduce the borrowed liability. Bots use this to update liability tracking and account balances.

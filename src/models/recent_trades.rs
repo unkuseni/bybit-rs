@@ -10,6 +10,7 @@ pub struct RecentTrades {
     ///
     /// Indicates the instrument type (e.g., `linear` for USDT-margined perpetuals). Bots should verify this matches the requested `category` to ensure data relevance.
     pub category: String,
+
     /// A list of recent trade records.
     ///
     /// Contains the executed trade details, such as price, quantity, and side (buy/sell). Bots use this to analyze trade volume, price momentum, and market liquidity for perpetual futures.

@@ -17,16 +17,19 @@ pub struct Liquidation {
     /// Identifies the data stream and symbol for the liquidation event. Bots use this to filter relevant liquidation messages.
     #[serde(rename = "topic")]
     pub topic: String,
+
     /// The type of WebSocket event (e.g., "snapshot" or "delta").
     ///
     /// Indicates whether the data is a full snapshot or incremental update. Bots must handle both types to maintain an accurate state.
     #[serde(rename = "type")]
     pub event_type: String,
+
     /// The timestamp of the event (in milliseconds).
     ///
     /// Represents when the liquidation occurred. Bots use this for time-based analysis, such as correlating liquidations with price movements.
     #[serde(rename = "ts")]
     pub ts: u64,
+
     /// The liquidation details.
     ///
     /// Contains the core data about the liquidation, such as symbol, side, size, and price. Bots process this to assess market impact.

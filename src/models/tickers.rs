@@ -10,6 +10,7 @@ pub enum Tickers {
     ///
     /// Contains metrics like funding rate and open interest for USDT-margined contracts. Bots use this for perpetual futures trading strategies.
     Linear(LinearTickerData),
+
     /// Ticker data for spot markets.
     ///
     /// Contains metrics like 24-hour volume and USD index price for spot trading pairs. Bots use this for spot market analysis.

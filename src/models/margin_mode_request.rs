@@ -9,14 +9,17 @@ pub struct MarginModeRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type.
     pub category: Category,
+
     /// The margin mode (0 for cross margin, 1 for isolated margin).
     ///
     /// Specifies whether to use cross margin (shared across positions) or isolated margin (specific to each position). Bots use this to optimize margin usage.
     pub mode: i8,
+
     /// The trading pair symbol (e.g., "BTCUSDT") (optional).
     ///
     /// If specified, sets the margin mode for a specific symbol. If unset, applies to the entire account. Bots should specify this for targeted margin mode changes.
     pub symbol: Option<Cow<'a, str>>,
+
     /// The coin (e.g., "USDT") (optional).
     ///
     /// Optionally specifies the settlement currency. For `Linear` perpetuals, this is typically "USDT". Bots can use this to filter margin mode settings by currency.

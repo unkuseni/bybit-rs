@@ -9,30 +9,37 @@ pub struct RiskLimit {
     /// Used by Bybit to distinguish different risk levels. Bots can use this to track specific
     /// configurations.
     pub id: u64,
+
     /// The trading symbol (e.g., "BTCUSDT").
     /// Specifies the market to which the risk limit applies. Bots must match this with their
     /// trading pairs.
     pub symbol: String,
+
     /// The maximum position size allowed (in base currency or USD).
     /// In perpetual futures, this limits exposure to prevent excessive risk. Bots use this to
     /// cap order sizes and avoid rejections.
     #[serde(with = "string_to_float")]
     pub risk_limit_value: f64,
+
     /// The maintenance margin rate (e.g., 0.005 for 0.5%).
     /// The minimum margin required to keep a position open. If the margin falls below this,
+
     /// liquidation occurs at the bust price (bankruptcy price). Bots monitor this to manage
     /// liquidation risks.
     #[serde(with = "string_to_float")]
     pub maintenance_margin: f64,
+
     /// The initial margin rate (e.g., 0.01 for 1%).
     /// The margin required to open a position. Lower rates allow higher leverage, but increase
     /// liquidation risk. Bots use this to calculate capital requirements.
     #[serde(with = "string_to_float")]
     pub initial_margin: f64,
+
     /// Indicates if this is the lowest risk tier (1 for true, 0 for false).
     /// Lower risk tiers have stricter limits but safer margin requirements. Bots may prefer these
     /// for conservative strategies.
     pub is_lowest_risk: u8,
+
     /// The maximum leverage allowed (e.g., "100" for 100x).
     /// Leverage amplifies gains and losses in perpetual futures. Bots must ensure orders comply
     /// with this limit to avoid rejections.

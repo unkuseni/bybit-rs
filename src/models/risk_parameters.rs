@@ -10,6 +10,7 @@ pub struct RiskParameters {
     ///
     /// Defines risk constraints for limit orders in spot trading. Not relevant for perpetuals.
     pub limit_parameter: String,
+
     /// The market order risk parameter.
     ///
     /// Defines risk constraints for market orders in spot trading. Not relevant for perpetuals.

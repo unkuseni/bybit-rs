@@ -9,6 +9,7 @@ pub struct BatchPlaceRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type for the batch orders.
     pub category: Category,
+
     /// A list of order requests to place.
     ///
     /// Contains the individual order details, such as symbol, price, and quantity. Bots should populate this with valid `OrderRequest` structs to execute multiple orders efficiently.

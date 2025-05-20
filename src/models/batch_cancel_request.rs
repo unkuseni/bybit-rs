@@ -9,6 +9,7 @@ pub struct BatchCancelRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type for the batch cancellations.
     pub category: Category,
+
     /// A list of order cancellation requests.
     ///
     /// Contains the individual cancellation details, such as order ID or order link ID. Bots should populate this with valid `CancelOrderRequest` structs to cancel multiple orders efficiently.
