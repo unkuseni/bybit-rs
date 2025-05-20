@@ -50,6 +50,7 @@ impl<'a> ClosedPnlRequest<'a> {
             limit,
         }
     }
+
     /// Creates a default ClosedPnl request.
     ///
     /// Returns a request with `category` set to `Linear` and all other fields unset. Suitable for broad queries but should be customized for specific analysis needs.

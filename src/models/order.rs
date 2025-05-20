@@ -17,7 +17,7 @@ pub struct Order {
     ///
     /// This is a system-generated ID assigned when the order is created. In perpetual
     /// futures, `order_id` is essential for tracking orders across API requests (e.g.,
-
+    ///
     /// amending, canceling, or querying status). Bots must store and reference this ID
     /// to manage orders accurately, especially in high-frequency trading where multiple
     /// orders are active. Losing track of `order_id` can lead to orphaned orders or
@@ -37,7 +37,7 @@ pub struct Order {
     ///
     /// Represents the ID of a block trade, which is a large order executed off the
     /// public order book, typically for institutional traders. In perpetual futures,
-
+    ///
     /// this field is usually `None` for retail bots, as block trades are less common.
     /// For bots handling large orders, this field helps track such trades, ensuring
     /// compliance with Bybit’s reporting requirements. Bots should log this for
@@ -65,7 +65,7 @@ pub struct Order {
     /// to the symbol’s tick size (e.g., $0.5 for BTCUSDT). Bots should use this field
     /// to verify execution against market conditions and calculate profitability. For
     /// limit orders, setting prices too far from the market may prevent execution,
-
+    ///
     /// while market orders risk slippage in volatile markets.
     #[serde(with = "string_to_float")]
     pub price: f64,
@@ -75,7 +75,7 @@ pub struct Order {
     /// Represents the size of the order in the base asset (e.g., BTC for BTCUSDT).
     /// In perpetual futures, quantity must comply with Bybit’s minimum and maximum
     /// limits, which vary by symbol. Bots should validate this against account balance,
-
+    ///
     /// margin requirements, and symbol constraints to avoid rejections. Over-sizing
     /// quantities can increase liquidation risk, especially with leverage, so bots
     /// must carefully manage this field.
@@ -98,7 +98,7 @@ pub struct Order {
     /// returns but also liquidation risk if prices move adversely. Bots should check
     /// this field to confirm margin usage and monitor account health, ensuring
     /// sufficient collateral to avoid forced liquidations. For non-leveraged orders,
-
+    ///
     /// this is an empty string.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub is_leverage: String,
@@ -106,7 +106,7 @@ pub struct Order {
     /// The position index (0 for one-way, 1 or 2 for hedge mode).
     ///
     /// Specifies the position mode: 0 for one-way mode (single position per symbol),
-
+    ///
     /// 1 for long, or 2 for short in hedge mode (allowing simultaneous long and short
     /// positions). In perpetual futures, bots must ensure this matches the account’s
     /// position mode to avoid order rejections. Mismanaging `position_idx` can lead to
@@ -117,7 +117,7 @@ pub struct Order {
     /// The current status of the order (e.g., "New", "Filled", "Cancelled").
     ///
     /// Indicates the order’s lifecycle stage, such as "New" (pending), "PartiallyFilled",
-
+    ///
     /// "Filled", or "Cancelled". In perpetual futures, bots should monitor this to track
     /// execution progress and handle edge cases (e.g., partial fills or cancellations).
     /// For example, a "PartiallyFilled" status requires bots to adjust position sizes
@@ -157,7 +157,7 @@ pub struct Order {
     /// The remaining quantity to be executed.
     ///
     /// Indicates the unfilled portion of the order’s quantity. In perpetual futures,
-
+    ///
     /// bots should monitor this to determine if an order is partially filled and adjust
     /// position sizing or risk calculations. A non-zero `leaves_qty` for a limit order
     /// may indicate the price is too far from the market, prompting bots to amend the
@@ -209,7 +209,7 @@ pub struct Order {
     /// The time-in-force policy of the order.
     ///
     /// Specifies how long the order was active, such as "GTC" (Good Till Canceled),
-
+    ///
     /// "IOC" (Immediate or Cancel), "FOK" (Fill or Kill), or "PostOnly". In perpetual
     /// futures, TIF affects execution strategy and fees. For example, PostOnly orders
     /// optimize for maker fees but may not execute in fast markets. Bots should verify
@@ -221,7 +221,7 @@ pub struct Order {
     ///
     /// Indicates whether the order was a limit order (executed at a specified price)
     /// or a market order (executed at the best available price). In perpetual futures,
-
+    ///
     /// limit orders offer price control but risk non-execution, while market orders
     /// ensure execution but may incur slippage and higher fees. Bots should use this
     /// field to confirm order type and assess execution performance, optimizing for
@@ -233,7 +233,7 @@ pub struct Order {
     /// Specifies if the order was a conditional stop order, such as "StopLoss" or
     /// "TakeProfit". In perpetual futures, stop orders are critical for risk
     /// management, automatically closing positions at predefined levels. If `None`,
-
+    ///
     /// the order is not a stop order. Bots should use this field to identify risk
     /// management orders and ensure they align with the strategy’s exit conditions.
     #[serde(
@@ -260,7 +260,7 @@ pub struct Order {
     /// The price at which a conditional order (e.g., stop-loss or take-profit)
     /// activates. In perpetual futures, trigger prices are essential for risk
     /// management, defining exit points for profitable or losing positions. If `None`,
-
+    ///
     /// the order is not conditional. Bots should verify this field to ensure risk
     /// management settings are correct and adjust trigger prices based on market
     /// volatility and strategy goals.
@@ -281,7 +281,7 @@ pub struct Order {
     ///
     /// The price at which the position is closed to limit losses. In perpetual
     /// futures, stop-loss (SL) is essential to prevent significant drawdowns,
-
+    ///
     /// especially with leverage. If `None`, no SL is set. Bots should use this field
     /// to confirm SL settings and manage risk, setting SL prices based on risk
     /// tolerance and volatility to avoid premature exits or excessive losses.
@@ -291,7 +291,7 @@ pub struct Order {
     /// The price type for triggering take-profit.
     ///
     /// Specifies the price metric used for TP triggering, such as "LastPrice",
-
+    ///
     /// "IndexPrice", or "MarkPrice". In perpetual futures, choosing a reliable metric
     /// like "MarkPrice" (less susceptible to manipulation) ensures consistent
     /// execution. Bots should verify this field to ensure TP triggers as intended,
@@ -320,7 +320,7 @@ pub struct Order {
     /// The price type for triggering conditional orders (optional).
     ///
     /// Specifies the price metric for triggering conditional orders (e.g.,
-
+    ///
     /// "LastPrice", "MarkPrice"). If `None`, the order is not conditional. In
     /// perpetual futures, bots should choose a reliable metric to ensure consistent
     /// execution, especially for high-frequency strategies where timing is critical.
@@ -381,7 +381,7 @@ pub struct Order {
     /// Indicates if an order was affected by SMP, identifying the matched order. In
     /// perpetual futures, this is typically `None` for retail bots but relevant for
     /// institutional traders. Bots should log this for auditing and compliance,
-
+    ///
     /// ensuring SMP rules are followed to avoid penalties.
     #[serde(
         deserialize_with = "empty_string_as_none",
@@ -402,7 +402,7 @@ pub struct Order {
     /// The limit price for take-profit orders (optional).
     ///
     /// The exact price for a limit-based take-profit order. In perpetual futures,
-
+    ///
     /// this allows precise profit-taking but risks non-execution if the market doesn’t
     /// reach the price. If `None`, the TP is not limit-based. Bots should set this
     /// based on market depth and volatility to balance execution likelihood and
@@ -413,7 +413,7 @@ pub struct Order {
     /// The limit price for stop-loss orders (optional).
     ///
     /// The exact price for a limit-based stop-loss order. Similar to `tp_limit_price`,
-
+    ///
     /// bots must balance precision with execution risk, ensuring the price is
     /// achievable in volatile perpetual futures markets to protect against losses. If
     /// `None`, the SL is not limit-based. Bots should validate this against market
@@ -445,7 +445,7 @@ pub struct Order {
     /// The timestamp when the order was last updated (in milliseconds).
     ///
     /// The time of the most recent update to the order (e.g., partial fill,
-
+    ///
     /// cancellation), in Unix epoch milliseconds. In perpetual futures, bots use this
     /// to monitor order progress and detect changes in status or execution. Comparing
     /// `updated_time` with `created_time` helps evaluate market responsiveness and

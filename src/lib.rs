@@ -30,31 +30,30 @@ pub mod prelude {
     pub use crate::util::*;
     pub use crate::ws::*;
 
-    pub use core::f64;
-    pub use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    pub use serde_json::{from_value, json, Value};
-    pub use std::str::FromStr;
-    pub use std::{borrow::Cow, collections::BTreeMap};
-    pub use thiserror::Error;
-
-    pub use std::any::type_name;
-
-    pub use tokio::net::TcpStream;
-
-    pub use hex::encode as hex_encode;
-    pub use hmac::{Hmac, Mac};
-    pub use reqwest::{
+    pub(crate) use core::f64;
+    pub(crate) use derive_more::{Constructor, Display};
+    pub(crate) use futures::sink::SinkExt;
+    pub(crate) use hex::encode as hex_encode;
+    pub(crate) use hmac::{Hmac, Mac};
+    pub(crate) use log::error;
+    pub(crate) use reqwest::{
         header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE, USER_AGENT},
         Client as ReqwestClient, Response as ReqwestResponse, StatusCode,
     };
-
-    pub use futures::sink::SinkExt;
-    pub use log::error;
-    pub use serde::de::DeserializeOwned;
-    pub use sha2::Sha256;
-    pub use tokio_tungstenite::WebSocketStream;
-    pub use tokio_tungstenite::{connect_async, tungstenite::Message as WsMessage, MaybeTlsStream};
-    pub use url::Url as WsUrl;
+    pub(crate) use serde::de::DeserializeOwned;
+    pub(crate) use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    pub(crate) use serde_json::{json, Value};
+    pub(crate) use sha2::Sha256;
+    pub(crate) use std::any::type_name;
+    pub(crate) use std::str::FromStr;
+    pub(crate) use std::{borrow::Cow, collections::BTreeMap};
+    pub(crate) use thiserror::Error;
+    pub(crate) use tokio::net::TcpStream;
+    pub(crate) use tokio_tungstenite::WebSocketStream;
+    pub(crate) use tokio_tungstenite::{
+        connect_async, tungstenite::Message as WsMessage, MaybeTlsStream,
+    };
+    pub(crate) use url::Url as WsUrl;
 }
 
 pub use prelude::*;

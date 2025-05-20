@@ -5,11 +5,11 @@ use crate::prelude::*;
 /// assessing risk in perpetual futures trading. In perpetual futures, which are contracts without
 /// an expiration date, volatility data helps traders predict price movements and adjust leverage.
 /// Trading bots use this to optimize entry/exit points or hedge positions.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Constructor)]
 pub struct HistoricalVolatilityRequest<'a> {
     /// The base cryptocurrency (e.g., "BTC" for Bitcoin).
     /// On Bybit, this specifies the asset for which volatility is calculated. For perpetual futures,
-
+    ///
     /// the base coin determines the trading pair (e.g., BTCUSD). Bots must validate this field to
     /// ensure the pair is supported, as an invalid coin will result in an API error.
     pub base_coin: Option<Cow<'a, str>>,
@@ -38,23 +38,7 @@ impl<'a> HistoricalVolatilityRequest<'a> {
     /// Creates a default request with BTC as the base coin.
     /// Useful for quick initialization in trading bots, but developers should override fields as
     /// needed for specific strategies.
-    pub fn default() -> HistoricalVolatilityRequest<'a> {
-        HistoricalVolatilityRequest::new(Some("BTC"), None, None, None)
-    }
-    /// Constructs a new request with specified parameters.
-    /// Allows fine-grained control over the volatility query, enabling bots to target specific
-    /// coins and timeframes.
-    pub fn new(
-        base_coin: Option<&'a str>,
-        period: Option<&'a str>,
-        start: Option<&'a str>,
-        end: Option<&'a str>,
-    ) -> HistoricalVolatilityRequest<'a> {
-        HistoricalVolatilityRequest {
-            base_coin: base_coin.map(Cow::Borrowed),
-            period: period.map(Cow::Borrowed),
-            start: start.map(Cow::Borrowed),
-            end: end.map(Cow::Borrowed),
-        }
+    pub fn default() -> Self {
+        Self::new(Some(Cow::Borrowed("BTC")), None, None, None)
     }
 }

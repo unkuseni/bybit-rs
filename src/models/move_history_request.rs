@@ -64,6 +64,7 @@ impl<'a> MoveHistoryRequest<'a> {
             limit: limit.map(Cow::Borrowed),
         }
     }
+
     /// Creates a default MoveHistory request.
     ///
     /// Returns a request with all fields unset. Suitable for broad queries but should be customized for specific analysis needs.

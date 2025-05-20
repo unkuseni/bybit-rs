@@ -9,7 +9,7 @@ pub struct SpotInstrumentsInfo {
     /// The product category (e.g., "spot").
     ///
     /// Confirms the instrument type as spot. Bots trading perpetuals can ignore this.
-    pub category: String,
+    pub category: Category,
 
     /// A list of spot instrument details.
     ///

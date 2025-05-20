@@ -63,6 +63,7 @@ impl<'a> SetRiskLimit<'a> {
             position_idx,
         }
     }
+
     /// Creates a default SetRiskLimit request.
     ///
     /// Returns a request with `category` set to `Linear`, `symbol` set to `"BTCUSDT"`, `risk_id` set to `1`, and no position index. Suitable for testing but should be customized for production.

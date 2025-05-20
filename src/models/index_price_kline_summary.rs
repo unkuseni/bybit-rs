@@ -14,7 +14,7 @@ pub struct IndexPriceKlineSummary {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type. Bots should ensure this aligns with their strategy.
-    pub category: String,
+    pub category: Category,
 
     /// A list of Index Price Kline records.
     ///

@@ -19,7 +19,7 @@ pub struct TransactionLogEntry {
     /// The trade side ("Buy" or "Sell").
     ///
     /// Indicates whether the transaction was a buy or sell action. Bots use this to track position direction and calculate net exposure.
-    pub side: String,
+    pub side: Side,
 
     /// The funding fee (optional).
     ///
@@ -99,7 +99,7 @@ pub struct TransactionLogEntry {
     /// The product category (e.g., "linear").
     ///
     /// The instrument type of the transaction, such as `linear` for USDT-margined perpetuals. Bots use this to filter transactions by contract type.
-    pub category: String,
+    pub category: Category,
 
     /// The trade price.
     ///

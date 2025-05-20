@@ -83,6 +83,7 @@ impl<'a> OpenOrdersRequest<'a> {
             limit: None,
         }
     }
+
     /// Creates a custom `OpenOrdersRequest` with specified parameters.
     ///
     /// Allows bots to tailor the query fully. Ensure parameters are valid to avoid

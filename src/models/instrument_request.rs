@@ -38,6 +38,7 @@ impl<'a> InstrumentRequest<'a> {
     pub fn default() -> InstrumentRequest<'a> {
         InstrumentRequest::new(Category::Linear, Some("BTCUSDT"), None, None, None)
     }
+
     /// Constructs a new Instrument request with specified parameters.
     ///
     /// Allows full customization. Bots should use this to tailor requests to their strategy, ensuring `category` and `symbol` align with the perpetual futures being traded.

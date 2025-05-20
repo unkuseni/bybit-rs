@@ -4,6 +4,8 @@ use tokio::time::{Duration, Instant};
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
+
     use super::*;
 
     use tokio::test;
@@ -199,7 +201,7 @@ mod tests {
         let market: MarketData = Bybit::new(None, None);
         let symbol = "ETH";
         let request: HistoricalVolatilityRequest<'_> =
-            HistoricalVolatilityRequest::new(Some(symbol), None, None, None);
+            HistoricalVolatilityRequest::new(Some(Cow::Borrowed(symbol)), None, None, None);
         let historical_volatility = market.get_historical_volatility(request).await;
         if let Ok(data) = historical_volatility {
             println!("{:#?}", data.result);

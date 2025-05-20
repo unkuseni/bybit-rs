@@ -9,7 +9,7 @@ pub struct BatchedOrder {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type of the order. Bots should verify this matches the requested category.
-    pub category: String,
+    pub category: Category,
 
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///

@@ -71,6 +71,7 @@ impl<'a> TransactionLogRequest<'a> {
             limit,
         }
     }
+
     /// Creates a default TransactionLog request.
     ///
     /// Returns a request with all fields unset. Suitable for broad queries but should be customized for specific analysis needs in production.

@@ -25,7 +25,7 @@ pub struct OrderData {
     ///
     /// The side determines the direction of the trade in the perpetual futures market. A "Buy" order increases exposure to the asset (long position), while a "Sell" order decreases it (short position).
     /// Bots use this field to manage position direction and ensure alignment with market signals or hedging strategies (https://bybit-exchange.github.io/docs/v5/order/order-list).
-    pub side: String,
+    pub side: Side,
 
     /// Specifies the type of order, e.g., "Limit", "Market".
     ///
@@ -255,7 +255,7 @@ pub struct OrderData {
     ///
     /// Bybit offers linear (USDT-margined) and inverse (coin-margined) perpetual futures, each with different margin and settlement mechanics (https://bybit-exchange.github.io/docs/v5/market/instrument).
     /// **Bot Implication**: Bots must align `category` with the account’s margin type to ensure correct position and margin calculations.
-    pub category: String,
+    pub category: Category,
 
     /// Indicates how the order was placed, e.g., "Normal", "Adl" (Auto-Deleveraging).
     ///

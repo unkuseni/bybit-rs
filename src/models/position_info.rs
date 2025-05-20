@@ -59,7 +59,7 @@ pub struct PositionInfo {
     /// The position status (e.g., "Normal", "Liq").
     ///
     /// Indicates the current state of the position, such as active or in liquidation. Bots use this to trigger risk management actions if the position is at risk.
-    pub position_status: String,
+    pub position_status: PositionStatus,
 
     /// Auto-margin addition status (0 or 1).
     ///

@@ -14,7 +14,7 @@ pub struct KlineSummary {
     /// The product category (e.g., "linear", "spot").
     ///
     /// Indicates the type of instrument (e.g., `linear` for USDT-margined perpetuals). Bots should check this to ensure the data aligns with the intended trading strategy.
-    pub category: String,
+    pub category: Category,
 
     /// A list of Kline (candlestick) records.
     ///

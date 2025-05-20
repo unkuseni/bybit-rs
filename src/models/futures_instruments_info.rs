@@ -9,7 +9,7 @@ pub struct FuturesInstrumentsInfo {
     /// The product category (e.g., "linear", "inverse").
     ///
     /// Confirms the type of futures contract. For perpetuals, this is `linear` (USDT-margined) or `inverse` (coin-margined). Bots should verify this matches their trading strategy.
-    pub category: String,
+    pub category: Category,
 
     /// A list of futures instrument details.
     ///

@@ -9,7 +9,7 @@ pub struct FundingRateSummary {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type. Bots should verify this matches their strategy.
-    pub category: String,
+    pub category: Category,
 
     /// A list of funding rate records.
     ///
