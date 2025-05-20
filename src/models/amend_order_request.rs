@@ -141,6 +141,7 @@ impl<'a> AmendOrderRequest<'a> {
             sl_limit_price: None,
         }
     }
+
     /// Creates a custom `AmendOrderRequest` with specified parameters.
     ///
     /// Allows bots to tailor an amendment request fully. Ensure all parameters are valid

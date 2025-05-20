@@ -21,7 +21,7 @@ pub struct WsTrade {
     ///
     /// Indicates whether the trade was initiated by a buyer or seller. Bots use this to assess market direction and momentum.
     #[serde(rename = "S")]
-    pub side: String,
+    pub side: Side,
 
     /// The trade volume.
     ///

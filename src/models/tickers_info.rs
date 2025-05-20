@@ -9,7 +9,7 @@ pub struct TickersInfo {
     /// The product category (e.g., "linear", "spot").
     ///
     /// Indicates the instrument type. For perpetual futures, this is `linear` or `inverse`. Bots should verify this matches their strategy.
-    pub category: String,
+    pub category: Category,
 
     /// A list of ticker data records.
     ///

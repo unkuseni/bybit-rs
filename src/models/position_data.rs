@@ -152,12 +152,12 @@ pub struct PositionData {
     /// The category of the position (e.g., "linear" for USDT-margined futures).
     ///
     /// Specifies the contract type. Bots must handle different categories (e.g., linear vs. inverse) due to differences in margin and settlement.
-    pub category: String,
+    pub category: Category,
 
     /// The status of the position (e.g., "Normal").
     ///
     /// Indicates whether the position is active or in a special state (e.g., liquidation). Bots use this to filter active positions for management.
-    pub position_status: String,
+    pub position_status: PositionStatus,
 
     /// The auto-deleveraging (ADL) rank indicator (0-4).
     ///

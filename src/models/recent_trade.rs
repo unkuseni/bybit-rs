@@ -31,7 +31,7 @@ pub struct RecentTrade {
     /// The side of the trade ("Buy" or "Sell").
     ///
     /// Indicates whether the trade was a buy (taker buying from maker) or sell (taker selling to maker). Bots use this to analyze buying vs. selling pressure, which can inform momentum-based strategies in perpetual futures.
-    pub side: String,
+    pub side: Side,
 
     /// The unique trade ID.
     ///

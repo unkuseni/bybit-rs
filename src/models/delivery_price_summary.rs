@@ -7,7 +7,7 @@ use crate::prelude::*;
 pub struct DeliveryPriceSummary {
     /// The trading category (e.g., "linear" for USDT-margined contracts).
     /// Specifies the contract type. Bots use this to filter relevant data.
-    pub category: String,
+    pub category: Category,
 
     /// Cursor for fetching the next page of results (if any).
     /// Used for pagination in large datasets. Bots must handle this to retrieve complete data.

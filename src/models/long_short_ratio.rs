@@ -11,7 +11,7 @@ pub struct LongShortRatio {
 
     /// The ratio of long positions (e.g., 0.6 for 60%).
     /// A higher ratio indicates bullish sentiment. Bots use this for sentiment-based strategies,
-
+    ///
     /// such as fading extreme ratios.
     #[serde(with = "string_to_float")]
     pub buy_ratio: f64,

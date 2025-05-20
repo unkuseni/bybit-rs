@@ -33,6 +33,7 @@ impl<'a> RecentTradesRequest<'a> {
     pub fn default() -> RecentTradesRequest<'a> {
         RecentTradesRequest::new(Category::Linear, Some("BTCUSDT"), None, None)
     }
+
     /// Constructs a new RecentTrades request with specified parameters.
     ///
     /// Allows full customization of the trade request. Bots should use this to specify the exact symbol, category, and other parameters to align with their trading strategy for perpetual futures.

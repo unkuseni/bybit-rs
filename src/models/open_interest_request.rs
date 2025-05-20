@@ -43,6 +43,7 @@ impl<'a> OpenInterestRequest<'a> {
     pub fn default() -> OpenInterestRequest<'a> {
         OpenInterestRequest::new(Category::Linear, "BTCUSDT", "1h", None, None, None)
     }
+
     /// Constructs a new OpenInterest request with specified parameters.
     ///
     /// Allows full customization. Bots should use this to specify the exact symbol, interval, and time range to align with their strategy for analyzing open interest in perpetual futures.

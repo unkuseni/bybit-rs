@@ -31,7 +31,7 @@ pub struct TradeHistory {
     /// The trade side ("Buy" or "Sell").
     ///
     /// Indicates whether the trade was a buy or sell. Bots use this to track position direction and calculate net exposure.
-    pub side: String,
+    pub side: Side,
 
     /// The index price at execution (optional).
     ///
@@ -178,6 +178,7 @@ impl<'a> TradeHistoryRequest<'a> {
             None,
         )
     }
+
     /// Constructs a new TradeHistory request with specified parameters.
     ///
     /// Allows full customization. Bots should use this to specify the exact symbol, time range, and filters to align with their analysis requirements.

@@ -28,6 +28,7 @@ impl<'a> OrderbookRequest<'a> {
     pub fn default() -> OrderbookRequest<'a> {
         OrderbookRequest::new("BTCUSDT", Category::Linear, None)
     }
+
     /// Constructs a new Orderbook request with specified parameters.
     ///
     /// Allows customization. Bots should use this to specify the exact symbol and category for their perpetual futures strategy.

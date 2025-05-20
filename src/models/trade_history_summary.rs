@@ -15,7 +15,7 @@ pub struct TradeHistorySummary {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type (e.g., `linear` for USDT-margined perpetuals). Bots should verify this matches the requested `category` to ensure data relevance.
-    pub category: String,
+    pub category: Category,
 
     /// A list of trade history records.
     ///

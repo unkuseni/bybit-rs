@@ -50,6 +50,7 @@ impl<'a> CancelAllRequest<'a> {
             stop_order_type: None,
         }
     }
+
     /// Constructs a new Cancelall request with specified parameters.
     ///
     /// Allows full customization of the cancellation request. Bots should use this to specify the exact symbol, category, and filters to align with their risk management or trading strategy.

@@ -1,5 +1,3 @@
-use crate::prelude::*;
-
 /// Parameters for WebSocket subscription requests.
 ///
 /// Used to construct a WebSocket subscription request to subscribe to real-time data streams, such as order book updates or trade events. Bots use this to configure WebSocket feeds for market monitoring and trading signals in perpetual futures trading.
@@ -23,6 +21,7 @@ impl<'a> Subscription<'a> {
     pub fn new(op: &'a str, args: Vec<&'a str>) -> Self {
         Self { op, args }
     }
+
     /// Creates a default Subscription.
     ///
     /// Returns a subscription with `op` set to `"subscribe"` and an empty argument list. Suitable for testing but should be customized with valid topics for production.

@@ -43,6 +43,7 @@ impl<'a> AddMarginRequest<'a> {
             position_idx,
         }
     }
+
     /// Creates a default AddMargin request.
     ///
     /// Returns a request with `category` set to `Linear`, `symbol` set to `"BTCUSDT"`, `auto_add` set to `false`, and no position index. Suitable for testing but should be customized for production.

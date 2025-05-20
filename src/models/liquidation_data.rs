@@ -25,7 +25,7 @@ pub struct LiquidationData {
     /// The side of the liquidated position ("Buy" or "Sell").
     ///
     /// Indicates whether the liquidated position was long (Buy) or short (Sell). A high volume of liquidations on one side can signal a potential price reversal, which bots can exploit.
-    pub side: String,
+    pub side: Side,
 
     /// The size of the liquidated position (in contracts or base currency).
     ///

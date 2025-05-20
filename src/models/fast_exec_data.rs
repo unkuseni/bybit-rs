@@ -15,7 +15,7 @@ pub struct FastExecData {
     /// The category of the execution (e.g., "linear").
     ///
     /// Specifies the contract type. Bots must handle different categories due to varying margin rules.
-    pub category: String,
+    pub category: Category,
 
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
@@ -52,7 +52,7 @@ pub struct FastExecData {
     /// The side of the order ("Buy" or "Sell").
     ///
     /// Indicates the direction of the trade. Bots use this to update position direction.
-    pub side: String,
+    pub side: Side,
 
     /// The timestamp when the execution occurred (in milliseconds).
     ///

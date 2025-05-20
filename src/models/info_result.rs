@@ -19,5 +19,5 @@ pub struct InfoResult {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type. Bots should verify this matches the requested `category` to ensure data relevance.
-    pub category: String,
+    pub category: Category,
 }

@@ -43,6 +43,7 @@ impl<'a> MarginModeRequest<'a> {
             coin: coin.map(Cow::Borrowed),
         }
     }
+
     /// Creates a default MarginMode request.
     ///
     /// Returns a request with `category` set to `Linear`, `mode` set to `1` (isolated margin), and no symbol or coin specified. Suitable for testing but should be customized for production.

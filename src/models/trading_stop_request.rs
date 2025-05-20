@@ -113,6 +113,7 @@ impl<'a> TradingStopRequest<'a> {
             position_idx,
         }
     }
+
     /// Creates a default TradingStop request.
     ///
     /// Returns a request with `category` set to `Linear`, `symbol` set to `"BTCUSDT"`, `position_idx` set to `1`, and all other fields unset. Suitable for testing but should be customized for production to match specific trading needs.

@@ -43,6 +43,7 @@ impl<'a> BorrowHistoryRequest<'a> {
             limit: limit.map(Cow::Borrowed),
         }
     }
+
     /// Creates a default BorrowHistory request.
     ///
     /// Returns a request with all fields unset. Suitable for broad queries but should be customized for specific analysis needs.

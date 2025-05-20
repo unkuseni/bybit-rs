@@ -14,7 +14,7 @@ pub struct MoveHistoryEntry {
     /// The product category (e.g., "linear").
     ///
     /// Indicates the instrument type of the transferred position. Bots should verify this matches the requested category.
-    pub category: String,
+    pub category: Category,
 
     /// The unique order ID.
     ///
@@ -35,7 +35,7 @@ pub struct MoveHistoryEntry {
     /// The trade side ("Buy" or "Sell").
     ///
     /// Indicates whether the transferred position was long (Buy) or short (Sell). Bots use this to verify position direction.
-    pub side: String,
+    pub side: Side,
 
     /// The transfer price.
     ///

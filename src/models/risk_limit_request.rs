@@ -21,6 +21,7 @@ impl<'a> RiskLimitRequest<'a> {
     pub fn default() -> RiskLimitRequest<'a> {
         RiskLimitRequest::new(Category::Linear, None)
     }
+
     /// Constructs a new request with specified category and symbol.
     /// Enables precise queries for risk limits, critical for bots managing leverage and position
     /// sizes in perpetual futures.

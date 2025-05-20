@@ -12,7 +12,7 @@ pub struct OrderHistory {
     ///
     /// Indicates the market of the orders (e.g., Spot or Linear for perpetual futures).
     /// Bots should verify this matches the query to ensure correct data processing.
-    pub category: String,
+    pub category: Category,
 
     /// The list of historical orders.
     ///

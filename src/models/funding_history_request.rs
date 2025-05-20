@@ -38,6 +38,7 @@ impl<'a> FundingHistoryRequest<'a> {
     pub fn default() -> FundingHistoryRequest<'a> {
         FundingHistoryRequest::new(Category::Linear, "BTCUSDT", None, None, None)
     }
+
     /// Constructs a new FundingHistory request with specified parameters.
     ///
     /// Allows customization. Bots should use this to specify the exact symbol and time range for funding rate analysis.

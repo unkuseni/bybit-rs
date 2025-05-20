@@ -42,6 +42,7 @@ impl<'a> ChangeMarginRequest<'a> {
             leverage,
         }
     }
+
     /// Creates a default ChangeMargin request.
     ///
     /// Returns a request with `category` set to `Linear`, `symbol` set to `"BTCUSDT"`, `trade_mode` set to `0` (cross margin), and `leverage` set to `10`. Suitable for testing but should be customized for production.

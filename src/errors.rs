@@ -1,9 +1,10 @@
+use crate::prelude::*;
+use std::fmt;
+
 /// This module contains the definitions for BybitContentError and BybitError, two custom error types.
 /// BybitContentError is a struct that represents the error returned by the Bybit API, and BybitError is
 /// an enum that can hold any possible error that can occur during the execution of the program.
-use serde::Deserialize;
-use std::fmt;
-use thiserror::Error;
+
 /// BybitContentError is a struct that represents the error returned by the Bybit API.
 /// It has two fields: code, which is an i16 representing the error code, and msg, which is a String
 /// representing the error message.

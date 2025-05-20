@@ -43,6 +43,7 @@ impl<'a> KlineRequest<'a> {
     pub fn default() -> KlineRequest<'a> {
         KlineRequest::new(None, "BTCUSDT", "", None, None, None)
     }
+
     /// Constructs a new Kline request with specified parameters.
     ///
     /// Allows full customization of the Kline request. Trading bots should use this to specify exact parameters for their strategy, ensuring the `symbol`, `interval`, and `category` align with the perpetual futures contract being traded.

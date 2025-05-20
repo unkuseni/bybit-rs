@@ -44,6 +44,7 @@ impl<'a> PositionItem<'a> {
             qty,
         }
     }
+
     /// Creates a default PositionItem.
     ///
     /// Returns a position item with `category` set to `Linear`, `symbol` set to `"BTCUSDT"`, `price` and `qty` set to `0.0`, and `side` set to `Buy`. Suitable for testing but should be customized for production.

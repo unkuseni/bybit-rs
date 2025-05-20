@@ -30,7 +30,7 @@ pub struct ClosedPnlItem {
     /// The trade side ("Buy" or "Sell").
     ///
     /// Indicates whether the position was long (Buy) or short (Sell). Bots use this to track position direction and calculate net exposure.
-    pub side: String,
+    pub side: Side,
 
     /// The unique order ID.
     ///

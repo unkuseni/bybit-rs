@@ -38,6 +38,7 @@ impl<'a> PositionRequest<'a> {
     pub fn default() -> Self {
         Self::new(Category::Linear, None, None, None, None)
     }
+
     /// Constructs a new Position request with specified parameters.
     ///
     /// Allows full customization. Bots should use this to specify the exact symbol, category, and filters to align with their position management requirements.
@@ -69,6 +70,7 @@ impl<'a> MovePositionRequest<'a> {
             list,
         }
     }
+
     /// Creates a default MovePosition request.
     ///
     /// Returns a request with `from_uid` and `to_uid` set to `0` and an empty position list. Suitable for testing but should be customized with valid UIDs and positions for production.
