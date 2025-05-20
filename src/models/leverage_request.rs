@@ -9,10 +9,12 @@ pub struct LeverageRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract for which leverage is being set. Bots must specify a valid symbol.
     pub symbol: Cow<'a, str>,
+
     /// The leverage value (e.g., 10 for 10x).
     ///
     /// The desired leverage multiplier. Bots should ensure this complies with Bybit’s maximum leverage limits for the symbol to avoid request failures.

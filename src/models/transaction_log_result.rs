@@ -10,6 +10,7 @@ pub struct TransactionLogResult {
     ///
     /// Indicates the next page of results for large datasets. Bots should use this for paginated requests to fetch additional transaction logs.
     pub next_page_cursor: String,
+
     /// A list of transaction log entries.
     ///
     /// Contains detailed transaction data, such as trades, fees, and funding. Bots use this to analyze trading activity and calculate performance metrics.

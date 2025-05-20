@@ -10,16 +10,19 @@ pub struct TradeUpdate {
     ///
     /// Specifies the data stream for the trade update. Bots use this to verify the correct market.
     pub topic: String,
+
     /// The event type (e.g., "snapshot").
     ///
     /// Indicates the type of trade update, typically a snapshot of recent trades. Bots use this to process trade data appropriately.
     #[serde(rename = "type")]
     pub event_type: String,
+
     /// The timestamp of the event in milliseconds.
     ///
     /// Indicates when the trade update was generated. Bots use this to ensure data freshness and align with other market data.
     #[serde(rename = "ts")]
     pub timestamp: u64,
+
     /// A list of trade details.
     ///
     /// Contains the executed trades, including price, volume, and side. Bots use this to analyze market activity and generate trading signals.

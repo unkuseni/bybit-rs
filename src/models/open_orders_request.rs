@@ -11,44 +11,53 @@ pub struct OpenOrdersRequest<'a> {
     /// The category of the trading product (e.g., Spot, Linear).
     ///
     /// Specifies the market to query. Bots must set this to match the target market,
+
     /// typically `Linear` for perpetual futures.
     pub category: Category,
+
     /// The trading pair symbol, e.g., "BTCUSDT".
     ///
     /// Filters orders by symbol. Bots can set this to focus on specific assets or leave
     /// it broad to retrieve all orders in the category.
     pub symbol: Cow<'a, str>,
+
     /// The base coin of the trading pair (e.g., "BTC").
     ///
     /// Filters orders by the base asset. Useful for bots managing multiple pairs in
     /// perpetual futures, allowing targeted queries.
     pub base_coin: Option<Cow<'a, str>>,
+
     /// The settlement coin (e.g., "USDT").
     ///
     /// Filters orders by the quote asset. Bots can use this to narrow down queries in
     /// USDT-margined perpetual futures markets.
     pub settle_coin: Option<Cow<'a, str>>,
+
     /// The unique identifier of a specific order.
     ///
     /// Allows querying a single order by its Bybit-provided ID. Bots should use this
     /// for precise order tracking in perpetual futures.
     pub order_id: Option<Cow<'a, str>>,
+
     /// The user-defined identifier of a specific order.
     ///
     /// Allows querying a single order by its custom ID. Useful for bots tracking orders
     /// across multiple strategies in perpetual futures.
     pub order_link_id: Option<Cow<'a, str>>,
+
     /// Filters orders by open status (0, 1, or 2).
     ///
     /// Specifies whether to retrieve all orders (0), open orders (1), or partially
     /// filled orders (2). Bots should set this based on monitoring needs in perpetual
     /// futures trading.
     pub open_only: Option<usize>,
+
     /// A filter to specify the order type (e.g., "tpslOrder").
     ///
     /// Targets specific order types, such as TP/SL orders. Bots should use this to
     /// focus on relevant orders in perpetual futures risk management.
     pub order_filter: Option<Cow<'a, str>>,
+
     /// The maximum number of orders to return.
     ///
     /// Limits the response size, typically up to 50. Bots should set this to manage

@@ -11,6 +11,7 @@ pub struct Ask {
     /// The price at which the seller is offering to sell. Bots use this to determine resistance levels and calculate slippage for buy orders in perpetual futures.
     #[serde(with = "string_to_float")]
     pub price: f64,
+
     /// The ask quantity.
     ///
     /// The quantity available at the ask price. Bots use this to assess liquidity and estimate the impact of large buy orders on the market.

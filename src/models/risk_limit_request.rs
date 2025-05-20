@@ -8,6 +8,7 @@ pub struct RiskLimitRequest<'a> {
     /// The trading category (e.g., Linear for USDT-margined perpetuals).
     /// Determines the type of futures contract. Bots must ensure this matches the trading pair.
     pub category: Category,
+
     /// The trading symbol (e.g., "BTCUSDT").
     /// Specifies the market for which risk limits are queried. Optional, as some endpoints allow
     /// category-wide queries. Bots should validate symbols to avoid API errors.

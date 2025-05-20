@@ -9,18 +9,22 @@ pub struct PositionItem<'a> {
     ///
     /// Specifies the instrument type of the position. Bots must set this to match the position’s contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract for the position. Bots must specify a valid symbol.
     pub symbol: Cow<'a, str>,
+
     /// The transfer price.
     ///
     /// The price at which the position is transferred, used for valuation between accounts. Bots should set this based on the current mark price or a mutually agreed value to ensure fair transfer.
     pub price: f64,
+
     /// The position side (Buy or Sell).
     ///
     /// Indicates whether the position is long (Buy) or short (Sell). Bots use this to ensure the correct position direction is transferred.
     pub side: Side,
+
     /// The quantity of the position to move.
     ///
     /// The amount of the base asset to transfer. Bots should ensure this does not exceed the available position size in the source account.

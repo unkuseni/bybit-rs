@@ -11,6 +11,7 @@ pub struct Bid {
     /// The price at which the buyer is offering to buy. Bots use this to determine support levels and calculate slippage for sell orders in perpetual futures.
     #[serde(with = "string_to_float")]
     pub price: f64,
+
     /// The bid quantity.
     ///
     /// The quantity available at the bid price. Bots use this to assess liquidity and estimate the impact of large sell orders on the market.

@@ -10,6 +10,7 @@ pub struct FundingRateSummary {
     ///
     /// Indicates the instrument type. Bots should verify this matches their strategy.
     pub category: String,
+
     /// A list of funding rate records.
     ///
     /// Contains the actual funding rate data. Bots iterate over this list to analyze historical funding costs.

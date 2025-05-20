@@ -14,6 +14,7 @@ use crate::prelude::*;
 pub enum OrderType {
     /// A limit order, executed at a specified price or better.
     Limit,
+
     /// A market order, executed immediately at the best available price.
     #[default]
     Market,

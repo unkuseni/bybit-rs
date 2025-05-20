@@ -9,18 +9,22 @@ pub struct InstrumentRequest<'a> {
     ///
     /// Specifies the instrument type. For perpetual futures, use `Linear` or `Inverse`. Bots must set this to filter relevant instruments.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Optionally specifies a single trading pair. If unset, the API returns data for all instruments in the category, which may be voluminous. Bots should set this for specific pairs to reduce response size and latency.
     pub symbol: Option<Cow<'a, str>>,
+
     /// The trading status of the instrument (true for trading, false for not trading).
     ///
     /// Filters instruments by their trading status. Useful for bots to exclude delisted or inactive perpetual futures contracts. If unset, all statuses are returned.
     pub status: Option<bool>,
+
     /// The base coin of the instrument (e.g., "BTC").
     ///
     /// Filters instruments by their base asset. For example, setting `base_coin` to `"BTC"` returns all BTC-based perpetuals (e.g., `BTCUSDT`, `BTCUSD`). Useful for bots targeting specific assets.
     pub base_coin: Option<Cow<'a, str>>,
+
     /// The maximum number of instruments to return (1-1000, default: 500).
     ///
     /// Controls the response size. Bots should set a reasonable limit to balance data completeness and performance, especially when querying all instruments in a category.

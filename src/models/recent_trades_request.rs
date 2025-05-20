@@ -9,14 +9,17 @@ pub struct RecentTradesRequest<'a> {
     ///
     /// Specifies the instrument type. For perpetual futures, use `Linear` (USDT-margined) or `Inverse` (coin-margined). Bots must set this correctly to fetch trades for the intended contract type.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract. Bots must specify a valid symbol to retrieve trade data for the correct market.
     pub symbol: Option<Cow<'a, str>>,
+
     /// The base coin of the instrument (e.g., "BTC").
     ///
     /// Optionally filters trades by the base asset (e.g., all BTC-based perpetuals like `BTCUSDT` or `BTCUSD`). Useful for bots analyzing trades across multiple pairs of the same asset. If unset, trades are filtered only by `symbol`.
     pub base_coin: Option<Cow<'a, str>>,
+
     /// The maximum number of trade records to return (1-1000, default: 500).
     ///
     /// Controls the number of trade records in the response. Bots should set a reasonable limit to balance data completeness with performance, as large datasets can increase latency and memory usage. For high-frequency trading, a smaller limit may suffice for real-time analysis.

@@ -15,85 +15,100 @@ pub struct AmendOrderRequest<'a> {
     /// original order’s category to avoid errors. In perpetual futures, `Linear` is
     /// typical for USDT-margined contracts.
     pub category: Category,
+
     /// The trading pair symbol, e.g., "BTCUSDT".
     ///
     /// Identifies the asset pair of the order. Must match the original order’s symbol.
     /// Bots should validate symbol consistency to prevent API errors in perpetual futures
     /// trading.
     pub symbol: Cow<'a, str>,
+
     /// The unique identifier of the order to amend.
     ///
     /// Provided by Bybit when the order was created. Bots must include either `order_id`
     /// or `order_link_id` to identify the order. In perpetual futures, accurate order
     /// identification is critical for amending the correct position.
     pub order_id: Option<Cow<'a, str>>,
+
     /// The user-defined identifier of the order to amend.
     ///
     /// Allows bots to reference orders using their custom ID. Useful for tracking
     /// multiple orders in perpetual futures strategies. Either `order_id` or
     /// `order_link_id` must be provided.
     pub order_link_id: Option<Cow<'a, str>>,
+
     /// The implied volatility for options orders (optional).
     ///
     /// Used for options trading, not perpetual futures. Bots can ignore this unless
     /// amending options orders, where accurate volatility is needed for pricing.
     pub order_iv: Option<f64>,
+
     /// The new trigger price for conditional orders.
     ///
     /// Updates the price at which a conditional order (e.g., stop-loss) activates.
     /// In perpetual futures, bots use this to adjust risk management dynamically based
     /// on market conditions. Ensure the price aligns with symbol constraints.
     pub trigger_price: Option<f64>,
+
     /// The new quantity of the order.
     ///
     /// Updates the order size. In perpetual futures, bots must ensure the new quantity
     /// is valid (e.g., within position limits, sufficient margin) to avoid rejections.
     /// Over-sizing can increase liquidation risk.
     pub qty: f64,
+
     /// The new price for limit orders.
     ///
     /// Updates the target price for a limit order. Bots should validate the price against
     /// the symbol’s tick size and market conditions to ensure execution feasibility in
     /// volatile perpetual futures markets.
     pub price: Option<f64>,
+
     /// The new take-profit/stop-loss mode (e.g., "Full", "Partial").
     ///
     /// Updates whether TP/SL applies to the entire position or a portion. Bots should
     /// adjust this based on exit strategy; "Full" simplifies risk management, while
     /// "Partial" suits scaling out in perpetual futures.
     pub tpsl_mode: Option<Cow<'a, str>>,
+
     /// The new take-profit price.
     ///
     /// Updates the price to lock in profits. Bots should set this based on updated market
     /// analysis, ensuring it’s realistic given volatility in perpetual futures.
     pub take_profit: Option<f64>,
+
     /// The new stop-loss price.
     ///
     /// Updates the price to limit losses. Critical for risk management in perpetual
     /// futures, bots should adjust SL dynamically to protect against adverse price
     /// movements while avoiding premature exits.
     pub stop_loss: Option<f64>,
+
     /// The new trigger price type for take-profit.
     ///
     /// Updates the price metric (e.g., "MarkPrice") for TP triggering. Bots should choose
     /// a reliable metric to ensure consistent execution in perpetual futures markets.
     pub tp_trigger_by: Option<Cow<'a, str>>,
+
     /// The new trigger price type for stop-loss.
     ///
     /// Updates the price metric for SL triggering. Similar to `tp_trigger_by`, bots
     /// should select a stable trigger type to protect against manipulation in perpetual
     /// futures.
     pub sl_trigger_by: Option<Cow<'a, str>>,
+
     /// The new trigger price type for conditional orders.
     ///
     /// Updates the price metric for triggering conditional orders. Bots should ensure
     /// consistency with the order’s strategy and market conditions in perpetual futures.
     pub trigger_by: Option<Cow<'a, str>>,
+
     /// The new limit price for take-profit orders.
     ///
     /// Updates the exact price for limit-based TP orders. Bots must balance precision
     /// with execution likelihood in volatile perpetual futures markets.
     pub tp_limit_price: Option<f64>,
+
     /// The new limit price for stop-loss orders.
     ///
     /// Updates the exact price for limit-based SL orders. Bots should ensure the price

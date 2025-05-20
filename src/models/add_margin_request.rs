@@ -9,14 +9,17 @@ pub struct AddMarginRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type, such as `Linear` for USDT-margined perpetuals.
     pub category: Category,
+
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
     /// Identifies the perpetual futures contract for which auto-add margin is being configured. Bots must specify a valid symbol.
     pub symbol: Cow<'a, str>,
+
     /// Whether to enable auto-add margin.
     ///
     /// If `true`, Bybit will automatically add margin to prevent liquidation when margin levels are low. If `false`, no automatic margin addition occurs, increasing liquidation risk. Bots should set this based on their risk tolerance and capital management strategy.
     pub auto_add: bool,
+
     /// The position index (optional, e.g., 0 for one-way mode, 1 or 2 for hedge mode).
     ///
     /// Specifies the position type. Bots should set this for hedge mode positions to target the correct side (e.g., long or short). If unset, applies to the default position.

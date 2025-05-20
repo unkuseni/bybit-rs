@@ -16,14 +16,17 @@ pub struct Execution {
     ///
     /// Used to track specific executions. Bots can use this to correlate events with internal trade records.
     pub id: String,
+
     /// The WebSocket topic (e.g., "execution").
     ///
     /// Identifies the execution data stream. Bots use this to filter relevant messages.
     pub topic: String,
+
     /// The timestamp when the event was created (in milliseconds).
     ///
     /// Indicates when the execution occurred. Bots use this for time-based analysis.
     pub creation_time: u64,
+
     /// The execution data for the event.
     ///
     /// Contains details about the executed trades. Bots process this to update trade logs and positions.

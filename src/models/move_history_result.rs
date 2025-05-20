@@ -10,6 +10,7 @@ pub struct MoveHistoryResult {
     ///
     /// Contains detailed transfer data, such as symbol, price, and status. Bots use this to audit transfers and verify portfolio changes.
     pub list: Vec<MoveHistoryEntry>,
+
     /// The cursor for pagination.
     ///
     /// Indicates the next page of results for large datasets. Bots should use this for paginated requests to fetch additional transfer history.

@@ -9,6 +9,7 @@ pub struct BatchAmendRequest<'a> {
     ///
     /// Specifies the instrument type. Bots must set this to target the correct contract type for the batch amendments.
     pub category: Category,
+
     /// A list of order amendment requests.
     ///
     /// Contains the individual amendment details, such as order ID, new price, or quantity. Bots should populate this with valid `AmendOrderRequest` structs to modify multiple orders efficiently.

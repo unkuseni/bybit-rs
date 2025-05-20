@@ -9,10 +9,12 @@ pub struct OrderbookRequest<'a> {
     ///
     /// Identifies the perpetual futures contract. Bots must specify a valid symbol to fetch the correct order book.
     pub symbol: Cow<'a, str>,
+
     /// The product category (e.g., Linear, Inverse).
     ///
     /// Specifies the instrument type. For perpetual futures, use `Linear` or `Inverse`. Bots must set this correctly to avoid errors.
     pub category: Category,
+
     /// The maximum number of order book levels to return (1-500, default: 50).
     ///
     /// Controls the depth of the order book (number of bid/ask levels). Bots should balance depth with performance: deeper books provide more liquidity data but increase latency and memory usage.

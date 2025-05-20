@@ -21,6 +21,7 @@ itertools = "0.13.0"
 serde = { version = "1.0.210", features = ["derive"] }
 hex = "0.4.3"
 hmac = "0.12.1"
+openssl = "0.10.72"
 reqwest = { version = "0.12.7", features = ["json"] }
 tokio-tungstenite = { features = ["native-tls"], version = "0.24.0" }
 tokio = { version = "1.40.0", features = ["full"] }

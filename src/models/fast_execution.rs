@@ -16,10 +16,12 @@ pub struct FastExecution {
     ///
     /// Identifies the fast execution data stream. Bots use this to filter relevant messages.
     pub topic: String,
+
     /// The timestamp when the event was created (in milliseconds).
     ///
     /// Indicates when the execution occurred. Bots use this for time-based analysis.
     pub creation_time: u64,
+
     /// The fast execution data for the event.
     ///
     /// Contains essential trade details. Bots process this for rapid trade updates.
