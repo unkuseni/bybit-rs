@@ -43,7 +43,8 @@ pub struct RiskLimit {
     /// The maximum leverage allowed (e.g., "100" for 100x).
     /// Leverage amplifies gains and losses in perpetual futures. Bots must ensure orders comply
     /// with this limit to avoid rejections.
-    pub max_leverage: String,
+    #[serde(with = "string_to_float")]
+    pub max_leverage: f64,
 }
 
 impl<'a> SetRiskLimit<'a> {

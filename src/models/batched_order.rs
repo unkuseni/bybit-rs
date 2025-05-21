@@ -29,5 +29,6 @@ pub struct BatchedOrder {
     /// The timestamp of order creation.
     ///
     /// Indicates when the order was created. Bots use this to align order data with other time-series data.
-    pub create_at: String,
+    #[serde(with = "string_to_u64")]
+    pub create_at: u64,
 }

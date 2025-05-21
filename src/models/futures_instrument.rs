@@ -45,7 +45,8 @@ pub struct FuturesInstrument {
     /// The delivery fee rate for non-perpetual futures.
     ///
     /// For perpetual futures, this is typically empty or irrelevant since there’s no delivery. Bots can ignore this unless trading quarterly futures.
-    pub delivery_fee_rate: String,
+    #[serde(deserialize_with = "empty_string_as_none")]
+    pub delivery_fee_rate: Option<f64>,
 
     /// The price scale (number of decimal places for price).
     ///
@@ -113,5 +114,6 @@ pub struct FuturesInstrument {
     /// The display name of the instrument.
     ///
     /// A human-readable name for the futures instrument, used for display purposes in UIs and logs.
-    pub display_name: String,
+    #[serde(deserialize_with = "empty_string_as_none")]
+    pub display_name: Option<String>,
 }
