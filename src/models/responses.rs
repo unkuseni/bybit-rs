@@ -67,7 +67,7 @@ pub type OpenInterestResponse = BybitApiResponse<OpenInterestSummary>;
 /// Represents the response from Bybit’s historical volatility API endpoint.
 /// Contains metadata and a list of volatility data points for the requested cryptocurrency.
 /// This is critical for bots analyzing price stability in perpetual futures markets.
-pub type HistoricalVolatilityResponse = BybitApiResponse<HistoricalVolatility>;
+pub type HistoricalVolatilityResponse = BybitApiResponse<Vec<HistoricalVolatility>>;
 
 /// Represents the response from Bybit’s insurance fund API endpoint.
 /// The insurance fund covers losses from bankrupt positions in perpetual futures, ensuring
