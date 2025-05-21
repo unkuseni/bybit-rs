@@ -1,16 +1,30 @@
-/// This module contains the definitions for BybitContentError and BybitError, two custom error types.
-/// BybitContentError is a struct that represents the error returned by the Bybit API, and BybitError is
-/// an enum that can hold any possible error that can occur during the execution of the program.
-use serde::Deserialize;
-use std::fmt;
-use thiserror::Error;
+//! This module contains the definitions for BybitContentError and BybitError, two custom error types.
+//! BybitContentError is a struct that represents the error returned by the Bybit API, and BybitError is
+//! an enum that can hold any possible error that can occur during the execution of the program.
+
+use crate::prelude::*;
+
 /// BybitContentError is a struct that represents the error returned by the Bybit API.
 /// It has two fields: code, which is an i16 representing the error code, and msg, which is a String
 /// representing the error message.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Display)]
+#[display("{}", msg)]
 pub struct BybitContentError {
+    /// The raw error code returned by the Bybit API, you can use this to map
+    /// to a specific error type by calling `self.typed()`, this is useful if
+    /// you want to match on a specific error type.
     pub code: i32,
+
+    /// The error message returned by the Bybit API.
     pub msg: String,
+}
+
+impl BybitContentError {
+    /// A typed version of the error code, this is useful if you want to match
+    /// on a specific error type.
+    pub fn typed(&self) -> Option<ReturnCode> {
+        ReturnCode::from_code(self.code)
+    }
 }
 
 /// BybitError is an enum that can hold any possible error that can occur during the execution of the program.
@@ -77,19 +91,6 @@ pub enum BybitError {
     /// This variant is used when the error is not of any specific type, and it is just a simple String.
     #[error("Bybit error: {0}")]
     Base(String),
-}
-
-// Implement the fmt::Display trait for BybitContentError.
-// This trait is used to specify how BybitContentError should be converted to a string.
-impl fmt::Display for BybitContentError {
-    // This method takes a mutable reference to a fmt::Formatter, and returns a fmt::Result.
-    // It writes the `msg` field of the BybitContentError struct to the given formatter.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Implement this method to dictate how BybitContentError should be converted to a string.
-        // This is a placeholder implementation that simply writes the `msg` field; you should
-        // replace it with your own format string.
-        write!(f, "{}", self.msg)
-    }
 }
 
 // Implement the From trait for String and BybitError.
