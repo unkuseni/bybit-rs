@@ -362,7 +362,7 @@ impl MarketData {
         let request = build_request(&parameters);
         let response: TickerResponse = self
             .client
-            .get(API::Market(Market::Tickers), Some(request))
+            .get(API::Market(Market::Ticker), Some(request))
             .await?;
         Ok(response)
     }

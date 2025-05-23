@@ -9,6 +9,7 @@ mod market;
 mod models;
 mod position;
 mod serde_helpers;
+mod timed;
 mod trade;
 mod util;
 mod ws;
@@ -26,6 +27,7 @@ pub mod prelude {
     pub use crate::models::*;
     pub use crate::position::*;
     pub use crate::serde_helpers::*;
+    pub use crate::timed::*;
     pub use crate::trade::*;
     pub use crate::util::*;
     pub use crate::ws::*;

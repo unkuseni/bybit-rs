@@ -60,10 +60,10 @@ mod tests {
                     WebsocketEvents::TickerEvent(ticker) => {
                         // Handle Ticker event
                         match ticker.data {
-                            Tickers::Linear(linear_ticker) => {
+                            Ticker::Linear(linear_ticker) => {
                                 println!("{:#?}", linear_ticker);
                             }
-                            Tickers::Spot(spot_ticker) => {
+                            Ticker::Spot(spot_ticker) => {
                                 println!("{:#?}", spot_ticker);
                             }
                         }
@@ -124,10 +124,10 @@ mod tests {
         });
         while let Some(data) = rx.recv().await {
             match data {
-                Tickers::Linear(linear_ticker) => {
+                Ticker::Linear(linear_ticker) => {
                     println!("{:#?}", linear_ticker);
                 }
-                Tickers::Spot(spot_ticker) => {
+                Ticker::Spot(spot_ticker) => {
                     println!("{:#?}", spot_ticker);
                 }
             }
