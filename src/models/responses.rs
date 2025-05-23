@@ -257,3 +257,10 @@ pub type BatchPlaceResponse = BybitApiResponse<BatchedOrderList, OrderConfirmati
 ///
 /// Returned by the `/v5/order/amend-batch` endpoint, this struct provides the result of amending multiple orders. Bots use this to confirm successful amendments and handle any errors for individual orders.
 pub type BatchAmendResponse = BybitApiResponse<AmendedOrderList, OrderConfirmationList>;
+
+/// Response structure for delivery record data requests.
+///
+/// Returned by the `/v5/asset/delivery-record` endpoint, this struct provides
+/// information about delivery records, including categories and pagination details.
+/// Bots use this to track delivery events in futures trading.
+pub type DeliveryRecordResponse = BybitApiResponse<DeliveryRecordResult>;
