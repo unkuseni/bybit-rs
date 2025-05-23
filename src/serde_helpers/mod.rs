@@ -26,13 +26,13 @@ pub mod string_to_float_optional {
     where
         D: Deserializer<'de>,
     {
-        let s = String::deserialize(deserializer)?;
-        if s.is_empty() {
-            Ok(None)
-        } else {
-            f64::from_str(&s)
+        let s: Option<String> = Option::deserialize(deserializer)?;
+        match s {
+            Some(s) if s.trim().is_empty() => Ok(None),
+            Some(s) => f64::from_str(&s)
                 .map(Some)
-                .map_err(serde::de::Error::custom)
+                .map_err(serde::de::Error::custom),
+            None => Ok(None),
         }
     }
 }
@@ -57,13 +57,13 @@ pub mod string_to_u64_optional {
     where
         D: Deserializer<'de>,
     {
-        let s = String::deserialize(deserializer)?;
-        if s.is_empty() {
-            Ok(None)
-        } else {
-            u64::from_str(&s)
+        let s: Option<String> = Option::deserialize(deserializer)?;
+        match s {
+            Some(s) if s.trim().is_empty() => Ok(None),
+            Some(s) => u64::from_str(&s)
                 .map(Some)
-                .map_err(serde::de::Error::custom)
+                .map_err(serde::de::Error::custom),
+            None => Ok(None),
         }
     }
 }

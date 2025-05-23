@@ -10,7 +10,7 @@ pub struct RecentTrade {
     ///
     /// Indicates when the trade occurred. Bots use this to align trade data with other time-series data (e.g., Klines) and to assess the recency of market activity for real-time strategies.
     #[serde(with = "string_to_u64")]
-    pub exec_time: u64,
+    pub time: u64,
 
     /// The trading pair symbol (e.g., "BTCUSDT").
     ///
@@ -20,7 +20,8 @@ pub struct RecentTrade {
     /// The trade execution price.
     ///
     /// The price at which the trade was executed. Bots use this to track price movements and calculate metrics like average trade price or slippage in perpetual futures. Stored as a string to preserve precision, so bots must parse it to `f64` for calculations.
-    pub price: String,
+    #[serde(with = "string_to_float")]
+    pub price: f64,
 
     /// The trade quantity (in base asset).
     ///
@@ -31,15 +32,18 @@ pub struct RecentTrade {
     /// The side of the trade ("Buy" or "Sell").
     ///
     /// Indicates whether the trade was a buy (taker buying from maker) or sell (taker selling to maker). Bots use this to analyze buying vs. selling pressure, which can inform momentum-based strategies in perpetual futures.
-    pub side: String,
+    pub side: Side,
 
     /// The unique trade ID.
     ///
     /// A unique identifier for the trade on Bybit’s exchange. Bots can use this to track specific trades, avoid duplicates in data processing, or correlate trades with other exchange data.
-    pub trade_id: String,
+    pub exec_id: String,
 
     /// Indicates if the trade is a block trade.
     ///
     /// A boolean (`true` or `false`) indicating whether the trade was a large block trade, typically executed off the public order book. Bots can use this to identify significant market moves driven by institutional or large traders in perpetual futures.
     pub is_block_trade: bool,
+
+    #[serde(rename = "isRPITrade")]
+    pub is_rpi_trade: bool,
 }

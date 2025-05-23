@@ -9,7 +9,7 @@ pub struct OrderConfirmation {
     /// The confirmation code for the order.
     ///
     /// A `0` indicates success, while non-zero values indicate errors (e.g., `10001` for invalid parameters). Bots should check this to identify failed orders.
-    pub code: i16,
+    pub code: i32,
 
     /// A human-readable message describing the confirmation result.
     ///

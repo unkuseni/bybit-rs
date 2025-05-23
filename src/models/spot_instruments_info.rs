@@ -15,10 +15,4 @@ pub struct SpotInstrumentsInfo {
     ///
     /// Contains data for each spot trading pair. Not relevant for perpetual futures.
     pub list: Vec<SpotInstrument>,
-
-    /// The cursor for pagination.
-    ///
-    /// Used for paginated requests. Bots can ignore this unless querying spot instruments.
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub next_page_cursor: String,
 }
