@@ -63,23 +63,3 @@ pub struct LotSizeFilter {
     #[serde(default, with = "string_to_float_optional")]
     pub min_notional_value: Option<f64>,
 }
-
-// Spot Lot Size Filter Example
-// "lotSizeFilter": {
-//     "basePrecision": "0.000001",
-//     "quotePrecision": "0.00000001",
-//     "minOrderQty": "0.000048",
-//     "maxOrderQty": "71.73956243",
-//     "minOrderAmt": "1",
-//     "maxOrderAmt": "2000000"
-// },
-
-// Linear Lot Size Filter Example
-// "lotSizeFilter": {
-//     "maxOrderQty": "1190.000",
-//     "minOrderQty": "0.001",
-//     "qtyStep": "0.001",
-//     "postOnlyMaxOrderQty": "1190.000",
-//     "maxMktOrderQty": "500.000",
-//     "minNotionalValue": "5"
-// },
