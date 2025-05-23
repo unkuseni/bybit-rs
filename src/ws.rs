@@ -256,41 +256,76 @@ impl Stream {
     /// use your_crate_name::Category;
     /// let subs = vec!["BTCUSD", "ETHUSD"];
     /// let category = Category::Linear;
-    /// let sender = UnboundedSender<Tickers>;
+    /// let sender = UnboundedSender<Ticker>;
     /// ws_tickers(subs, category, sender);
     /// ```
     pub async fn ws_tickers(
         &self,
         subs: Vec<&str>,
         category: Category,
-        sender: mpsc::UnboundedSender<Tickers>,
+        sender: mpsc::UnboundedSender<Ticker>,
     ) -> Result<(), BybitError> {
+        self._ws_tickers(subs, category, sender, |ws_ticker| ws_ticker.data)
+            .await
+    }
+
+    /// Subscribes to ticker events with timestamp for the specified symbols and category.
+    ///
+    /// # Arguments
+    ///
+    /// * `subs` - A vector of symbols for which ticker events are subscribed.
+    /// * `category` - The category for which ticker events are subscribed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use your_crate_name::Category;
+    /// let subs = vec!["BTCUSD", "ETHUSD"];
+    /// let category = Category::Linear;
+    /// let sender = UnboundedSender<Ticker>;
+    /// ws_timed_tickers(subs, category, sender);
+    /// ```
+    pub async fn ws_timed_tickers(
+        &self,
+        subs: Vec<&str>,
+        category: Category,
+        sender: mpsc::UnboundedSender<Timed<Ticker>>,
+    ) -> Result<(), BybitError> {
+        self._ws_tickers(subs, category, sender, |ticker| Timed {
+            time: ticker.ts,
+            data: ticker.data,
+        })
+        .await
+    }
+
+    async fn _ws_tickers<T, F>(
+        &self,
+        subs: Vec<&str>,
+        category: Category,
+        sender: mpsc::UnboundedSender<T>,
+        map: F,
+    ) -> Result<(), BybitError>
+    where
+        T: 'static + Sync + Send,
+        F: 'static + Sync + Send + Fn(WsTicker) -> T,
+    {
         let arr: Vec<String> = subs
             .into_iter()
             .map(|sub| format!("tickers.{}", sub.to_uppercase()))
             .collect();
         let request = Subscription::new("subscribe", arr.iter().map(String::as_str).collect());
 
-        let handler =
-            move |event| {
-                if let WebsocketEvents::TickerEvent(tickers) = event {
-                    match tickers.data {
-                        Tickers::Linear(linear_ticker) => {
-                            sender.send(Tickers::Linear(linear_ticker)).map_err(|e| {
-                                BybitError::ChannelSendError {
-                                    underlying: e.to_string(),
-                                }
-                            })?;
-                        }
-                        Tickers::Spot(spot_ticker) => sender
-                            .send(Tickers::Spot(spot_ticker))
-                            .map_err(|e| BybitError::ChannelSendError {
-                                underlying: e.to_string(),
-                            })?,
-                    }
-                }
-                Ok(())
-            };
+        let handler = move |event| {
+            if let WebsocketEvents::TickerEvent(ticker) = event {
+                let mapped = map(ticker);
+                sender
+                    .send(mapped)
+                    .map_err(|e| BybitError::ChannelSendError {
+                        underlying: e.to_string(),
+                    })?;
+            }
+            Ok(())
+        };
 
         self.ws_subscribe(request, category, handler).await
     }

@@ -5,7 +5,7 @@ use crate::prelude::*;
 /// Encapsulates ticker data for linear perpetuals or spot markets, allowing bots to process market-specific metrics like funding rates or USD index prices. Bots use this to handle ticker updates in a type-safe manner.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
-pub enum Tickers {
+pub enum Ticker {
     /// Ticker data for linear perpetual futures.
     ///
     /// Contains metrics like funding rate and open interest for USDT-margined contracts. Bots use this for perpetual futures trading strategies.

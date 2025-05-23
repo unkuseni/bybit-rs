@@ -19,7 +19,7 @@ pub struct WsTicker {
     /// The ticker data.
     ///
     /// Contains market-specific ticker metrics, such as last price and open interest. Bots use this to monitor market conditions and generate trading signals.
-    pub data: Tickers,
+    pub data: Ticker,
 
     /// The checksum for the ticker data.
     ///
