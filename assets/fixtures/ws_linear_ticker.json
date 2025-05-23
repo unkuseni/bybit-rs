@@ -1,0 +1,1230 @@
+[
+    {
+        "cs": 9468825676,
+        "data": {
+            "ask1Price": "98000.00",
+            "ask1Size": "0.011",
+            "bid1Price": "97733.40",
+            "bid1Size": "0.002",
+            "curPreListingPhase": "",
+            "fundingRate": "-0.005",
+            "highPrice24h": "131610.40",
+            "indexPrice": "111063.27",
+            "lastPrice": "97866.70",
+            "lowPrice24h": "88096.20",
+            "markPrice": "98044.98",
+            "nextFundingTime": "1748016000000",
+            "openInterest": "824603.873",
+            "openInterestValue": "80848270236.21",
+            "preOpenPrice": "",
+            "preQty": "",
+            "prevPrice1h": "97907.10",
+            "prevPrice24h": "108133.40",
+            "price24hPcnt": "-0.094944",
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroPlusTick",
+            "turnover24h": "1810277903.9744",
+            "volume24h": "16188.2250"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997985272,
+        "type": "snapshot"
+    },
+    {
+        "cs": 9468825676,
+        "data": {
+            "indexPrice": "111063.26",
+            "markPrice": "98042.92",
+            "openInterestValue": "80846571552.23",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997985472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825676,
+        "data": {
+            "indexPrice": "111063.28",
+            "markPrice": "98041.22",
+            "openInterestValue": "80845169725.65",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997986472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825684,
+        "data": {
+            "markPrice": "98039.53",
+            "openInterestValue": "80843776145.10",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997987472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825684,
+        "data": {
+            "markPrice": "98037.49",
+            "openInterestValue": "80842093953.20",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997988472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825684,
+        "data": {
+            "indexPrice": "111063.27",
+            "markPrice": "98036.23",
+            "openInterestValue": "80841054952.32",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997989472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825684,
+        "data": {
+            "indexPrice": "111063.24",
+            "markPrice": "98034.38",
+            "openInterestValue": "80839529435.15",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997990472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825684,
+        "data": {
+            "indexPrice": "111063.27",
+            "markPrice": "98033.04",
+            "openInterestValue": "80838424465.96",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997991472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825692,
+        "data": {
+            "markPrice": "98031.00",
+            "openInterestValue": "80836742274.06",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997992472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825694,
+        "data": {
+            "markPrice": "98029.42",
+            "openInterestValue": "80835439399.94",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997993472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825694,
+        "data": {
+            "markPrice": "98028.06",
+            "openInterestValue": "80834317938.68",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997994472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825698,
+        "data": {
+            "indexPrice": "111063.28",
+            "markPrice": "98026.10",
+            "openInterestValue": "80832701715.09",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997995472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825698,
+        "data": {
+            "markPrice": "98025.19",
+            "openInterestValue": "80831951325.56",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997996472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825700,
+        "data": {
+            "ask1Price": "98000.00",
+            "ask1Size": "0.010",
+            "lastPrice": "98000.00",
+            "price24hPcnt": "-0.093712",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810278001.9744",
+            "volume24h": "16188.2260"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997997272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825700,
+        "data": {
+            "markPrice": "98023.99",
+            "openInterestValue": "80830961800.91",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997997472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825703,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroPlusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997997872,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825708,
+        "data": {
+            "indexPrice": "111063.27",
+            "markPrice": "98023.07",
+            "openInterestValue": "80830203165.35",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997998472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825708,
+        "data": {
+            "indexPrice": "111063.23",
+            "markPrice": "98021.61",
+            "openInterestValue": "80828999243.70",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747997999472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825709,
+        "data": {
+            "indexPrice": "111063.24",
+            "markPrice": "98020.45",
+            "openInterestValue": "80828042703.20",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998000472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825709,
+        "data": {
+            "indexPrice": "111063.26",
+            "markPrice": "98019.53",
+            "openInterestValue": "80827284067.64",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998001472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825719,
+        "data": {
+            "markPrice": "98018.13",
+            "openInterestValue": "80826129622.22",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998002472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825720,
+        "data": {
+            "ask1Price": "98000.00",
+            "ask1Size": "0.009",
+            "symbol": "BTCUSDT",
+            "turnover24h": "1810278099.9744",
+            "volume24h": "16188.2270"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998003272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825720,
+        "data": {
+            "indexPrice": "111063.28",
+            "markPrice": "98016.99",
+            "openInterestValue": "80825189573.80",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998003472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825720,
+        "data": {
+            "indexPrice": "111063.26",
+            "markPrice": "98015.79",
+            "openInterestValue": "80824200049.15",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998004472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825728,
+        "data": {
+            "ask1Price": "97200.00",
+            "ask1Size": "0.002",
+            "bid1Price": "97000.00",
+            "bid1Size": "0.002",
+            "lastPrice": "97038.50",
+            "price24hPcnt": "-0.102603",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810283738.1148",
+            "volume24h": "16188.2850"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998004872,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825739,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroMinusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998004972,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825740,
+        "data": {
+            "ask1Price": "97200.00",
+            "ask1Size": "0.001",
+            "lastPrice": "97200.00",
+            "price24hPcnt": "-0.10111",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810283835.3148",
+            "volume24h": "16188.2860"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998005172,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825741,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroPlusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998005372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825741,
+        "data": {
+            "markPrice": "98013.83",
+            "openInterestValue": "80822583825.56",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998005472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825743,
+        "data": {
+            "ask1Price": "97333.40",
+            "ask1Size": "0.002",
+            "bid1Price": "97066.70",
+            "bid1Size": "0.002",
+            "symbol": "BTCUSDT",
+            "turnover24h": "1810283932.5148",
+            "volume24h": "16188.2870"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998005672,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825743,
+        "data": {
+            "indexPrice": "111063.29",
+            "markPrice": "98006.72",
+            "openInterestValue": "80816720892.03",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998006472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825751,
+        "data": {
+            "indexPrice": "111063.28",
+            "markPrice": "98001.15",
+            "openInterestValue": "80812127848.45",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998007472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825751,
+        "data": {
+            "indexPrice": "111063.27",
+            "markPrice": "97996.25",
+            "openInterestValue": "80808087289.48",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998008472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825751,
+        "data": {
+            "indexPrice": "111063.28",
+            "markPrice": "97988.71",
+            "openInterestValue": "80801869776.27",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998009472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825751,
+        "data": {
+            "indexPrice": "111064.31",
+            "markPrice": "97983.63",
+            "openInterestValue": "80797680788.60",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998010472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825752,
+        "data": {
+            "ask1Price": "97333.40",
+            "ask1Size": "0.001",
+            "lastPrice": "97333.40",
+            "price24hPcnt": "-0.099876",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810284029.8482",
+            "volume24h": "16188.2880"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998010872,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825752,
+        "data": {
+            "markPrice": "97977.48",
+            "openInterestValue": "80792609474.78",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998011472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825761,
+        "data": {
+            "bid1Price": "97066.70",
+            "bid1Size": "0.001",
+            "lastPrice": "97066.70",
+            "price24hPcnt": "-0.102343",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810284126.9149",
+            "volume24h": "16188.2890"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998012072,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825762,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroMinusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998012272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825762,
+        "data": {
+            "indexPrice": "111064.74",
+            "markPrice": "97970.54",
+            "openInterestValue": "80786886723.90",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998012472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825763,
+        "data": {
+            "markPrice": "97965.63",
+            "openInterestValue": "80782837918.88",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998013472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825764,
+        "data": {
+            "openInterest": "824603.862",
+            "openInterestValue": "80782836841.26",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998014372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825764,
+        "data": {
+            "markPrice": "97959.70",
+            "openInterestValue": "80777946940.36",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998014472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825766,
+        "data": {
+            "indexPrice": "111064.72",
+            "markPrice": "97954.55",
+            "openInterestValue": "80773700230.47",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998015472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825771,
+        "data": {
+            "markPrice": "97947.20",
+            "openInterestValue": "80767639392.09",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998016472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825781,
+        "data": {
+            "markPrice": "97941.28",
+            "openInterestValue": "80762757737.22",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998017472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825781,
+        "data": {
+            "indexPrice": "111064.78",
+            "markPrice": "97936.43",
+            "openInterestValue": "80758758408.49",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998018472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825781,
+        "data": {
+            "indexPrice": "111064.79",
+            "markPrice": "97929.08",
+            "openInterestValue": "80752697570.11",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998019471,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825782,
+        "data": {
+            "markPrice": "97922.94",
+            "openInterestValue": "80747634502.39",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998020472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825786,
+        "data": {
+            "indexPrice": "111064.75",
+            "markPrice": "97916.77",
+            "openInterestValue": "80742546696.57",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998021472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825797,
+        "data": {
+            "indexPrice": "111064.76",
+            "markPrice": "97911.87",
+            "openInterestValue": "80738506137.64",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998022472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825797,
+        "data": {
+            "openInterest": "824603.863",
+            "openInterestValue": "80738506235.55",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998023372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825797,
+        "data": {
+            "indexPrice": "111064.75",
+            "markPrice": "97904.22",
+            "openInterestValue": "80732198016.00",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998023472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825797,
+        "data": {
+            "markPrice": "97898.07",
+            "openInterestValue": "80727126702.24",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998024472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825798,
+        "data": {
+            "indexPrice": "111064.74",
+            "markPrice": "97893.45",
+            "openInterestValue": "80723317032.40",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998025472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825810,
+        "data": {
+            "ask1Price": "98000.00",
+            "ask1Size": "0.005",
+            "bid1Price": "97733.40",
+            "bid1Size": "0.002",
+            "lastPrice": "98000.00",
+            "price24hPcnt": "-0.093712",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810286374.3670",
+            "volume24h": "16188.3120"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998026172,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825823,
+        "data": {
+            "ask1Price": "98200.40",
+            "ask1Size": "0.001",
+            "bid1Price": "98100.00",
+            "bid1Size": "0.001",
+            "lastPrice": "98160.30",
+            "price24hPcnt": "-0.092229",
+            "symbol": "BTCUSDT",
+            "turnover24h": "1810288139.8689",
+            "volume24h": "16188.3300"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998026272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825837,
+        "data": {
+            "indexPrice": "111063.33",
+            "markPrice": "98000.00",
+            "openInterestValue": "80811178574.00",
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroPlusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998026472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825847,
+        "data": {
+            "bid1Price": "98000.00",
+            "bid1Size": "0.002",
+            "lastPrice": "98100.00",
+            "price24hPcnt": "-0.092787",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810288237.9689",
+            "volume24h": "16188.3310"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998027272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825847,
+        "data": {
+            "markPrice": "98160.30",
+            "openInterestValue": "80943362573.24",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998027472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825851,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroMinusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998027772,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825872,
+        "data": {
+            "ask1Price": "97333.40",
+            "ask1Size": "0.002",
+            "bid1Price": "97088.00",
+            "bid1Size": "0.001",
+            "lastPrice": "97130.70",
+            "price24hPcnt": "-0.101751",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810291553.5214",
+            "volume24h": "16188.3650"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998028172,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825875,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroMinusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998028272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825875,
+        "data": {
+            "markPrice": "97884.27",
+            "openInterestValue": "80715747168.94",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998028472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825875,
+        "data": {
+            "prevPrice1h": "97866.70",
+            "prevPrice24h": "108425.00",
+            "price24hPcnt": "-0.104166",
+            "symbol": "BTCUSDT",
+            "turnover24h": "1810291119.9643",
+            "volume24h": "16188.3610"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998029372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825875,
+        "data": {
+            "markPrice": "97877.32",
+            "openInterestValue": "80710016172.09",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998029473,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825899,
+        "data": {
+            "ask1Price": "98533.40",
+            "ask1Size": "0.001",
+            "bid1Price": "98266.70",
+            "bid1Size": "0.002",
+            "lastPrice": "98533.40",
+            "price24hPcnt": "-0.091229",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810303503.0755",
+            "volume24h": "16188.4870"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998030172,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825925,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroPlusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998030272,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825925,
+        "data": {
+            "markPrice": "98533.40",
+            "openInterestValue": "81251022274.52",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998030472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825926,
+        "data": {
+            "indexPrice": "111063.34",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998031472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825935,
+        "data": {
+            "indexPrice": "111063.33",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998032472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825940,
+        "data": {
+            "ask1Price": "98266.70",
+            "ask1Size": "0.002",
+            "bid1Price": "98000.00",
+            "bid1Size": "0.008",
+            "lastPrice": "98000.00",
+            "price24hPcnt": "-0.096149",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810304484.3607",
+            "volume24h": "16188.4970"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998032572,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825940,
+        "data": {
+            "markPrice": "98000.00",
+            "openInterestValue": "80811178574.00",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998033472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825942,
+        "data": {
+            "ask1Price": "98400.00",
+            "ask1Size": "0.002",
+            "bid1Price": "98133.40",
+            "bid1Size": "0.002",
+            "lastPrice": "98266.70",
+            "price24hPcnt": "-0.093689",
+            "symbol": "BTCUSDT",
+            "tickDirection": "PlusTick",
+            "turnover24h": "1810304680.8941",
+            "volume24h": "16188.4990"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998034772,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825942,
+        "data": {
+            "openInterest": "824603.859",
+            "openInterestValue": "80811178182.00",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998035372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825942,
+        "data": {
+            "indexPrice": "111061.55",
+            "markPrice": "98266.70",
+            "openInterestValue": "81031100031.20",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998035472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825943,
+        "data": {
+            "bid1Price": "98133.40",
+            "bid1Size": "0.001",
+            "lastPrice": "98133.40",
+            "price24hPcnt": "-0.094919",
+            "symbol": "BTCUSDT",
+            "tickDirection": "MinusTick",
+            "turnover24h": "1810304779.0275",
+            "volume24h": "16188.5000"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998036372,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825943,
+        "data": {
+            "indexPrice": "111061.57",
+            "markPrice": "98133.40",
+            "openInterestValue": "80921180336.79",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998036472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825945,
+        "data": {
+            "symbol": "BTCUSDT",
+            "tickDirection": "ZeroMinusTick"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998036872,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825955,
+        "data": {
+            "indexPrice": "111061.56",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998040472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825955,
+        "data": {
+            "indexPrice": "111061.57",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998041472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825965,
+        "data": {
+            "indexPrice": "111061.58",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998042472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825966,
+        "data": {
+            "indexPrice": "111051.90",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998043472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825966,
+        "data": {
+            "openInterest": "824603.906",
+            "openInterestValue": "80921184949.06",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998044371,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825966,
+        "data": {
+            "indexPrice": "111050.39",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998044472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825966,
+        "data": {
+            "indexPrice": "111050.15",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998045472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825975,
+        "data": {
+            "indexPrice": "111044.47",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998047472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825975,
+        "data": {
+            "indexPrice": "111042.59",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998048472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825975,
+        "data": {
+            "indexPrice": "111042.36",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998050472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825977,
+        "data": {
+            "indexPrice": "111043.81",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998051472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825985,
+        "data": {
+            "indexPrice": "111043.84",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998052472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825986,
+        "data": {
+            "ask1Price": "98400.00",
+            "ask1Size": "0.076",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998052572,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825986,
+        "data": {
+            "openInterest": "824603.907",
+            "openInterestValue": "80921185047.19",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998053373,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825986,
+        "data": {
+            "indexPrice": "111044.01",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998055472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825986,
+        "data": {
+            "indexPrice": "111044.00",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998056472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825994,
+        "data": {
+            "indexPrice": "111044.01",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998057472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825998,
+        "data": {
+            "indexPrice": "111044.00",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998058472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468825998,
+        "data": {
+            "indexPrice": "111044.41",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998060472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468826000,
+        "data": {
+            "indexPrice": "111044.43",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998061472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468826008,
+        "data": {
+            "indexPrice": "111044.41",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998062472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468826009,
+        "data": {
+            "indexPrice": "111044.42",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998063472,
+        "type": "delta"
+    },
+    {
+        "cs": 9468826009,
+        "data": {
+            "indexPrice": "111044.41",
+            "symbol": "BTCUSDT"
+        },
+        "topic": "tickers.BTCUSDT",
+        "ts": 1747998064472,
+        "type": "delta"
+    }
+]

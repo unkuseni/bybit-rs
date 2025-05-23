@@ -1,0 +1,4 @@
+[env]
+CARGO_WORKSPACE_DIR = { value = "", relative = true }
+TARGET_DIR = { value = "target", relative = true }
+FIXTURES = "assets/fixtures"

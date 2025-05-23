@@ -14,6 +14,9 @@ mod trade;
 mod util;
 mod ws;
 
+#[cfg(test)]
+mod open_fixture;
+
 pub mod prelude {
 
     pub use crate::account::*;
@@ -32,6 +35,9 @@ pub mod prelude {
     pub use crate::util::*;
     pub use crate::ws::*;
 
+    #[cfg(test)]
+    pub(crate) use crate::open_fixture::*;
+
     pub(crate) use core::f64;
     pub(crate) use derive_more::Display;
     pub(crate) use futures::sink::SinkExt;
@@ -44,7 +50,7 @@ pub mod prelude {
     };
     pub(crate) use serde::de::DeserializeOwned;
     pub(crate) use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    pub(crate) use serde_json::{from_value, json, Value};
+    pub(crate) use serde_json::{json, Value};
     pub(crate) use sha2::Sha256;
     pub(crate) use std::any::type_name;
     pub(crate) use std::str::FromStr;
