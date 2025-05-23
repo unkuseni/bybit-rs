@@ -1,9 +1,11 @@
+use derive_more::TryUnwrap;
+
 use crate::prelude::*;
 
 /// Enum representing ticker data for different market types.
 ///
 /// Encapsulates ticker data for linear perpetuals or spot markets, allowing bots to process market-specific metrics like funding rates or USD index prices. Bots use this to handle ticker updates in a type-safe manner.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, TryUnwrap)]
 #[serde(untagged)]
 pub enum Ticker {
     /// Ticker data for linear perpetual futures.
