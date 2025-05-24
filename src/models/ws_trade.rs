@@ -39,7 +39,7 @@ pub struct WsTrade {
     ///
     /// Indicates whether the trade was an uptick, downtick, or neutral (e.g., "PlusTick", "MinusTick"). Bots use this to analyze short-term price momentum.
     #[serde(rename = "L")]
-    pub tick_direction: TickDirection,
+    pub tick_direction: String,
 
     /// The unique trade ID.
     ///

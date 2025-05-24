@@ -2,8 +2,6 @@ use bybit::prelude::*;
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use tokio::test;
     use tokio::{sync::mpsc, time::Instant};
 
@@ -100,20 +98,6 @@ mod tests {
         });
         while let Some(data) = rx.recv().await {
             println!("{:#?}", data);
-        }
-    }
-
-    #[test]
-    async fn test_ws_snapshot_scan() {
-        let ws: Arc<Stream> = Arc::new(Bybit::new(None, None));
-        let (tx, mut rx) = mpsc::unbounded_channel::<Timed<LinearTickerDataSnapshot>>();
-        tokio::spawn(async move {
-            ws.ws_timed_linear_tickers(vec!["BTCUSDT".to_owned()], tx)
-                .await
-                .unwrap();
-        });
-        while let Some(ticker_snapshot) = rx.recv().await {
-            println!("{:#?}", ticker_snapshot);
         }
     }
 
